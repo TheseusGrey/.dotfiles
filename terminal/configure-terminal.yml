@@ -1,0 +1,14 @@
+---
+# - name: Verify
+- name: customize /etc/profile
+  become: true
+  lineinfile:
+    dest: "/etc/profile"
+    state: present
+    regexp: "^{{ item.key }}="
+    line: "{{ item.key }}={{ item.value }}"
+  with_items:
+    - key: EDITOR
+      value: vi
+    - key: MY_ENV_VARIABLE
+      value: ansiblepilot
