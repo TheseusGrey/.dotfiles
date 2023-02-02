@@ -1,0 +1,18 @@
+---
+# Creating and populating env variables
+- name: Ensure .env.sh exists
+  copy:
+    content: ""
+    dest: "{{ root }}/.env.sh"
+    force: false
+    mode: 777
+- name: Populate .env.sh variables
+  lineinfile:
+    path: "{{ root }}/.env.sh"
+    state: present
+    regexp: "^export {{ item.key }}="
+    line: "export {{ item.key }}={{ item.value }}"
+  with_items:
+    - { key: DOTFILES, value: "{{ dotfiles_home }}"}
+
+# Symlink RC file and relevant configs
