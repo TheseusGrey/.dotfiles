@@ -16,3 +16,7 @@
     - { key: DOTFILES, value: "{{ dotfiles_home }}"}
 
 # Symlink RC file and relevant configs
+- name: Symlink zshrc
+  file:
+    src: "{{ dotfiles_home}}/terminal/rc"
+    dest: "{{ root }}/.zshrc"

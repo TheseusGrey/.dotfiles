@@ -1,0 +1,23 @@
+2023-02-11 13:38:23 - Neovide panicked with the message 'internal error: entered unreachable code'. (File: /home/dent/.cargo/git/checkouts/winit-58efae9df3f5264a/27967af/src/platform_impl/linux/wayland/window/mod.rs; Line: 218, Column: 77)
+   0: <unknown>
+   1: <unknown>
+   2: <unknown>
+   3: <unknown>
+   4: <unknown>
+   5: <unknown>
+   6: <unknown>
+   7: <unknown>
+   8: <unknown>
+   9: <unknown>
+  10: wl_display_dispatch_queue_pending
+  11: wl_display_roundtrip_queue
+  12: <unknown>
+  13: <unknown>
+  14: <unknown>
+  15: <unknown>
+  16: <unknown>
+  17: <unknown>
+  18: <unknown>
+  19: __libc_start_main
+  20: <unknown>
+
