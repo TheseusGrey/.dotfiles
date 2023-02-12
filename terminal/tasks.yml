@@ -20,3 +20,4 @@
   file:
     src: "{{ dotfiles_home}}/terminal/rc"
     dest: "{{ root }}/.zshrc"
+    state: link
