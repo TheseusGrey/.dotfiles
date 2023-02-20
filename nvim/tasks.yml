@@ -1,0 +1,26 @@
+---
+- name: check if nvim is installed
+  shell: command -v nvim
+  register: nvim_exists
+  ignore_errors: yes
+
+- name: Install Neovim
+  when: nvim_exists is failed
+  include_tasks: "{{ ansible_distribution }}.yml"
+
+# Astronvim
+- name: Install Astronvim
+  git:
+    repo: "https://github.com/AstroNvim/AstroNvim.git"
+    dest: ~/.config/nvim
+
+- name: Ensure user config directory exists
+  file:
+    dest: "{{ nvim_home }}/lua/user"
+    state: directory
+
+- name: Symlink config file
+  file:
+    src: "{{ dotfiles_home }}/nvim/astronvim.lua"
+    dest: "{{ nvim_home }}/lua/user/init.lua"
+    state: link
