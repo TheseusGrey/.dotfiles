@@ -1,6 +1,4 @@
 ---
-
-
 - hosts: localhost
   connection: local
   gather_facts: true
@@ -8,10 +6,7 @@
   become_user: root
   vars:
     root: "~"
-    dotfiles_home: "~/.dotfiles"
+    dotfiles_home: "{{ playbook_dir }}"
   tasks:
     - name: Configure terminal
       include_tasks: terminal/tasks.yml
-        
-        
-  

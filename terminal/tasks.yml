@@ -13,11 +13,11 @@
     regexp: "^export {{ item.key }}="
     line: "export {{ item.key }}={{ item.value }}"
   with_items:
-    - { key: DOTFILES, value: "{{ dotfiles_home }}"}
+    - { key: DOTFILES, value: "{{ dotfiles_home }}" }
 
 # Symlink RC file and relevant configs
 - name: Symlink zshrc
   file:
-    src: "{{ dotfiles_home}}/terminal/rc"
-    dest: "{{ root }}/.zshrc"
+    src: "{{ dotfiles_home }}/terminal/rc"
+    dest: "{{ dotfiles_home }}/../.zshrc"
     state: link
