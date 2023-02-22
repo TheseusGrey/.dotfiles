@@ -21,7 +21,18 @@
     - { key: DOTFILES, value: "{{ dotfiles_home }}" }
     - { key: EDITOR, value: nvim }
     - { key: VISUAL, value: neovide }
-
+    - { key: PYENV_ROOT, value: "$HOME/.pyenv" }
+# Updating the PATH variable
+- name: Populate PATH variable
+  vars:
+    paths:
+      - "$PYENV_ROOT/bin"
+      - "$PATH" # This should always come last
+  lineinfile:
+    path: "{{ root }}/config/.env.sh"
+    state: present
+    regexp: "^export PATH="
+    line: 'export PATH="{{ paths | join('':'') }}"'
 # Symlink RC file
 - name: Symlink zshrc
   file:
