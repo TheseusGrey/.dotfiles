@@ -1,23 +1,45 @@
 ---
+- name: Ensure config directory exists
+  file:
+    dest: "{{ dotfiles_home }}/../config"
+    state: directory
+
 # Creating and populating env variables
 - name: Ensure .env.sh exists
   copy:
     content: ""
-    dest: "{{ root }}/.env.sh"
+    dest: "{{ root }}/config/.env.sh"
     force: false
     mode: 777
 - name: Populate .env.sh variables
   lineinfile:
-    path: "{{ root }}/.env.sh"
+    path: "{{ root }}/config/.env.sh"
     state: present
     regexp: "^export {{ item.key }}="
     line: "export {{ item.key }}={{ item.value }}"
   with_items:
     - { key: DOTFILES, value: "{{ dotfiles_home }}" }
+    - { key: EDITOR, value: nvim }
+    - { key: VISUAL, value: neovide }
 
-# Symlink RC file and relevant configs
+# Symlink RC file
 - name: Symlink zshrc
   file:
     src: "{{ dotfiles_home }}/terminal/rc"
     dest: "{{ dotfiles_home }}/../.zshrc"
     state: link
+
+# Find config files to link
+- name: Find terminal Config
+  find:
+    paths: "{{ dotfiles_home }}/terminal"
+    patterns: "*.sh,*.zsh"
+  register: terminal_config
+
+# Symlink config files
+- name: Symlink terminal config
+  file:
+    src: "{{ item.path }}"
+    dest: "{{ dotfiles_home }}/../config/{{ item.path | split('/') | last }}"
+    state: link
+  with_items: "{{ terminal_config.files }}"
