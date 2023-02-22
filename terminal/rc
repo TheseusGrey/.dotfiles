@@ -7,9 +7,9 @@ source_if_exists () {
 
 source_if_exists ~/config/.env.sh
 source_if_exists ~/config/config.zsh
-source_if_exists ~/config/history.zsh
 source_if_exists ~/config/git.zsh
 source_if_exists ~/config/aliases.zsh
 source_if_exists ~/.fzf.zsh
 source_if_exists /usr/local/etc/profile.d/z.sh
 source_if_exists /opt/homebrew/etc/profile.d/z.sh
+
