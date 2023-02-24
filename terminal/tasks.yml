@@ -27,6 +27,8 @@
   vars:
     paths:
       - "$PYENV_ROOT/bin"
+      - "~/.local/bin"
+      - "~/.cargo/bin"
       - "$PATH" # This should always come last
   lineinfile:
     path: "{{ root }}/config/.env.sh"
