@@ -15,6 +15,6 @@
 
 - name: Symlink config file
   file:
-    src: "{{ dotfiles_home }}/nvim/astronvim.lua"
+    src: "{{ dotfiles_home }}/nvim/config/init.lua"
     dest: "{{ nvim_home }}/lua/user/init.lua"
     state: link
