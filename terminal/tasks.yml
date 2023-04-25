@@ -29,6 +29,7 @@
       - "$PYENV_ROOT/bin"
       - "~/.local/bin"
       - "~/.cargo/bin"
+      - "~/.local/lib/python3.10/site-packages"
       - "$PATH" # This should always come last
   lineinfile:
     path: "{{ root }}/config/.env.sh"
