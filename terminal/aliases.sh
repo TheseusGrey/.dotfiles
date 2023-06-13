@@ -26,6 +26,7 @@ alias gc='git commit'
 alias gco='git checkout'
 alias ga='git add'
 alias gb='git branch'
+alias gp='~/config/git-parent.sh'
 
 
 # FUNCTIONS -------------------------------------------------------------------
