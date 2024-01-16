@@ -13,5 +13,5 @@
       include_tasks: terminal/tasks.yml
     - name: Install Tools
       include_tasks: tools/tasks.yml
-    - name: Setup Neovide
+    - name: Setup Neovim
       include_tasks: nvim/tasks.yml

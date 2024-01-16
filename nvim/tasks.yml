@@ -2,19 +2,9 @@
 - name: Install Neovim
   include_tasks: "{{ ansible_distribution }}.yml"
 
-# Astronvim
-- name: Install Astronvim
-  git:
-    repo: "https://github.com/AstroNvim/AstroNvim.git"
-    dest: ~/.config/nvim
-
-- name: Ensure user config directory exists
+# Need to symlink our config files into the right place
+- name: Symlink zshrc
   file:
-    dest: "{{ nvim_home }}/lua/user"
-    state: directory
-
-- name: Symlink config file
-  file:
-    src: "{{ dotfiles_home }}/nvim/config/init.lua"
-    dest: "{{ nvim_home }}/lua/user/init.lua"
+    src: "{{ dotfiles_home }}/nvim/config"
+    dest: "{{ root }}/.config/nvim"
     state: link

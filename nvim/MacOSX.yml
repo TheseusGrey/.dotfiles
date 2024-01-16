@@ -4,7 +4,3 @@
     name: neovim
     state: latest
 
-- name: Install Neovide
-  community.general.homebrew_cask:
-    name: neovide
-    state: present
