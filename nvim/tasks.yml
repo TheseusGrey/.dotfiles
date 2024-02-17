@@ -2,9 +2,39 @@
 - name: Install Neovim
   include_tasks: "{{ ansible_distribution }}.yml"
 
+- name: Pull Neovim releases
+  community.general.github_release:
+    user: neovim
+    repo: neovim
+    action: latest_release
+  register: nvim_release
+  tags:
+    - programs
+    - nvim
+
+- name: grab latest tarball
+  ansible.builtin.unarchive:
+    src: https://github.com/cli/cli/releases/download/{{release.tag}}/nvim-linux64.tar.gz
+    dest: /tmp
+  tags:
+    - programs
+    - nvim
+
+- name: install neovim
+  ansible.builtin.copy:
+    src: /tmp/nvim-linux64/bin/nvim
+    dest: /usr/local/bin/
+    mode: a+x
+  tags:
+    - programs
+    - nvim
+
 # Need to symlink our config files into the right place
-- name: Symlink zshrc
+- name: Symlink config files
   file:
     src: "{{ dotfiles_home }}/nvim/config"
     dest: "{{ root }}/.config/nvim"
     state: link
+  tags:
+    - programs
+    - nvim
