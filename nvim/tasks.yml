@@ -2,39 +2,38 @@
 - name: Install Neovim
   include_tasks: "{{ ansible_distribution }}.yml"
 
-- name: Pull Neovim releases
-  community.general.github_release:
-    user: neovim
-    repo: neovim
-    action: latest_release
-  register: nvim_release
+- name: Install Neovim and configs
+  vars:
+    nvim_url: "https://api.github.com/repos/neovim/neovim"
   tags:
-    - programs
     - nvim
+    - programs
+  block:
+    - name: Ensure tools dir exists
+      ansible.builtin.file:
+        path: ~/tools/
+        state: directory
 
-- name: grab latest tarball
-  ansible.builtin.unarchive:
-    src: https://github.com/cli/cli/releases/download/{{release.tag}}/nvim-linux64.tar.gz
-    dest: /tmp
-  tags:
-    - programs
-    - nvim
+    - name: Grab latest tarball
+      ansible.builtin.unarchive:
+        src: https://github.com/neovim/neovim/releases/latest/download/nvim-linux64.tar.gz
+        dest: ~/Downloads/
+        remote_src: true
 
-- name: install neovim
-  ansible.builtin.copy:
-    src: /tmp/nvim-linux64/bin/nvim
-    dest: /usr/local/bin/
-    mode: a+x
-  tags:
-    - programs
-    - nvim
+    - name: Add nvim to tools folder
+      ansible.posix.synchronize:
+        src: ~/Downloads/nvim-linux64/
+        dest: ~/tools/nvim/
 
-# Need to symlink our config files into the right place
-- name: Symlink config files
-  file:
-    src: "{{ dotfiles_home }}/nvim/config"
-    dest: "{{ root }}/.config/nvim"
-    state: link
-  tags:
-    - programs
-    - nvim
+    - name: Ensure config dir exists
+      ansible.builtin.file:
+        path: "{{ root }}/.config/nvim/"
+        state: directory
+
+    - name: Symlink config files
+      file:
+        src: "{{ dotfiles_home }}/nvim/config"
+        dest: "{{ root }}/.config/nvim"
+        state: link
+        force: true
+
