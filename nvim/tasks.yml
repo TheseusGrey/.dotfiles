@@ -3,8 +3,6 @@
   include_tasks: "{{ ansible_distribution }}.yml"
 
 - name: Install Neovim and configs
-  vars:
-    nvim_url: "https://api.github.com/repos/neovim/neovim"
   tags:
     - nvim
     - programs
