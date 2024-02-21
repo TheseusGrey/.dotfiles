@@ -9,8 +9,9 @@
     dotfiles_home: "{{ playbook_dir }}"
     nvim_home: "{{ ansible_env.HOME }}/.config/nvim"
   tasks:
-    - name: Configure terminal
-      include_tasks: terminal/tasks.yml
+    - name: Configure zsh
+      include_tasks: zsh/tasks.yml
+      tags: zsh
     - name: Install Tools
       include_tasks: tools/tasks.yml
     - name: Setup Neovim
