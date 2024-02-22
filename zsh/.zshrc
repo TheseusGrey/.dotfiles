@@ -4,8 +4,11 @@ source_if_exists() {
 	fi
 }
 
-source_if_exists ~/env_specific.sh
 source_if_exists ~/.config/config.zsh
 source_if_exists ~/.config/git.zsh
 source_if_exists ~/.config/aliases.sh
 source_if_exists ~/.fzf.zsh
+
+PROMPT="%{$(tput setaf 121)%}%n%{$(tput sgr0)%}@%{$(tput setaf 121)%}%m%{$(tput sgr0)%}: "
+RPROMPT="%{$(tput setaf 121)%}%~%{$(tput sgr0)%} |%{$(tput setaf 63)%}%t%{$(tput sgr0)%}"
+
