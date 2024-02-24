@@ -1,0 +1,11 @@
+freetype2
+fontconfig
+pkg-config
+make
+libxcb
+libxkbcommon
+python
+ttf-liberation
+lib32-systemd
+ttf-jetbrains-mono-nerd
+git
