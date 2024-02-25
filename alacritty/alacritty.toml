@@ -8,19 +8,21 @@ import = [
 
 [font]
 size = 12.0
-
 [font.bold]
 family = "JetBrainsMono Nerd Font Mono"
 style = "Bold"
-
 [font.bold_italic]
 family = "JetBrainsMono Nerd Font Mono"
 style = "Bold Italic"
-
 [font.italic]
 family = "JetBrainsMono Nerd Font Mono"
 style = "Italic"
-
 [font.normal]
 family = "JetBrainsMono Nerd Font Mono"
 style = "Regular"
+
+[window]
+decorations = "None"
+# padding = { x = 16, y = 8 }
+dynamic_padding = true
+
