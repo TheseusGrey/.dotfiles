@@ -12,6 +12,9 @@
     - name: Configure zsh
       include_tasks: zsh/tasks.yml
       tags: zsh
+    - name: Install and configure Alacritty
+      tags: alacritty
+      include_tasks: alacritty/tasks.yml
     - name: Install Tools
       include_tasks: tools/tasks.yml
     - name: Setup Neovim

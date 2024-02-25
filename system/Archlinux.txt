@@ -9,3 +9,5 @@ ttf-liberation
 lib32-systemd
 ttf-jetbrains-mono-nerd
 git
+python-pexpect
+

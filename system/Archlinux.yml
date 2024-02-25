@@ -4,6 +4,13 @@
     - packages
     - arch
   block:
+    - name: Pacman upgrade
+      ansible.builtin.expect:
+        command: sudo pacman -Syu
+        responses:
+          Question:
+            - y
+
     - name: Read package list
       ansible.builtin.file:
         path: "{{ dotfiles_home }}/system/{{ ansible_facts['distribution'] }}.txt"
@@ -11,8 +18,6 @@
         register: package_file_content
 
     - name: Install packages for Arch
-      community.general.pacman:
-        name: "{{ item }}"
-        state: present
+      ansible.builtin.command: sudo pacman -S --noconfirm "{{ item }}"
       with_items: "{{ package_file_content.content | split('\n') }}"
 
