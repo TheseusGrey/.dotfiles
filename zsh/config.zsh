@@ -1,4 +1,4 @@
-plugins=(ansible docker kubectl mix)
+plugins=(ansible docker kubectl mix zsh-syntax-highlighting)
 
 autoload -U zmv
 autoload -U promptinit && promptinit
