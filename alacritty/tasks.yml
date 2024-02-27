@@ -10,7 +10,10 @@
         msg: "You'll need to make sure the deps are installed first, check here is they aren't installed: https://github.com/alacritty/alacritty/blob/master/INSTALL.md#dependencies"
 
     - name: Ensure rust compiler set to stable
-      ansible.builtin.command: rust override set stable && rustup update stable
+      ansible.builtin.command: rustup override set stable
+
+    - name: Update rustup stable branch
+      ansible.builtin.command: rustup update stable
 
     - name: Checkout alacritty repo
       ansible.builtin.git:
