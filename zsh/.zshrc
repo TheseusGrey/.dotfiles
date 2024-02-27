@@ -4,6 +4,7 @@ source_if_exists() {
 	fi
 }
 
+source_if_exists ~/.env.sh
 source_if_exists ~/.zsh/catppuccin_mocha-zsh-syntax-highlighting.zsh
 source_if_exists ~/.config/config.zsh
 source_if_exists ~/.config/git.zsh

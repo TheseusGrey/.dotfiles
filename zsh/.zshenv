@@ -5,7 +5,9 @@ RESET_PRMPT=$(tput sgr0)
 current_dir=${PWD##*/}
 current_dir=${current_dir:-/}
 
-export PATH=~/.local/bin:~/.cargo/bin:~/tools/nvim/bin:$PATH
+. "$HOME/.cargo/env"
+
+export PATH=~/.local/bin:~/.cargo/bin:~/tools/nvim/bin:${M2_HOME}/bin:$PATH
 export EDITOR=nvim
 export TERMINAL=alacritty
 export PROMPT="%{$PRIMARY_CLR%}%n%{$RESET_PRMPT%}@%{$PRIMARY_CLR%}%m%{$RESET_PRMPT%}: "
