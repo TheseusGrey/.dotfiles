@@ -12,3 +12,4 @@ source_if_exists ~/.config/aliases.sh
 source_if_exists ~/.fzf.zsh
 source_if_exists /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 
+fpath+=${ZDOTDIR:-~}/.zsh_functions
