@@ -18,7 +18,7 @@
     - name: Checkout alacritty repo
       ansible.builtin.git:
         repo: https://github.com/alacritty/alacritty.git
-        dest: ~/tools/
+        dest: ~/tools/alacritty/
 
     - name: Build alacritty
       ansible.builtin.command: chdir=~/tools/alacritty cargo build --release
