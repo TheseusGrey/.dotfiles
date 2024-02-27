@@ -9,17 +9,6 @@
         path: ~/tools/
         state: directory
 
-    - name: Grab latest tarball
-      ansible.builtin.unarchive:
-        src: https://github.com/neovim/neovim/releases/latest/download/nvim-linux64.tar.gz
-        dest: ~/Downloads/
-        remote_src: true
-
-    - name: Add nvim to tools folder
-      ansible.posix.synchronize:
-        src: ~/Downloads/nvim-linux64/
-        dest: ~/tools/nvim/
-
     - name: Ensure config dir exists
       ansible.builtin.file:
         path: "{{ root }}/.config/nvim/"
@@ -31,4 +20,15 @@
         dest: "{{ root }}/.config/nvim"
         state: link
         force: true
+
+    - name: Grab latest tarball
+      ansible.builtin.unarchive:
+        src: https://github.com/neovim/neovim/releases/latest/download/nvim-linux64.tar.gz
+        dest: ~/Downloads/
+        remote_src: true
+
+    - name: Add nvim to tools folder
+      ansible.posix.synchronize:
+        src: ~/Downloads/nvim-linux64/
+        dest: ~/tools/nvim/
 
