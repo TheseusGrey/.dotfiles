@@ -7,7 +7,7 @@ current_dir=${current_dir:-/}
 
 . "$HOME/.cargo/env"
 
-export PATH=~/.local/bin:~/.cargo/bin:~/tools/nvim/bin:${M2_HOME}/bin:$PATH
+export PATH=~/.local/bin:~/.cargo/bin:~/tools/nvim/bin:/usr/local/go/bin:${M2_HOME}/bin:$PATH
 export EDITOR=nvim
 export TERMINAL=alacritty
 export PROMPT="%{$PRIMARY_CLR%}%n%{$RESET_PRMPT%}@%{$PRIMARY_CLR%}%m%{$RESET_PRMPT%}: "
