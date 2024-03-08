@@ -11,6 +11,7 @@ return {
         tsserver = {},
         bashls = {},
         jdtls = {},
+        rust_analyzer = {},
       },
     },
   },
