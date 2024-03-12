@@ -9,9 +9,11 @@ return {
       servers = {
         pyright = {},
         tsserver = {},
+        jsonls = {},
         bashls = {},
         jdtls = {},
         rust_analyzer = {},
+        html = {},
       },
     },
   },
