@@ -11,19 +11,33 @@ return {
   },
   {
     "jellydn/CopilotChat.nvim",
+    enabled = false,
     opts = {
-      mode = "split", -- newbuffer or split  , default: newbuffer
+      debug = true,
     },
-    build = function()
-      vim.defer_fn(function()
-        vim.cmd("UpdateRemotePlugins")
-        vim.notify("CopilotChat - Updated remote plugins. Please restart Neovim.")
-      end, 3000)
-    end,
+    branch = "canary",
+    dependencies = {
+      { "github/copilot.vim" }, -- or github/copilot.vim
+      { "nvim-lua/plenary.nvim" }, -- for curl, log wrapper
+    },
     event = "VeryLazy",
     keys = {
       { "<leader>cce", "<cmd>CopilotChatExplain<cr>", desc = "CopilotChat - Explain code" },
       { "<leader>cct", "<cmd>CopilotChatTests<cr>", desc = "CopilotChat - Generate tests" },
+    },
+  },
+  {
+    "jackMort/ChatGPT.nvim",
+    enabled = false,
+    event = "VeryLazy",
+    config = function()
+      require("chatgpt").setup()
+    end,
+    dependencies = {
+      "MunifTanjim/nui.nvim",
+      "nvim-lua/plenary.nvim",
+      "folke/trouble.nvim",
+      "nvim-telescope/telescope.nvim",
     },
   },
 }

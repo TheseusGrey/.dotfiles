@@ -1,4 +1,6 @@
 -- Config for LSPs
+local html_capabilities = vim.lsp.protocol.make_client_capabilities()
+html_capabilities.textDocument.completion.completionItem.snippetSupport = true
 
 return {
   {
@@ -13,7 +15,9 @@ return {
         bashls = {},
         jdtls = {},
         rust_analyzer = {},
-        html = {},
+        html = {
+          capabilities = html_capabilities,
+        },
       },
     },
   },
