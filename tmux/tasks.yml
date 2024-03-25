@@ -1,0 +1,16 @@
+---
+- name: Setup zsh config files
+  tags:
+    - tmux
+    - terminal
+  block:
+    - name: Symlink tmux config
+      ansible.builtin.file:
+        src: "{{ dotfiles_home }}/tmux/tmux.conf"
+        dest: "{{ root }}/.tmux.conf"
+        state: link
+
+    - name: Pull tmux plugin manager
+      ansible.builtin.git:
+        repo: git@github.com:tmux-plugins/tpm.git
+        dest: ~/.tmux/plugins/tpm
