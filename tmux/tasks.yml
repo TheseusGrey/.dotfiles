@@ -4,10 +4,15 @@
     - tmux
     - terminal
   block:
-    - name: Symlink tmux config
+    - name: Ensure config directory exists
       ansible.builtin.file:
+        dest: "{{ root }}/.config/tmux"
+        state: directory
+    
+    - name: Symlink config file
+      file:
         src: "{{ dotfiles_home }}/tmux/tmux.conf"
-        dest: "{{ root }}/.tmux.conf"
+        dest: "{{ root }}/.config/tmux/tmux.conf"
         state: link
 
     - name: Pull tmux plugin manager
