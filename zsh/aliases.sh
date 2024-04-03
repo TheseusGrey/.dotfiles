@@ -34,9 +34,18 @@ fs() {
 	echo $(find "$loc" -type "$search_type" | fzf >selected)
 }
 
-tw() {
+ts() {
 	local loc="${1:-$PWD}"
+	local layout_type="s"
 	local window_name="${2:-dev}"
 	local dir=$(find "$loc" -type d -print | fzf)
-	DIR="$dir" t w "$window_name"
+	DIR="$dir" t "$layout_type" "$window_name"
+}
+
+tw() {
+	local loc="${1:-$PWD}"
+	local layout_type="w"
+	local window_name="${2:-dev}"
+	local dir=$(find "$loc" -type d -print | fzf)
+	DIR="$dir" t "$layout_type" "$window_name"
 }
