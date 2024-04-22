@@ -10,7 +10,6 @@ new_window "$window_name"
 
 # Split window into panes.
 split_h 35
-split_v 40
 
 # Run commands.
 run_cmd "nvim" 0 # runs in active pane
