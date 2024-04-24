@@ -35,30 +35,28 @@ fs() {
 }
 
 pl() {
-	local project_name=$(ls ~/project_list | fzf)
-	local project_path=$(readlink -f ~/project_list/$project_name)
-	echo $project_path
+	local project_name=$(find ~/project_list -maxdepth 1 -exec basename {} \; | fzf)
+	if [ -n "$project_name" ]; then
+		local project_path=$(readlink -f ~/project_list/$project_name)
+		echo $project_path
+	fi
 }
 
 po() {
-	local project=$(ps)
+	local project=$(pl)
 	local layout_type="w"
 	local window_name="${2:-dev}"
-	DIR="$project" t "$layout_type" "$window_name"
-}
-
-ts() {
-	local loc="${1:-$PWD}"
-	local layout_type="s"
-	local window_name="${2:-dev}"
-	local dir=$(find "$loc" -type d -print | fzf)
-	DIR="$dir" t "$layout_type" "$window_name"
+	if [ -n "$project_name" ]; then
+		DIR="$project" t "$layout_type" "$window_name"
+	fi
 }
 
 tw() {
-	local loc="${1:-$PWD}"
+	local loc="${1:-$(po)}"
 	local layout_type="w"
 	local window_name="${2:-dev}"
-	local dir=$(find "$loc" -type d -print | fzf)
-	DIR="$dir" t "$layout_type" "$window_name"
+	if [ -n "$project_name" ]; then
+		local dir=$(find "$loc" -type d -print | fzf)
+		DIR="$dir" t "$layout_type" "$window_name"
+	fi
 }
