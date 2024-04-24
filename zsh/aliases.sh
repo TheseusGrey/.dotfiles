@@ -34,7 +34,7 @@ fs() {
 	echo $(find "$loc" -type "$search_type" | fzf >selected)
 }
 
-ps() {
+pl() {
 	local project_name=$(ls ~/project_list | fzf)
 	local project_path=$(readlink -f ~/project_list/$project_name)
 	echo $project_path
