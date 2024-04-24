@@ -34,6 +34,19 @@ fs() {
 	echo $(find "$loc" -type "$search_type" | fzf >selected)
 }
 
+ps() {
+	local project_name=$(ls ~/project_list | fzf)
+	local project_path=$(readlink -f ~/project_list/$project_name)
+	echo $project_path
+}
+
+po() {
+	local project=$(ps)
+	local layout_type="w"
+	local window_name="${2:-dev}"
+	DIR="$project" t "$layout_type" "$window_name"
+}
+
 ts() {
 	local loc="${1:-$PWD}"
 	local layout_type="s"
