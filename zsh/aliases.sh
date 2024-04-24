@@ -46,17 +46,16 @@ po() {
 	local project=$(pl)
 	local layout_type="w"
 	local window_name="${2:-dev}"
-	if [ -n "$project_name" ]; then
+	if [ -n "$project" ]; then
 		DIR="$project" t "$layout_type" "$window_name"
 	fi
 }
 
 tw() {
-	local loc="${1:-$(po)}"
+	local loc="${1:-$(pl)}"
 	local layout_type="w"
 	local window_name="${2:-dev}"
-	if [ -n "$project_name" ]; then
-		local dir=$(find "$loc" -type d -print | fzf)
+	if [ -n "$loc" ]; then
 		DIR="$dir" t "$layout_type" "$window_name"
 	fi
 }
