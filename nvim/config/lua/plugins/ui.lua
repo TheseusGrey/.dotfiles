@@ -1,5 +1,15 @@
 return {
-  { "nvim-neo-tree/neo-tree.nvim", enabled = false },
+  {
+    "nvim-neo-tree/neo-tree.nvim",
+    event_handlers = {
+      {
+        event = "file_opened",
+        handler = function()
+          require("neo-tree.command").execute({ action = "close" })
+        end,
+      },
+    },
+  },
   { "catppuccin/nvim", name = "catppuccin", priority = 1000 },
   {
     "alexghergh/nvim-tmux-navigation",
