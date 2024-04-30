@@ -22,7 +22,7 @@ alias t=tmuxifier
 
 # GIT ALIASES -----------------------------------------------------------------
 alias gc='git commit'
-alias gco='git checkout'
+alias gch='git checkout'
 alias ga='git add'
 alias gb='git branch'
 alias gp='~/config/git-parent.sh'
@@ -44,18 +44,18 @@ pl() {
 
 po() {
 	local project=$(pl)
-	local layout_type="w"
-	local window_name="${2:-dev}"
 	if [ -n "$project" ]; then
+		local layout_type="w"
+		local window_name="${2:-dev}"
 		DIR="$project" t "$layout_type" "$window_name"
 	fi
 }
 
 tw() {
 	local loc="${1:-$(pl)}"
-	local layout_type="w"
-	local window_name="${2:-dev}"
 	if [ -n "$loc" ]; then
+		local layout_type="w"
+		local window_name="${2:-dev}"
 		DIR="$dir" t "$layout_type" "$window_name"
 	fi
 }
