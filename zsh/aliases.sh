@@ -21,10 +21,11 @@ alias rest="timer 10m && terminal-notifier -message 'Pomodoro'\
 alias t=tmuxifier
 
 # GIT ALIASES -----------------------------------------------------------------
+alias gs='git status'
 alias gc='git commit'
 alias gch='git checkout'
 alias ga='git add'
-alias gb='git branch'
+alias gb='git checkout -b'
 alias gp='~/config/git-parent.sh'
 
 # FUNCTIONS -------------------------------------------------------------------
