@@ -36,3 +36,10 @@
         - nvim
         - terminal
         - editor
+
+    - name: Install and configure Kitty
+      include_tasks: kitty/tasks.yml
+      tags:
+       - kitty
+       - terminal
+

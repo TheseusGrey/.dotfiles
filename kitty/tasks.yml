@@ -1,0 +1,29 @@
+---
+- name: Install Kitty
+  tags:
+    - terminal
+    - kitty
+  when: "ansible_facts['distribution'] != 'Archlinux'"
+  block:
+    - name: Print dependency warning
+      ansible.builtin.debug:
+        msg: "Running the kitty install script"
+
+    - name: Build kitty
+      ansible.builtin.command: curl -L https://sw.kovidgoyal.net/kitty/installer.sh | sh /dev/stdin
+
+- name: Kitty config
+  tags:
+    - terminal
+    - kitty
+  block:
+    - name: Ensure config dir exists
+      ansible.builtin.file:
+        path: ~/.config/kitty
+        state: directory
+
+    - name: Symlink config file
+      file:
+        src: "{{ dotfiles_home }}/kitty/kitty.conf"
+        dest: "{{ root }}/.config/kitty/kitty.conf"
+        state: link
