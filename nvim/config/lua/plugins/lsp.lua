@@ -15,6 +15,7 @@ return {
         bashls = {},
         jdtls = {},
         rust_analyzer = {},
+        glsl_analyzer = {},
         gdscript = {},
         gdshader_lsp = {},
         html = {
