@@ -54,7 +54,7 @@ po() {
 }
 
 tw() {
-	local loc="${1:-$(pl)}"
+	local loc="${1:-$(fs)}"
 	if [ -n "$loc" ]; then
 		local layout_type="w"
 		local window_name="${2:-dev}"
