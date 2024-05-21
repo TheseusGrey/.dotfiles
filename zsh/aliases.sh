@@ -27,7 +27,7 @@ alias gc='git commit'
 alias gch='git checkout'
 alias ga='git add'
 alias gb='git checkout -b'
-alias gp='~/config/git-parent.sh'
+alias gp='git push'
 
 # FUNCTIONS -------------------------------------------------------------------
 fs() {
