@@ -6,6 +6,7 @@ alias yeet='rm'
 alias cd..='cd ..'
 alias c='clear'
 alias s='source ~/.zshrc'
+alias ls='ls --color'
 
 alias work="timer 60m && terminal-notifier -message 'Pomodoro'\
         -title 'Work Timer is up! Take a Break 😊'\
