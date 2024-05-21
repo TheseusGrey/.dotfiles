@@ -31,10 +31,6 @@ autoload -Uz _zinit
 (( ${+_comps} )) && _comps[zinit]=_zinit
 ### End of Zinit's installer chunk
 
-eval "$(tmuxifier init -)"
-if ! { [ -n "$TMUX" ]; } then
-  tmux
-fi
 
 # zsh prompt and plugins
 zinit ice depth=1; zinit light romkatv/powerlevel10k
@@ -69,3 +65,16 @@ eval "$(fzf --zsh)"
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+
+
+eval "$(tmuxifier init -)"
+tmux_running=$(pgrep tmux)
+
+if [[ -z "$TMUX" ]] then
+  tmux attach
+fi
+
+if [[ -z $tmux_running ]]; then
+  tmux
+fi
+
