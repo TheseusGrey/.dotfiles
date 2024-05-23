@@ -8,16 +8,6 @@ alias c='clear'
 alias s='source ~/.zshrc'
 alias ls='ls --color'
 
-alias work="timer 60m && terminal-notifier -message 'Pomodoro'\
-        -title 'Work Timer is up! Take a Break 😊'\
-        -appIcon '~/Pictures/pumpkin.png'\
-        -sound Crystal"
-
-alias rest="timer 10m && terminal-notifier -message 'Pomodoro'\
-        -title 'Break is over! Get back to work 😬'\
-        -appIcon '~/Pictures/pumpkin.png'\
-        -sound Crystal"
-
 # TMUX + NVIM ALIASES
 alias t=tmuxifier
 
@@ -27,15 +17,10 @@ alias gc='git commit'
 alias gch='git checkout'
 alias ga='git add'
 alias gb='git checkout -b'
+alias gd='git diff'
 alias gp='git push'
 
 # FUNCTIONS -------------------------------------------------------------------
-fs() {
-	local loc="${1:-$PWD}"
-	local search_type="${2:-f}"
-	echo $(find "$loc" -type "$search_type" | fzf >selected)
-}
-
 pl() {
 	local project_name=$(find ~/project_list -maxdepth 1 -exec basename {} \; | fzf)
 	if [ -n "$project_name" ]; then
@@ -50,14 +35,5 @@ po() {
 		local layout_type="w"
 		local window_name="${2:-dev}"
 		DIR="$project" t "$layout_type" "$window_name"
-	fi
-}
-
-tw() {
-	local loc="${1:-$(fs)}"
-	if [ -n "$loc" ]; then
-		local layout_type="w"
-		local window_name="${2:-dev}"
-		DIR="$dir" t "$layout_type" "$window_name"
 	fi
 }
