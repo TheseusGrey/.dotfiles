@@ -6,9 +6,10 @@ source_if_exists() {
 
 fpath+=${ZDOTDIR:-~}/.zsh_functions
 
+eval "$(tmuxifier init -)"
+
 source_if_exists ~/.config/zsh/config.zsh
 source_if_exists ~/.config/zsh/git.zsh
 source_if_exists ~/.config/zsh/aliases.sh
 source_if_exists ~/.env.sh
 
-eval "$(tmuxifier init -)"
