@@ -1,3 +1,0 @@
----
-- name: Configure Rust
-  include_tasks: rustup.yml
