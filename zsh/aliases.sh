@@ -7,6 +7,7 @@ alias cd..='cd ..'
 alias c='clear'
 alias s='source ~/.zshrc'
 alias ls='ls --color'
+alias hms='home-manager switch'
 
 # TMUX + NVIM ALIASES
 alias t=tmuxifier
