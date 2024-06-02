@@ -1,10 +1,9 @@
 { config, pkgs, ... }:
 
 {
-  # Home Manager needs a bit of information about you and the paths it should
-  # manage.
-  home.username = "p.goldmansmith1";
-  home.homeDirectory = "/Users/p.goldmansmith1";
+  # Need to find a way to put this information somewhere else
+  home.username = "ashe";
+  home.homeDirectory = "/home/ashe";
 
   # You should not change this value, even if you update Home Manager. If you do
   # want to update the value, then make sure to first check the Home Manager
@@ -12,7 +11,7 @@
   home.stateVersion = "24.05"; # Please read the comment before changing.
 
   home.packages = with pkgs; [
-    nerdfonts
+    (nerdfonts.override { fonts = [ "JetBrainsMono" ]; })
     fzf
     git
     tmux
@@ -26,13 +25,13 @@
   ];
 
   home.file = {
-    "~/.config/alacritty".source = ~/.dotfiles/alacritty;
-    "~/.config/kitty".source = ~/.dotfiles/kitty;
-    "~/.config/nvim".source = ~/.dotfiles/nvim;
-    "~/.config/tmux".source = ~/.dotfiles/tmux;
-    "~/.config/zsh".source = ~/.dotfiles/zsh;
-    "~/.zshrc".source = ~/.dotfiles/zsh/.zshrc;
-    "~/.zshenv".source = ~/.dotfiles/zsh/.zshenv;
+    "${config.xdg.configHome}/alacritty/alacritty.toml".source =  ~/.dotfiles/alacritty/alacritty.toml;
+    "${config.xdg.configHome}/kitty/kitty.conf".source =  ~/.dotfiles/kitty/kitty.conf;
+    "${config.xdg.configHome}/nvim".source =  ~/.dotfiles/nvim;
+    "${config.xdg.configHome}/tmux".source =  ~/.dotfiles/tmux;
+    "${config.xdg.configHome}/zsh".source =  ~/.dotfiles/zsh;
+    "${config.home.homeDirectory}/.zshrc".source =  ~/.dotfiles/zsh/.zshrc;
+    "${config.home.homeDirectory}/.zshenv".source =  ~/.dotfiles/zsh/.zshenv;
   };
 
   home.sessionVariables = {
