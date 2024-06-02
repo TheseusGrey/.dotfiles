@@ -10,6 +10,7 @@
   # release notes.
   home.stateVersion = "24.05"; # Please read the comment before changing.
 
+  # https://search.nixos.org/packages
   home.packages = with pkgs; [
     (nerdfonts.override { fonts = [ "JetBrainsMono" ]; })
     fzf
