@@ -25,13 +25,13 @@
   ];
 
   home.file = {
-    "${config.xdg.configHome}/alacritty/alacritty.toml".source =  ~/.dotfiles/alacritty/alacritty.toml;
-    "${config.xdg.configHome}/kitty/kitty.conf".source =  ~/.dotfiles/kitty/kitty.conf;
-    "${config.xdg.configHome}/nvim".source =  ~/.dotfiles/nvim;
-    "${config.xdg.configHome}/tmux".source =  ~/.dotfiles/tmux;
-    "${config.xdg.configHome}/zsh".source =  ~/.dotfiles/zsh;
-    "${config.home.homeDirectory}/.zshrc".source =  ~/.dotfiles/zsh/.zshrc;
-    "${config.home.homeDirectory}/.zshenv".source =  ~/.dotfiles/zsh/.zshenv;
+    "${config.xdg.configHome}/alacritty/alacritty.toml".source = config.lib.file.mkOutOfStoreSymlink ~/.dotfiles/alacritty/alacritty.toml;
+    "${config.xdg.configHome}/kitty/kitty.conf".source = config.lib.file.mkOutOfStoreSymlink ~/.dotfiles/kitty/kitty.conf;
+    "${config.xdg.configHome}/nvim".source = config.lib.file.mkOutOfStoreSymlink ~/.dotfiles/nvim;
+    "${config.xdg.configHome}/tmux".source = config.lib.file.mkOutOfStoreSymlink ~/.dotfiles/tmux;
+    "${config.xdg.configHome}/zsh".source = config.lib.file.mkOutOfStoreSymlink ~/.dotfiles/zsh;
+    "${config.home.homeDirectory}/.zshrc".source = config.lib.file.mkOutOfStoreSymlink ~/.dotfiles/zsh/.zshrc;
+    "${config.home.homeDirectory}/.zshenv".source = config.lib.file.mkOutOfStoreSymlink ~/.dotfiles/zsh/.zshenv;
   };
 
   home.sessionVariables = {
