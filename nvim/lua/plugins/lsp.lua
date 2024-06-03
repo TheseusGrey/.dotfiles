@@ -18,6 +18,7 @@ return {
         glsl_analyzer = {},
         gdscript = {},
         gdshader_lsp = {},
+        nixd = {},
         html = {
           capabilities = html_capabilities,
         },
