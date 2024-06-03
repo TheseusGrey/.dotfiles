@@ -10,6 +10,7 @@
   # https://search.nixos.org/packages
   home.packages = with pkgs; [
     (nerdfonts.override { fonts = [ "JetBrainsMono" ]; })
+    nixd
     fzf
     git
     tmux
@@ -18,7 +19,6 @@
     tmuxifier
     alacritty
     cargo
-    sdkmanager
     nodenv
   ];
 
