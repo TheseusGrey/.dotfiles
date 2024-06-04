@@ -44,6 +44,12 @@
     enable = true;
   };
 
+  programs.git = {
+    enable = true;
+    userName = "TheseusGrey";
+    userEmail = "TheseusGrey@proton.me";
+  };
+
   programs.zsh = {
     enable = true;
     enableCompletion = true;
