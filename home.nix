@@ -9,23 +9,22 @@
 
   # https://search.nixos.org/packages
   home.packages = with pkgs; [
-    (nerdfonts.override { fonts = [ "JetBrainsMono" ]; })
+    zsh-powerlevel10k
     nixd
+    pyright
     fzf
     git
     tmux
     neovim
     ansible
     tmuxifier
-    alacritty
     cargo
-    polybar
     nodenv
     gcc
   ];
 
   home.file = {
-    "${config.xdg.configHome}/alacritty/alacritty.toml".source = config.lib.file.mkOutOfStoreSymlink ~/.dotfiles/alacritty/alacritty.toml;
+  # "${config.xdg.configHome}/alacritty/alacritty.toml".source = config.lib.file.mkOutOfStoreSymlink ~/.dotfiles/alacritty/alacritty.toml;
     "${config.xdg.configHome}/kitty/kitty.conf".source = config.lib.file.mkOutOfStoreSymlink ~/.dotfiles/kitty/kitty.conf;
     "${config.xdg.configHome}/nvim".source = config.lib.file.mkOutOfStoreSymlink ~/.dotfiles/nvim;
     "${config.xdg.configHome}/tmux".source = config.lib.file.mkOutOfStoreSymlink ~/.dotfiles/tmux;
@@ -37,11 +36,13 @@
   };
 
   home.sessionVariables = {
-    # EDITOR = "emacs";
+    EDITOR = "nvim";
+    TERMINAL = "alacritty";
   };
 
   programs.alacritty = {
     enable = true;
+    settings.source = ~/.dotfiles/alacritty/alacritty.toml;
   };
 
   programs.git = {
@@ -76,6 +77,9 @@
       gd="git diff";
       gp="git push";
     };
+    initExtraFirst = ''
+      source ~/.p10k.zsh # This should always be a the top
+    '';
     initExtra = ''
       pl() {
       	local project_name=$(find ~/project_list -maxdepth 1 -exec basename {} \; | fzf)
