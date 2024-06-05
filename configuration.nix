@@ -98,6 +98,8 @@
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
 
+  fonts.fontDir.enable = true;
+
   environment.systemPackages = with pkgs; [
     (nerdfonts.override { fonts = [ "JetBrainsMono" ]; })
     git
@@ -118,5 +120,4 @@
 
   # read documentation at man configuration.nix or on https://nixos.org/nixos/options.html before changing.
   system.stateVersion = "24.11"; # Did you read the comment?
-
 }

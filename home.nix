@@ -14,7 +14,6 @@
     pyright
     fzf
     neovim
-    ansible
     tmuxifier
     cargo
     nodenv
@@ -34,6 +33,9 @@
   };
 
   home.sessionVariables = {
+    XDG_DATA_HOME = "${xdg.dataHome}";
+    XDG_CONFIG_HOME = "${xdg.configHome}";
+    XDG_STATE_HOME = "${xdg.stateHome}";
     EDITOR = "nvim";
     TERMINAL = "alacritty";
     FZF_DEFAULT_OPTS='' 
@@ -48,8 +50,19 @@
 
   programs.alacritty = {
     enable = true;
-    settings.source = ~/.dotfiles/alacritty/alacritty.toml;
-  };
+    settings = {
+      env = {
+	        TERM = "xterm-256color";
+	    };
+      font = {
+        size = 14;
+        family = "JetBrainsMono Nerd Font Mono";
+      };
+      window = {
+        decoration = "none";
+      };
+    };
+    };
 
   programs.git = {
     enable = true;
