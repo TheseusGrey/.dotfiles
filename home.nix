@@ -5,7 +5,7 @@
   # You should not change this value, even if you update Home Manager. If you do
   # want to update the value, then make sure to first check the Home Manager
   # release notes.
-  home.stateVersion = "24.11"; # Please read the comment before changing.
+  home.stateVersion = "23.11"; # Please read the comment before changing.
 
   # https://search.nixos.org/packages
   home.packages = with pkgs; [
@@ -22,7 +22,7 @@
   ];
 
   home.file = {
-  # "${config.xdg.configHome}/alacritty/alacritty.toml".source = config.lib.file.mkOutOfStoreSymlink ~/.dotfiles/alacritty/alacritty.toml;
+  "${config.xdg.configHome}/alacritty/alacritty.toml".source = config.lib.file.mkOutOfStoreSymlink ~/.dotfiles/alacritty/alacritty.toml;
   # "${config.xdg.configHome}/kitty/kitty.conf".source = config.lib.file.mkOutOfStoreSymlink ~/.dotfiles/kitty/kitty.conf;
     "${config.xdg.configHome}/nvim".source = config.lib.file.mkOutOfStoreSymlink ~/.dotfiles/nvim;
   # "${config.xdg.configHome}/tmux".source = config.lib.file.mkOutOfStoreSymlink ~/.dotfiles/tmux;
@@ -42,7 +42,7 @@
       --color=fg:#cdd6f4,header:#f38ba8,info:#cba6f7,pointer:#f5e0dc \
       --color=marker:#f5e0dc,fg+:#cdd6f4,prompt:#cba6f7,hl+:#f38ba8 \
       --prompt='❯ ' \
-      --pointer='󰅂' \'';
+      --pointer='󰅂' '';
     TMUXIFIER_LAYOUT_PATH="$HOME/.dotfiles/tmux/layouts";
   };
 
@@ -85,6 +85,7 @@
     };
     initExtraFirst = ''
       source ~/.p10k.zsh # This should always be a the top
+      . "$HOME/.nix-profile/home-path/etc/profile.d/hm-session-vars.sh"
     '';
     initExtra = ''
       pl() {

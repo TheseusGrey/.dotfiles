@@ -109,6 +109,7 @@
     firefox
     tmux
     tmuxifier
+    home-manager
   ];
 
   environment.pathsToLink = [ "/share/zsh" ];
