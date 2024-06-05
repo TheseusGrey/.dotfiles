@@ -1,4 +1,4 @@
-{ config, pkgs, ... }:
+{ config, pkgs, lib, ... }:
 
 {
   imports = [ ./env.nix ];
@@ -8,6 +8,10 @@
   home.stateVersion = "23.11"; # Please read the comment before changing.
 
   # https://search.nixos.org/packages
+  nixpkgs.config.allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) [
+    "obsidian"
+  ];
+
   home.packages = with pkgs; [
     zsh-powerlevel10k
     nixd
@@ -18,6 +22,7 @@
     cargo
     nodenv
     gcc
+    obsidian
   ];
 
   home.file = {
