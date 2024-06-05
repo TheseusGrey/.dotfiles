@@ -99,9 +99,12 @@
   nixpkgs.config.allowUnfree = true;
 
   fonts.fontDir.enable = true;
+  fonts.packages = with pkgs; [
+    (nerdfonts.override { fonts = [ "JetBrainsMono" ]; })
+  ];
+
 
   environment.systemPackages = with pkgs; [
-    (nerdfonts.override { fonts = [ "JetBrainsMono" ]; })
     git
     neovim
     fzf
