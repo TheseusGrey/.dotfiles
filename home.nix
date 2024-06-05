@@ -21,7 +21,7 @@
   ];
 
   home.file = {
-  "${config.xdg.configHome}/alacritty/alacritty.toml".source = config.lib.file.mkOutOfStoreSymlink ~/.dotfiles/alacritty/alacritty.toml;
+  # "${config.xdg.configHome}/alacritty/alacritty.toml".source = config.lib.file.mkOutOfStoreSymlink ~/.dotfiles/alacritty/alacritty.toml;
   # "${config.xdg.configHome}/kitty/kitty.conf".source = config.lib.file.mkOutOfStoreSymlink ~/.dotfiles/kitty/kitty.conf;
     "${config.xdg.configHome}/nvim".source = config.lib.file.mkOutOfStoreSymlink ~/.dotfiles/nvim;
   # "${config.xdg.configHome}/tmux".source = config.lib.file.mkOutOfStoreSymlink ~/.dotfiles/tmux;
@@ -33,9 +33,6 @@
   };
 
   home.sessionVariables = {
-    XDG_DATA_HOME = "${xdg.dataHome}";
-    XDG_CONFIG_HOME = "${xdg.configHome}";
-    XDG_STATE_HOME = "${xdg.stateHome}";
     EDITOR = "nvim";
     TERMINAL = "alacritty";
     FZF_DEFAULT_OPTS='' 
@@ -50,18 +47,7 @@
 
   programs.alacritty = {
     enable = true;
-    settings = {
-      env = {
-	        TERM = "xterm-256color";
-	    };
-      font = {
-        size = 14;
-        family = "JetBrainsMono Nerd Font Mono";
-      };
-      window = {
-        decoration = "none";
-      };
-    };
+    settings.source = ./alacritty/alacritty.toml;
     };
 
   programs.git = {
