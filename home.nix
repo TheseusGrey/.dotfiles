@@ -26,15 +26,10 @@
   ];
 
   home.file = {
-  # "${config.xdg.configHome}/alacritty/alacritty.toml".source = config.lib.file.mkOutOfStoreSymlink ~/.dotfiles/alacritty/alacritty.toml;
-  # "${config.xdg.configHome}/kitty/kitty.conf".source = config.lib.file.mkOutOfStoreSymlink ~/.dotfiles/kitty/kitty.conf;
     "${config.xdg.configHome}/nvim".source = config.lib.file.mkOutOfStoreSymlink ~/.dotfiles/nvim;
     "${config.xdg.configHome}/zsh".source = config.lib.file.mkOutOfStoreSymlink ~/.dotfiles/zsh;
     "${config.xdg.configHome}/hypr".source = config.lib.file.mkOutOfStoreSymlink ~/.dotfiles/hypr;
     "${config.xdg.configHome}/waybar".source = config.lib.file.mkOutOfStoreSymlink ~/.dotfiles/waybar;
-  # "${config.xdg.configHome}/i3".source = config.lib.file.mkOutOfStoreSymlink ~/.dotfiles/i3;
-  # "${config.home.homeDirectory}/.zshrc".source = config.lib.file.mkOutOfStoreSymlink ~/.dotfiles/zsh/.zshrc;
-  # "${config.home.homeDirectory}/.zshenv".source = config.lib.file.mkOutOfStoreSymlink ~/.dotfiles/zsh/.zshenv;
   };
 
   home.sessionVariables = {

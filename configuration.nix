@@ -112,6 +112,7 @@
     alacritty
     waybar
     firefox
+    dolphin
     tmux
     tmuxifier
     home-manager
