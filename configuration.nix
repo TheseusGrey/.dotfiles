@@ -116,6 +116,7 @@
     tmux
     tmuxifier
     home-manager
+    hyprpaper
   ];
 
   environment.pathsToLink = [ "/share/zsh" ];

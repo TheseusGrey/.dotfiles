@@ -27,6 +27,7 @@
 
   home.file = {
     "${config.xdg.configHome}/nvim".source = config.lib.file.mkOutOfStoreSymlink ~/.dotfiles/nvim;
+    "${config.xdg.configHome}/alacritty".source = config.lib.file.mkOutOfStoreSymlink ~/.dotfiles/alacritty;
     "${config.xdg.configHome}/zsh".source = config.lib.file.mkOutOfStoreSymlink ~/.dotfiles/zsh;
     "${config.xdg.configHome}/hypr".source = config.lib.file.mkOutOfStoreSymlink ~/.dotfiles/hypr;
     "${config.xdg.configHome}/waybar".source = config.lib.file.mkOutOfStoreSymlink ~/.dotfiles/waybar;
@@ -47,8 +48,7 @@
 
   programs.alacritty = {
     enable = true;
-    settings.source = ./alacritty/alacritty.toml;
-    };
+  };
 
   programs.git = {
     enable = true;
