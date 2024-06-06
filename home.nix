@@ -31,7 +31,7 @@
     "${config.xdg.configHome}/nvim".source = config.lib.file.mkOutOfStoreSymlink ~/.dotfiles/nvim;
     "${config.xdg.configHome}/zsh".source = config.lib.file.mkOutOfStoreSymlink ~/.dotfiles/zsh;
     "${config.xdg.configHome}/hypr".source = config.lib.file.mkOutOfStoreSymlink ~/.dotfiles/hypr;
-  # "${config.xdg.configHome}/polybar".source = config.lib.file.mkOutOfStoreSymlink ~/.dotfiles/polybar;
+    "${config.xdg.configHome}/waybar".source = config.lib.file.mkOutOfStoreSymlink ~/.dotfiles/waybar;
   # "${config.xdg.configHome}/i3".source = config.lib.file.mkOutOfStoreSymlink ~/.dotfiles/i3;
   # "${config.home.homeDirectory}/.zshrc".source = config.lib.file.mkOutOfStoreSymlink ~/.dotfiles/zsh/.zshrc;
   # "${config.home.homeDirectory}/.zshenv".source = config.lib.file.mkOutOfStoreSymlink ~/.dotfiles/zsh/.zshenv;
