@@ -25,6 +25,31 @@
     obsidian
   ];
 
+#  colors = {
+#    firebrick = "#CF4C31"; # Dark
+#    fuzzy-wuzzy-brown = "#CA6568"; # Base
+#
+#    carrot = "#F1933E"; # Base
+#    golden-rod = "#F9CE73"; # Bright
+#
+#    jaguar = "#1C0E17"; # Darker
+#    revolver-dark = "#2A142C"; # Dark
+#    revolver = "#381E3F"; # base
+#    
+#    tamarind = "#3A1425"; # Dark
+#    eggplant = "#581C37"; # Base
+#
+#    maroon = "#832640";
+#
+#    plum = "#612960"; # Dark
+#    lavender = "#96749C"; # Base
+#
+#    zeus = "#2A2420"; # Darker
+#    kabul = "#605046"; # Dark
+#    beaver = "#A4847C"; # Base
+#    enury = "#CDA2A4"; # Light
+#  };
+
   home.file = {
     "${config.xdg.configHome}/nvim".source = config.lib.file.mkOutOfStoreSymlink ~/.dotfiles/nvim;
     "${config.xdg.configHome}/alacritty".source = config.lib.file.mkOutOfStoreSymlink ~/.dotfiles/alacritty;
