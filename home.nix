@@ -51,11 +51,11 @@
 #  };
 
   home.file = {
-    "${config.xdg.configHome}/nvim".source = config.lib.file.mkOutOfStoreSymlink ~/.dotfiles/nvim;
-    "${config.xdg.configHome}/alacritty".source = config.lib.file.mkOutOfStoreSymlink ~/.dotfiles/alacritty;
-    "${config.xdg.configHome}/zsh".source = config.lib.file.mkOutOfStoreSymlink ~/.dotfiles/zsh;
-    "${config.xdg.configHome}/hypr".source = config.lib.file.mkOutOfStoreSymlink ~/.dotfiles/hypr;
-    "${config.xdg.configHome}/waybar".source = config.lib.file.mkOutOfStoreSymlink ~/.dotfiles/waybar;
+    "${config.xdg.configHome}/nvim".source = config.lib.file.mkOutOfStoreSymlink ./nvim;
+    "${config.xdg.configHome}/alacritty".source = config.lib.file.mkOutOfStoreSymlink ./alacritty;
+    "${config.xdg.configHome}/zsh".source = config.lib.file.mkOutOfStoreSymlink ./zsh;
+    "${config.xdg.configHome}/hypr".source = config.lib.file.mkOutOfStoreSymlink ./hypr;
+    "${config.xdg.configHome}/waybar".source = config.lib.file.mkOutOfStoreSymlink ./waybar;
   };
 
   home.sessionVariables = {
@@ -154,7 +154,7 @@
         { name = "zsh-users/zsh-completions"; }
         { name = "Aloxaf/fzf-tab"; }
         { name = "zsh-users/zsh-autosuggestions"; } # Simple plugin installation
-        { name = "romkatv/powerlevel10k"; tags = [ as:theme depth:1 ]; } # Installations with additional options. For the list of options, please refer to Zplug README.
+        { name = "romkatv/powerlevel10k"; tags = [ "as:theme" "depth:1" ]; } # Installations with additional options. For the list of options, please refer to Zplug README.
       ];
     };
   };
