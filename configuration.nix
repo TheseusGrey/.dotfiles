@@ -98,17 +98,13 @@
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
 
-  fonts.fontDir.enable = true;
-  fonts.packages = with pkgs; [
-    (nerdfonts.override { fonts = [ "JetBrainsMono" ]; })
-  ];
-
-
   environment.systemPackages = with pkgs; [
     git
     neovim
     fzf
     rofi
+    gcc
+    make
     alacritty
     waybar
     firefox
