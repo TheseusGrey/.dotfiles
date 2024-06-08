@@ -56,6 +56,8 @@
     "${config.xdg.configHome}/zsh".source = config.lib.file.mkOutOfStoreSymlink ./zsh;
     "${config.xdg.configHome}/hypr".source = config.lib.file.mkOutOfStoreSymlink ./hypr;
     "${config.xdg.configHome}/waybar".source = config.lib.file.mkOutOfStoreSymlink ./waybar;
+    "${config.xdg.configHome}/rofi/theme.rasi".source = config.lib.file.mkOutOfStoreSymlink ./rofi/theme.rasi;
+    "${config.xdg.configHome}/rofi/search-icon.svg".source = config.lib.file.mkOutOfStoreSymlink ./rofi/search-icon.svg;
   };
 
   home.sessionVariables = {
@@ -69,6 +71,11 @@
       --prompt='❯ ' \
       --pointer='󰅂' '';
     TMUXIFIER_LAYOUT_PATH="$HOME/.dotfiles/tmux/layouts";
+  };
+
+  programs.rofi = {
+      enable = true;
+      theme = ./rofi/theme.rasi;
   };
 
   programs.alacritty = {
