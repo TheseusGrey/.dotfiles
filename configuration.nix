@@ -104,7 +104,7 @@
     fzf
     rofi
     gcc
-    make
+    gnumake
     alacritty
     waybar
     firefox
