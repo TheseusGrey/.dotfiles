@@ -5,7 +5,7 @@
   ];
 
   home.file = {
-    "${config.xdg.configHome}/zsh".source =  ../../zsh;
+    "${config.xdg.configHome}/zsh".source =  ../zsh;
   };
 
   home.sessionVariables = {

@@ -5,7 +5,7 @@
   ];
 
   home.file = {
-    "${config.xdg.configHome}/tmux".source = ../../tmux;
+    "${config.xdg.configHome}/tmux".source = ../tmux;
   };
 }
 

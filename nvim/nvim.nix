@@ -1,7 +1,7 @@
 { config, pkgs, ... }: {
 
   home.file = {
-    "${config.xdg.configHome}/nvim".source = ../../nvim;
+    "${config.xdg.configHome}/nvim".source = ../nvim;
   };
   
   programs.neovim = {
