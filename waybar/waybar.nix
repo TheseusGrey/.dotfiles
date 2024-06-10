@@ -1,7 +1,9 @@
 { config, ... }: {
 
-  home.file = {
-    "${config.xdg.configHome}/waybar".source =  ../waybar;
+  programs.waybar = {
+    enable = true;
+    settings.source = builtins.fromJSON (builtins.readFile ./config.json);
+    style = ./style.css;
   };
 }
 
