@@ -3,19 +3,19 @@
 {
   imports = [
     ./env.nix
-    ./nix/home/hypr.nix
-    ./nix/home/waybar.nix
-    ./nix/home/rofi.nix
-    ./nix/home/alacritty.nix
-    ./nix/home/tmux.nix
-    ./nix/home/zsh.nix
-    ./nix/home/nvim.nix
+    ./hypr/hypr.nix
+    ./waybar/waybar.nix
+    ./rofi/rofi.nix
+    ./alacritty/alacritty.nix
+    ./tmux/tmux.nix
+    ./zsh/zsh.nix
+    ./nvim/nvim.nix
   ];
 
   # You should not change this value, even if you update Home Manager. If you do
   # want to update the value, then make sure to first check the Home Manager
   # release notes.
-  home.stateVersion = "24.11"; # Please read the comment before changing.
+  home.stateVersion = "23.11"; # Please read the comment before changing.
 
   # https://search.nixos.org/packages
   nixpkgs.config.allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) [
