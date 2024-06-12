@@ -6,7 +6,7 @@
 
   programs.alacritty = {
     enable = true;
-    settings.source = ./alacritty.toml;
+    settings = builtins.fromTOML (builtins.readFile ./alacritty.toml);
   };
 }
 

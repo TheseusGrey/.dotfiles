@@ -36,6 +36,6 @@ po() {
 	if [ -n "$project" ]; then
 		local layout_type="w"
 		local window_name="${2:-dev}"
-		DIR="$project" t "$layout_type" "$window_name"
+		DIR="$project" tmuxifier "$layout_type" "$window_name"
 	fi
 }
