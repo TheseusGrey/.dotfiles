@@ -1,4 +1,4 @@
-{ config, pkgs, ... }:
+{ config, pkgs, lib, ... }:
 
 {
   imports =
@@ -98,6 +98,14 @@
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
 
+  nixpkgs.config.permittedInsecurePackages = [
+    "electron-25.9.0"
+  ];
+
+  nixpkgs.config.allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) [
+    "obsidian"
+  ];
+
   environment.systemPackages = with pkgs; [
     git
     neovim
@@ -109,6 +117,7 @@
     waybar
     firefox
     dolphin
+    obsidian
     tmux
     tmuxifier
     home-manager

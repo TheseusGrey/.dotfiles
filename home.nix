@@ -18,9 +18,6 @@
   home.stateVersion = "23.11"; # Please read the comment before changing.
 
   # https://search.nixos.org/packages
-  nixpkgs.config.allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) [
-    "obsidian"
-  ];
 
   fonts.fontconfig.enable = true;
   home.packages = with pkgs; [
@@ -33,7 +30,6 @@
     cargo
     nodenv
     gcc
-    obsidian
   ];
 
   # Let Home Manager install and manage itself.
