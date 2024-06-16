@@ -122,11 +122,15 @@
     tmuxifier
     home-manager
     hyprpaper
+    unzip
+    nodePackages_latest.nodejs
   ];
 
   environment.pathsToLink = [ "/share/zsh" ];
   programs.zsh.enable = true;
+
   programs.steam.enable = true;
+  hardware.opentabletdriver.enable = true;
 
   # read documentation at man configuration.nix or on https://nixos.org/nixos/options.html before changing.
   system.stateVersion = "24.11"; # Did you read the comment?
