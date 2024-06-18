@@ -124,6 +124,9 @@
     hyprpaper
     unzip
     nodePackages_latest.nodejs
+    python3
+    xclip
+    wl-clipboard-x11
   ];
 
   environment.pathsToLink = [ "/share/zsh" ];
