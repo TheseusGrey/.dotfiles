@@ -1,7 +1,7 @@
 { config, ... }: {
 
-  home.file = {
-    "${config.xdg.configHome}/hypr".source =  ../hypr;
+home.file = {
+  "${config.xdg.configHome}/hypr".source = config.lib.file.mkOutOfStoreSymlink ../hypr;
   };
 }
 

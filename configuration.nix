@@ -106,6 +106,8 @@
     "obsidian"
   ];
 
+  environment.sessionVariables.NIXOS_OZONE_WL = "1";
+
   environment.systemPackages = with pkgs; [
     git
     neovim
@@ -137,4 +139,6 @@
 
   # read documentation at man configuration.nix or on https://nixos.org/nixos/options.html before changing.
   system.stateVersion = "24.11"; # Did you read the comment?
+  system.autoUpgrade.enable  = true;
+  system.autoUpgrade.allowReboot  = true;
 }
