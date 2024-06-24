@@ -1,14 +1,11 @@
-vault_location = "~/Documents/LoreStore"
+vault_location = vim.fn.expand "~" .. "/Documents/LoreStore"
 
 return {
   {
     "epwalsh/obsidian.nvim",
     version = "*", -- recommended, use latest release instead of latest commit
     lazy = true,
-    event = "VeryLazy",
     disable_frontmatter = true,
-    ft = "markdown",
-    -- Replace the above line with this if you only want to load obsidian.nvim for markdown files in your vault:
     event = {
       "BufReadPre " .. vault_location .. "/**.md",
       "BufNewFile " .. vault_location .. "/**.md",
@@ -24,7 +21,6 @@ return {
         },
       },
       new_notes_location = "current_dir",
-      notes_subdir = "Notes",
       daily_notes = {
         folder = "Notes/Dailies",
         date_format = "%y-%m-%d",
@@ -38,7 +34,6 @@ return {
   {
     "folke/zen-mode.nvim",
     lazy = true,
-    event = "VeryLazy",
     opts = {
       on_open = function()
         require("lualine").hide()
