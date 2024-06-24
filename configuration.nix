@@ -124,6 +124,8 @@
     tmuxifier
     home-manager
     hyprpaper
+    discord
+    graphite-cli
     unzip
     nodePackages_latest.nodejs
     python3
