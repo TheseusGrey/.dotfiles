@@ -28,7 +28,7 @@ return {
       },
       templates = {
         folder = "Templates",
-      }
+      },
     },
   },
   {
