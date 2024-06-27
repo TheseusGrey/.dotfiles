@@ -1,7 +1,7 @@
 { config, ... }: {
 
   home.file = {
-    "${config.xdg.configHome}/alacritty/theme.toml".source = ./theme.toml;
+    # "${config.xdg.configHome}/alacritty/theme.toml".source = ./theme.toml;
   };
 
   programs.alacritty = {
