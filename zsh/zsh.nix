@@ -56,19 +56,24 @@
       pl() {
       	local project_name=$(find ~/project_list -maxdepth 1 -exec basename {} \; | fzf)
       	if [ -n "$project_name" ]; then
-      		local project_path=$(readlink -f ~/project_list/$project_name)
-      		echo $project_path
+      		echo "~/project_list/$project_name"
       	fi
       }
 
       po() {
       	local project=$(pl)
       	if [ -n "$project" ]; then
-      		local layout_type="w"
-      		local window_name="''${2:-dev}"
-      		DIR="$project" t "$layout_type" "$window_name"
+      		local layout_type="''${1:-w}"
+      		local window_name="dev"
+      		DIR="$project" tmuxifier "$layout_type" "$window_name"
       	fi
-      }'';
+      }
+
+      if command -v tmux &> /dev/null && [ -n "$PS1" ] && [[ ! "$TERM" =~ screen ]] && [[ ! "$TERM" =~ tmux ]] && [ -z "$TMUX" ]; then
+        exec tmux
+      fi
+      '';
+
     history = {
       size = 1000;
       save = 1000;

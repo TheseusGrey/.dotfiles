@@ -5,7 +5,7 @@
   ];
 
   home.file = {
-    # "${config.xdg.configHome}/tmux".source = config.lib.file.mkOutOfStoreSymlink ../tmux;
+    "${config.xdg.configHome}/tmux/layouts".source = config.lib.file.mkOutOfStoreSymlink ../tmux/layouts;
   };
 
   programs.tmux = {
@@ -16,6 +16,16 @@
       tmuxPlugins.vim-tmux-navigator
     ];
     extraConfig = ''
+      # True color settings
+      set -g default-terminal "$TERM"
+      set -ag terminal-overrides ",$TERM:Tc"
+
+      unbind C-b
+      set -g prefix C-Space
+      bind C-Space send-prefix
+      set -g base-index 1
+      setw -g pane-base-index 1
+
       set-option -g status-position top
 
 
