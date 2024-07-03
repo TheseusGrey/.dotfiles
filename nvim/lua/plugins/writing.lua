@@ -35,12 +35,6 @@ return {
     "folke/zen-mode.nvim",
     lazy = true,
     opts = {
-      on_open = function()
-        require("lualine").hide()
-      end,
-      on_close = function()
-        require("lualine").hide({ unhide = true })
-      end,
       plugins = {
         -- disable some global vim options (vim.o...)
         options = {
