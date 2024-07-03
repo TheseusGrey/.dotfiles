@@ -12,11 +12,20 @@ vim.opt.rtp:prepend(lazypath)
 vim.g.mapleader = " "
 vim.g.maplocalleader = "\\"
 
+vim.o.laststatus = 3
 vim.o.termguicolors = true
-vim.o.laststatus = 0
-vim.opt.statuscolumn = [[%!v:lua.require'util.ui'.statuscolumn()]]
 vim.opt.clipboard = "unnamedplus"
+vim.opt.cursorline = true -- Enable highlighting of the current line
+vim.opt.linebreak = true
+vim.opt.list = true
 vim.opt.scrolloff = 999
+vim.opt.splitbelow = true -- Put new windows below current
+vim.opt.splitkeep = "screen"
+vim.opt.splitright = true -- Put new windows right of current
+vim.opt.statuscolumn = [[%!v:lua.require'util.ui'.statuscolumn()]]
+vim.opt.tabstop = 2
+vim.opt.undofile = true
+vim.opt.undolevels = 10000
 
 vim.wo.relativenumber = true
 

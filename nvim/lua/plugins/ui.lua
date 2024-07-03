@@ -17,8 +17,9 @@ return {
     dependencies = 'nvim-tree/nvim-web-devicons',
     config = function()
       require("bufferline").setup{}
-      vim.keymap.set("n", "<S-l>", "<cmd>bprevious<CR>", { desc = "Prev Buffer" })
-      vim.keymap.set("n", "<S-h>", "<cmd>bnext<CR>", { desc = "Next Buffer" })
+      vim.keymap.set("n", "<S-l>", "<cmd>bnext<CR>", { desc = "Next Buffer" })
+      vim.keymap.set("n", "<S-h>", "<cmd>bprevious<CR>", { desc = "Previous Buffer" })
+      vim.keymap.set("n", "<leader>bd", "<cmd>bd<CR>", { desc = "Delete current Buffer" })
     end
   },
 {
@@ -82,6 +83,10 @@ return {
       default_file_explorer = true,
     },
     dependencies = { "nvim-tree/nvim-web-devicons" },
+    keys = {
+	
+      { "<leader>e","<CMD>Oil<CR>", desc = "file Explorer" },
+},
   },
 {
     "folke/which-key.nvim",
