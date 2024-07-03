@@ -19,9 +19,8 @@
     modesetting.enable = true;
     powerManagement.enable = false; # Enable this if there's issues waking the PC from sleep
     powerManagement.finegrained = false; # Should work on your GPU but disabled for now
-    open = false; # Use Nvidia's open source driver, still in early development so we'll disable it for now
+    open = true; # Use Nvidia's open source driver, still in early development so we'll disable it for now
     nvidiaSettings = true; # Accesible via `nvidia-settings` command
-    package = config.boot.kernelPackages.nvidiaPackages.stable;
   };
 
   # Bootloader.
@@ -62,8 +61,13 @@
 
   # Enable the GNOME Desktop Environment.
   services.xserver.displayManager.gdm.enable = true;
-  programs.hyprland.enable = true;
+
   programs.waybar.enable = true;
+  programs.hyprland = {
+    enable = true;
+    xwayland.enable = true;
+  };
+
   # Configure keymap in X11
   services.xserver = {
   
@@ -122,7 +126,8 @@
     obsidian
     tmux
     tmuxifier
-    home-manager
+    ripgrep
+    lua
     hyprpaper
     discord
     graphite-cli
