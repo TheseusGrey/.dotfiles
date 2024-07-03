@@ -17,7 +17,7 @@
     ];
     extraConfig = ''
       # True color settings
-      set -g default-terminal "$TERM"
+      set -g default-terminal "screen-256color"
       set -ag terminal-overrides ",$TERM:Tc"
 
       unbind C-b
