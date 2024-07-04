@@ -2,6 +2,12 @@
 local html_capabilities = vim.lsp.protocol.make_client_capabilities()
 html_capabilities.textDocument.completion.completionItem.snippetSupport = true
 
+vim.keymap.set({ "n", "v" }, "<leader>ca", vim.lsp.buf.code_action, { desc = "Code Action (current line)" })
+vim.keymap.set({ "n", "v" }, "<leader>cs", vim.lsp.buf.hover, { desc = "Code Symbol view" })
+vim.keymap.set({ "n", "v" }, "<leader>rs", vim.lsp.buf.rename, { desc = "Rename Symbol" })
+vim.keymap.set({ "n", "v" }, "<leader>cr", vim.lsp.buf.references, { desc = "Code References" })
+vim.keymap.set({ "n", "v" }, "<leader>gd", vim.lsp.buf.definition, { desc = "Goto Definition" })
+
 return {
 	{
 		"stevearc/conform.nvim",

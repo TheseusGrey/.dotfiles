@@ -84,7 +84,13 @@ return {
 		dependencies = { "nvim-tree/nvim-web-devicons" },
 		keys = {
 
-			{ "<leader>e", function() require("oil").toggle_float() end, desc = "file Explorer" },
+			{
+				"<leader>e",
+				function()
+					require("oil").toggle_float()
+				end,
+				desc = "file Explorer",
+			},
 		},
 	},
 	{
@@ -102,8 +108,10 @@ return {
 				["<leader><tab>"] = { name = "+tabs" },
 				["<leader>b"] = { name = "+buffer" },
 				["<leader>c"] = { name = "+code" },
+				["<leader>r"] = { name = "+rename" },
+				["<leader>h"] = { name = "+hardtime" },
 				["<leader>f"] = { name = "+file/find" },
-				["<leader>g"] = { name = "+git" },
+				["<leader>g"] = { name = "+git/goto" },
 				["<leader>gh"] = { name = "+hunks", ["_"] = "which_key_ignore" },
 				["<leader>q"] = { name = "+quit/session" },
 				["<leader>s"] = { name = "+search" },

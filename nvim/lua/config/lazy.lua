@@ -6,27 +6,30 @@ if not (vim.uv or vim.loop).fs_stat(lazypath) then
 end
 vim.opt.rtp:prepend(lazypath)
 
--- Make sure to setup `mapleader` and `maplocalleader` before
--- loading lazy.nvim so that mappings are correct.
--- This is also a good place to setup other settings (vim.opt)
 vim.g.mapleader = " "
 vim.g.maplocalleader = "\\"
 
 vim.o.laststatus = 3
 vim.o.termguicolors = true
 vim.opt.clipboard = "unnamedplus"
-vim.opt.cursorline = true -- Enable highlighting of the current line
+vim.opt.cursorline = true
 vim.opt.linebreak = true
 vim.opt.list = true
 vim.opt.scrolloff = 999
-vim.opt.splitbelow = true -- Put new windows below current
+vim.opt.splitbelow = true
 vim.opt.splitkeep = "screen"
-vim.opt.splitright = true -- Put new windows right of current
+vim.opt.splitright = true
 vim.opt.statuscolumn = [[%!v:lua.require'util.ui'.statuscolumn()]]
 vim.opt.tabstop = 2
 vim.opt.undofile = true
 vim.opt.undolevels = 10000
 vim.opt.conceallevel = 2
+vim.opt.shiftround = true
+vim.opt.shiftwidth = 2
+vim.opt.ignorecase = true
+vim.opt.relativenumber = true
+vim.opt.showmode = true
+vim.opt.expandtab = true
 
 vim.wo.relativenumber = true
 
