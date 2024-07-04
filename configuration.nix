@@ -136,9 +136,6 @@
     python3
     xclip
     wl-clipboard-x11
-		stylua
-		nixd
-		black
     nodePackages_latest.prettier
   ];
 
