@@ -9,10 +9,15 @@
     viAlias = true;
     vimAlias = true;
     vimdiffAlias = true;
+    defaultEditor = true;
     extraPackages = with pkgs; [
-      lua-language-server
-      nixd
-      nodePackages.typescript-language-server
+    pyright
+    stylua
+    nil
+    typescript
+    lua-language-server
+    black
+    vscode-extensions.rust-lang.rust-analyzer
     ];
   };
 }

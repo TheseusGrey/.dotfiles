@@ -27,7 +27,9 @@ vim.opt.conceallevel = 2
 vim.opt.shiftround = true
 vim.opt.shiftwidth = 2
 vim.opt.ignorecase = true
+vim.opt.smartcase = true
 vim.opt.relativenumber = true
+vim.opt.number = true
 vim.opt.showmode = true
 vim.opt.expandtab = true
 
