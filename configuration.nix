@@ -4,7 +4,6 @@
   imports =
     [ # Include the results of the hardware scan.
       /etc/nixos/hardware-configuration.nix
-      <home-manager/nixos>
     ];
 
   hardware.opengl = {
@@ -137,6 +136,7 @@
     xclip
     wl-clipboard-x11
     nodePackages_latest.prettier
+    rar
   ];
 
   environment.pathsToLink = [ "/share/zsh" ];

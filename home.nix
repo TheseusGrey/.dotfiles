@@ -23,10 +23,6 @@
   home.packages = with pkgs; [
     (nerdfonts.override { fonts = [ "JetBrainsMono" ]; })
     jq
-    pyright
-		stylua
-		nixd
-		black
     fzf
     tmuxifier
     cargo
