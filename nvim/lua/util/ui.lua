@@ -140,6 +140,19 @@ function M.statuscolumn()
   return table.concat(components, "")
 end
 
+function M.border(hl_name)
+  return {
+    { "╭", hl_name },
+    { "─", hl_name },
+    { "╮", hl_name },
+    { "│", hl_name },
+    { "╯", hl_name },
+    { "─", hl_name },
+    { "╰", hl_name },
+    { "│", hl_name },
+  }
+end
+
 local skip_check = assert(vim.uv.new_check())
 
 return M

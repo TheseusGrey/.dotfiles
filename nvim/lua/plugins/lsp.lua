@@ -1,15 +1,4 @@
-local function border(hl_name)
-  return {
-    { "╭", hl_name },
-    { "─", hl_name },
-    { "╮", hl_name },
-    { "│", hl_name },
-    { "╯", hl_name },
-    { "─", hl_name },
-    { "╰", hl_name },
-    { "│", hl_name },
-  }
-end
+local ui = require("util.ui")
 
 return {
   {
@@ -81,6 +70,7 @@ return {
       local cmp = require("cmp")
 
       cmp.setup({
+        window = { completion = { border = ui.border("CmpBorder") }},
         snippet = {
           expand = function(args)
             require("luasnip").lsp_expand(args.body)
