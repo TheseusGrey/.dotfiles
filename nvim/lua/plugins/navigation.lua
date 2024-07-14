@@ -145,7 +145,7 @@ return {
     event = "VeryLazy",
     url = "git@github.com:yuratomo/w3m.vim.git",
     keys = {
-      { "<leader>gw", function()
+      { "<leader>wo", function()
         local url = vim.fn.expand('<cfile>')
         vim.cmd("W3m " .. url)
       end, desc = "Open URL in buffer" },
