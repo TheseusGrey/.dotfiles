@@ -138,6 +138,13 @@
     wl-clipboard-x11
     nodePackages_latest.prettier
     rar
+    pyright
+    stylua
+    nil
+    typescript
+    lua-language-server
+    black
+    vscode-extensions.rust-lang.rust-analyzer
   ];
 
   environment.pathsToLink = [ "/share/zsh" ];

@@ -3,10 +3,10 @@ local ui = require("util.ui")
 return {
   {
     "neovim/nvim-lspconfig",
-    event = "User FilePost",
+    event = { "BufReadPost", "BufNewFile", "BufWritePre" },
     dependencies = {
-      "williamboman/mason.nvim",
-      "williamboman/mason-lspconfig.nvim",
+      "mason.nvim",
+      { "williamboman/mason-lspconfig.nvim", config = function() end },
     },
     config = function()
       require("mason-lspconfig").setup({
@@ -17,8 +17,9 @@ return {
           "nil_ls",
         },
       })
-      require("lspconfig").lua_ls.setup(require("config.lua_ls").defaults())
-    end
+      require("lspconfig").lua_ls.setup(require("config.lua_ls"))
+      require("lspconfig").tsserver.setup(require("config.lsp"))
+    end,
   },
 
   {
@@ -33,16 +34,16 @@ return {
         config = function(_, opts)
           require("luasnip").config.set_config(opts)
           -- vscode format
-          require("luasnip.loaders.from_vscode").lazy_load { exclude = vim.g.vscode_snippets_exclude or {} }
-          require("luasnip.loaders.from_vscode").lazy_load { paths = vim.g.vscode_snippets_path or "" }
+          require("luasnip.loaders.from_vscode").lazy_load({ exclude = vim.g.vscode_snippets_exclude or {} })
+          require("luasnip.loaders.from_vscode").lazy_load({ paths = vim.g.vscode_snippets_path or "" })
 
           -- snipmate format
           require("luasnip.loaders.from_snipmate").load()
-          require("luasnip.loaders.from_snipmate").lazy_load { paths = vim.g.snipmate_snippets_path or "" }
+          require("luasnip.loaders.from_snipmate").lazy_load({ paths = vim.g.snipmate_snippets_path or "" })
 
           -- lua format
           require("luasnip.loaders.from_lua").load()
-          require("luasnip.loaders.from_lua").lazy_load { paths = vim.g.lua_snippets_path or "" }
+          require("luasnip.loaders.from_lua").lazy_load({ paths = vim.g.lua_snippets_path or "" })
 
           vim.api.nvim_create_autocmd("InsertLeave", {
             callback = function()
@@ -70,7 +71,7 @@ return {
       local cmp = require("cmp")
 
       cmp.setup({
-        window = { completion = { border = ui.border("CmpBorder") }},
+        window = { completion = { border = ui.border("CmpBorder") } },
         snippet = {
           expand = function(args)
             require("luasnip").lsp_expand(args.body)
@@ -90,10 +91,10 @@ return {
           ["<C-f>"] = cmp.mapping.scroll_docs(4),
           ["<C-Space>"] = cmp.mapping.complete(),
           ["<C-e>"] = cmp.mapping.close(),
-          ["<CR>"] = cmp.mapping.confirm {
+          ["<CR>"] = cmp.mapping.confirm({
             behavior = cmp.ConfirmBehavior.Insert,
             select = true,
-          },
+          }),
 
           ["<Tab>"] = cmp.mapping(function(fallback)
             if cmp.visible() then
