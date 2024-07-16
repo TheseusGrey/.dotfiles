@@ -144,7 +144,8 @@
     typescript
     lua-language-server
     black
-    vscode-extensions.rust-lang.rust-analyzer
+    rust-analyzer
+    cargo
   ];
 
   environment.pathsToLink = [ "/share/zsh" ];
