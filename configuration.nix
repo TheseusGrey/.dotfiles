@@ -146,6 +146,8 @@
     black
     rust-analyzer
     cargo
+    yazi
+    kitty
   ];
 
   environment.pathsToLink = [ "/share/zsh" ];
