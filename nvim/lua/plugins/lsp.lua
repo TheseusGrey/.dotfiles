@@ -18,7 +18,7 @@ return {
         },
       })
       require("lspconfig").lua_ls.setup(require("config.lua_ls"))
-      require("lspconfig").tsserver.setup(require("config.lsp"))
+      require("lspconfig").tsserver.setup(require("config.tsserver"))
       require("lspconfig").rust_analyzer.setup(require("config.lsp"))
       require("lspconfig").nil_ls.setup(require("config.lsp"))
     end,
