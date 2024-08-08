@@ -1,4 +1,4 @@
-vault_location = vim.fn.expand("~") .. "/Documents/LoreStore"
+local vault_location = vim.fn.expand("~") .. "/Documents/LoreStore"
 
 return {
 	{
