@@ -152,6 +152,8 @@
 
   environment.pathsToLink = [ "/share/zsh" ];
   programs.zsh.enable = true;
+  programs.yazi.enable = true;
+  xdg.mimeApps.defaultApplications."inode/directory" = "dolphin.desktop";
 
   programs.steam.enable = true;
   hardware.opentabletdriver.enable = true;
