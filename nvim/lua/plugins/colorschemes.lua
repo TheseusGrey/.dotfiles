@@ -93,23 +93,18 @@ return {
           yellow = palette.yellow.base,
           sapphire = palette.blue0,
           blue = palette.blue1,
-          pink = palette.magenta.bright,
-          lavender = palette.magenta.base,
+          lavender = palette.magenta.bright,
           teal = palette.blue2,
           green = palette.green.base,
         },
       },
 
 			integrations = {
-				aerial = true,
-				alpha = true,
 				cmp = true,
 				dashboard = true,
 				flash = true,
-				grug_far = true,
 				gitsigns = true,
 				headlines = true,
-				illuminate = true,
 				indent_blankline = { enabled = true },
 				leap = true,
 				lsp_trouble = true,
@@ -125,9 +120,6 @@ return {
 						information = { "undercurl" },
 					},
 				},
-				navic = { enabled = true, custom_bg = "lualine" },
-				neotest = true,
-				neotree = true,
 				noice = true,
 				notify = true,
 				semantic_tokens = true,
@@ -137,6 +129,7 @@ return {
 				which_key = true,
 			},
 		}
+
     require("catppuccin").load()
     end,
 	},
