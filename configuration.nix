@@ -149,6 +149,10 @@
     yazi
     kitty
     minecraft
+    ruby
+    pandoc
+    jekyll
+    ferium
   ];
 
   environment.pathsToLink = [ "/share/zsh" ];
