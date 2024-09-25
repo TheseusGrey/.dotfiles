@@ -153,6 +153,7 @@
     pandoc
     jekyll
     ferium
+    swaynotificationcenter
   ];
 
   environment.pathsToLink = [ "/share/zsh" ];
