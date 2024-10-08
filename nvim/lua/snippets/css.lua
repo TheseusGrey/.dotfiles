@@ -27,13 +27,13 @@ snippet("column-breakout", {
     "\t--padding-inline: "
   }),
   insert(1, "1rem"),
-  text({"\t", "--content-max-width: "}),
+  text({";", "\t--content-max-width: "}),
   insert(2, "80ch"),
-  text({"\t", "--popout-max-width: "}),
+  text({";", "\t--popout-max-width: "}),
   insert(3, "90ch"),
-  text({"\t", "--breakout-max-width: "}),
+  text({";", "\t--breakout-max-width: "}),
   insert(4, "120ch"),
-  text({"", "\t/* Column size calculations */"}),
+  text({";", "\t/* Column size calculations */"}),
   text({"\t--popout-size: calc(",
   "\t\t(var(--popout-max-width) - var(--content-max-width)) / 2",
   "\t);"
@@ -88,11 +88,11 @@ snippet("column-breakout", {
 snippet("column-breakout-overrides", {
   text("\t--padding-inline: "),
   insert(1, "1rem"),
-  text({"\t", "--content-max-width: "}),
+  text({";", "\t--content-max-width: "}),
   insert(2, "80ch"),
-  text({"\t", "--popout-max-width: "}),
+  text({";", "\t--popout-max-width: "}),
   insert(3, "90ch"),
-  text({"\t", "--breakout-max-width: "}),
+  text({";", "\t--breakout-max-width: "}),
   insert(4, "120ch"),
 }),
 }
