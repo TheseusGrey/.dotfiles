@@ -4,6 +4,7 @@ vim.g.autoformat = true
 vim.g.lazyvim_picker = "auto"
 vim.g.root_spec = { "lsp", ".git", "cwd" }
 vim.g.lazygit_config = true
+vim.g.lua_snippets_path = "./lua/snippets/"
 
 vim.g.lazyvim_statuscolumn = {
 	folds_open = false,

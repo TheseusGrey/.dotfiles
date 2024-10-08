@@ -20,7 +20,7 @@ local types = require("luasnip.util.types")
 local conds = require("luasnip.extras.conditions")
 local conds_expand = require("luasnip.extras.conditions.expand")
 
-ls.add_snippets("css", {
+return {
 snippet("column-breakout", {
   text({".column-with-breakouts {",
     "/* Edit/override these properties to customise the layout */",
@@ -95,5 +95,4 @@ snippet("column-breakout-overrides", {
   text({"\t", "--breakout-max-width: "}),
   insert(4, "120ch"),
 }),
-
-}, { key = "css" })
+}
