@@ -14,7 +14,11 @@ return {
 			lualine_a = { "mode" },
 			lualine_b = { "diagnostics" },
 			lualine_c = {},
-			lualine_x = {},
+			lualine_x = {{
+        require("noice").api.status.command.get,
+        cond = require("noice").api.status.command.has,
+        color = { fg = "#ff9e64" },
+      }},
 			lualine_y = {},
 			lualine_z = { "location" },
 		},

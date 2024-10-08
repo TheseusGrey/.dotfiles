@@ -12,16 +12,9 @@ return {
 		{
 			"<leader>e",
 			function()
-				require("oil").open()
+				require("oil").toggle_float()
 			end,
 			desc = "file Explorer",
-		},
-		{
-			"q",
-			function()
-				require("oil").close()
-			end,
-			desc = "close Explorer",
 		},
 	},
 }
