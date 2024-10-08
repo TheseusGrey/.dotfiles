@@ -21,7 +21,7 @@ local conds = require("luasnip.extras.conditions")
 local conds_expand = require("luasnip.extras.conditions.expand")
 
 return {
-snippet("column-breakout", {
+snippet("colb", {
   text({".column-with-breakouts {",
     "/* Edit/override these properties to customise the layout */",
     "\t--padding-inline: "
@@ -85,7 +85,7 @@ snippet("column-breakout", {
   }),
 }),
 
-snippet("column-breakout-overrides", {
+snippet("colb-overrides", {
   text("\t--padding-inline: "),
   insert(1, "1rem"),
   text({";", "\t--content-max-width: "}),
@@ -95,4 +95,18 @@ snippet("column-breakout-overrides", {
   text({";", "\t--breakout-max-width: "}),
   insert(4, "120ch"),
 }),
+
+snippet("grid-dc", {
+  text({"\tdisplay: grid;",
+    "\tgrid-template-columns: repeat(",
+  }),
+  choose(1, {
+    text("auto-fill"),
+    text("auto-fit")
+  }),
+  text(", minmax("),
+  insert(2, "250px"),
+  text(", 1fr));"),
+}),
+
 }
