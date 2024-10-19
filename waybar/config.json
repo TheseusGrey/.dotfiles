@@ -1,15 +1,15 @@
 {
   "height": 48,
+  "margin": "8px 8px 0 8px",
   "spacing": 4,
   "mode": "dock",
   "modules-left": [
-    "hyprland/workspaces"
-  ],
-  "modules-center": [
+    "hyprland/workspaces",
     "hyprland/window"
   ],
+  "modules-center": [
+  ],
   "modules-right": [
-    "idle_inhibitor",
     "clock"
   ],
   "keyboard-state": {
