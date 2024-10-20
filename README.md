@@ -15,8 +15,7 @@ If anyone comes and wants to steal this stuff, I have a rough rule of using `env
   home.username = "{username}";
   home.homeDirectory = "/home/{ashe}";
 }
-
+```
 
 ## Screenshot
 ![Desktop Screenshot](screenshot.png "Sample desktop screenshot :)")
-```
