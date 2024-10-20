@@ -12,7 +12,11 @@ If anyone comes and wants to steal this stuff, I have a rough rule of using `env
 
 ```nix
 {
-  home.username = "ashe";
-  home.homeDirectory = "/home/ashe";
+  home.username = "{username}";
+  home.homeDirectory = "/home/{ashe}";
 }
+
+
+## Screenshot
+![Desktop Screenshot](screenshot.png "Sample desktop screenshot :)")
 ```
