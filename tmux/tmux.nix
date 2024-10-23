@@ -21,6 +21,7 @@
       set -ag terminal-overrides ",$TERM:Tc"
 
       unbind C-b
+      setw -g mode-keys vi
       set -g prefix C-Space
       bind C-Space send-prefix
       set -g base-index 1

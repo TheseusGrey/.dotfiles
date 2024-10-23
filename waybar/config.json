@@ -9,15 +9,11 @@
   ],
   "modules-center": [],
   "modules-right": [
-    "sndio",
     "clock"
   ],
-  "sndio": {
-    "format": "{raw_value} ",
-    "scroll-step": 3
-  },
   "clock": {
-    "interval": 60,
-    "format": "{:%H.%M} | {:%d %b %Y}"
+    "tooltip": true,
+    "tooltip-format": "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>",
+    "format-alt": "{:%Y-%m-%d}"
   }
 }
