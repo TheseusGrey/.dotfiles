@@ -9,11 +9,16 @@
   ],
   "modules-center": [],
   "modules-right": [
-    "clock"
+    "clock",
+    "sndio"
   ],
+  "sndio": {
+    "format": "{raw_value} ",
+    "scroll-step": 4
+  },
   "clock": {
     "interval": 60,
-    "format": "{:%H:%M}",
+    "format": "{:%H:%M | %d %b, %Y}",
     "max-length": 25
   }
 }
