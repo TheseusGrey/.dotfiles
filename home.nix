@@ -10,6 +10,7 @@
     ./tmux/tmux.nix
     ./zsh/zsh.nix
     ./nvim/nvim.nix
+    ./kitty/kitty.nix
   ];
 
   # You should not change this value, even if you update Home Manager. If you do
