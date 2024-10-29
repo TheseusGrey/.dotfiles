@@ -146,6 +146,8 @@
     black
     rust-analyzer
     cargo
+    rustup
+    rustc
     yazi
     kitty
     minecraft
@@ -154,6 +156,8 @@
     jekyll
     ferium
     swaynotificationcenter
+    elf2uf2-rs
+    flip-link
   ];
 
   environment.pathsToLink = [ "/share/zsh" ];
