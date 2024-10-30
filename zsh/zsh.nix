@@ -10,8 +10,8 @@
 
   home.sessionVariables = {
     EDITOR = "nvim";
-    TERMINAL = "alacritty";
-    FZF_DEFAULT_OPTS='' 
+    TERMINAL = "kitty";
+    FZF_DEFAULT_OPTS=''
       --height 62% --layout=reverse \
       --color=fg:#e5e9f0,bg:#3b4252,hl:#81a1c1 \
       --color=fg+:#e5e9f0,bg+:#3b4252,hl+:#81a1c1 \
