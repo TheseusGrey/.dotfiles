@@ -17,8 +17,8 @@ link() {
 
 configs=(
   zsh
-  # rofi
-  # hypr
+  rofi
+  hypr
   kitty
   # waybar
 )

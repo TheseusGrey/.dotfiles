@@ -1,9 +1,9 @@
 . "$HOME/.cargo/env"
 
-export PATH=$HOME/.tmux/plugins/tmuxifier/bin:~/.local/bin:~/.cargo/bin:~/tools/nvim/bin:/usr/local/go/bin:${M2_HOME}/bin:$PATH
+export DOTFILES=~/.dotfiles
+export PATH=$DOTFILES/bin:$HOME/.tmux/plugins/tmuxifier/bin:~/.local/bin:~/.cargo/bin:~/tools/nvim/bin:/usr/local/go/bin:${M2_HOME}/bin:$PATH
 export EDITOR=nvim
 export TERMINAL=kitty
-export DOTFILES=~/.dotfiles
 
 export FZF_DEFAULT_OPTS=" \
 --height 62% --layout=reverse \
