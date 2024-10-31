@@ -3,8 +3,8 @@
     border-radius: 0px;
     font-family: "JetBrainsMono Nerd Font";
     font-weight: bold;
-    font-size: 10px;
-    min-height: 10px;
+    font-size: 18px;
+    min-height: 0;
 }
 
 @import "theme.css";
@@ -67,14 +67,6 @@ tooltip {
     transition: all 0.3s cubic-bezier(.55,-0.68,.48,1.682);
 }
 
-#tray menu * {
-    min-height: 16px
-}
-
-#tray menu separator {
-    min-height: 10px
-}
-
 #backlight,
 #battery,
 #bluetooth,
@@ -115,11 +107,6 @@ tooltip {
     margin: 4px 0px 4px 0px;
     padding-left: 4px;
     padding-right: 4px;
-}
-
-#workspaces,
-#taskbar {
-    padding: 0px;
 }
 
 #custom-r_end {
