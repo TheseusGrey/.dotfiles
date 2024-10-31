@@ -1,9 +1,11 @@
 . "$HOME/.cargo/env"
 
 export DOTFILES=~/.dotfiles
-export PATH=$DOTFILES/bin:$HOME/.tmux/plugins/tmuxifier/bin:~/.local/bin:~/.cargo/bin:~/tools/nvim/bin:/usr/local/go/bin:${M2_HOME}/bin:$PATH
 export EDITOR=nvim
 export TERMINAL=kitty
+
+export GEM_HOME="$(gem env user_gemhome)"
+export PATH="$PATH:$GEM_HOME/bin:$DOTFILES/bin:$M2_HOME/bin"
 
 export FZF_DEFAULT_OPTS=" \
 --height 62% --layout=reverse \
