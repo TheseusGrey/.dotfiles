@@ -46,7 +46,7 @@ zstyle ':completion:*' menu no
 zstyle ':fzf-tab:*' fzf-command ftb-tmux-popup
 
 # Shell integrations
-eval "$(fzf --zsh)"
+source <(fzf --zsh)
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh

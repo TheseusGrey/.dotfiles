@@ -4,8 +4,7 @@ export DOTFILES=~/.dotfiles
 export EDITOR=nvim
 export TERMINAL=kitty
 
-export GEM_HOME="$(gem env user_gemhome)"
-export PATH="$PATH:$GEM_HOME/bin:$DOTFILES/bin:$M2_HOME/bin"
+export PATH="$PATH:/bin:$DOTFILES/bin:$M2_HOME/bin"
 
 export FZF_DEFAULT_OPTS=" \
 --height 62% --layout=reverse \

@@ -13,3 +13,6 @@ source_if_exists ~/.config/zsh/git.zsh
 source_if_exists ~/.config/zsh/aliases.sh
 source_if_exists ~/.env.sh
 
+export GEM_HOME="$(gem env gempath)"
+export PATH="$PATH:$GEM_HOME/bin"
+
