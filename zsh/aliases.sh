@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-shopt -s expand_aliases
+# shopt -s expand_aliases
 
 # ALIASES ---------------------------------------------------------------------
 alias please='sudo'
@@ -24,18 +24,18 @@ alias gp='git push'
 
 # FUNCTIONS -------------------------------------------------------------------
 pl() {
-	local project_name=$(find ~/project_list -maxdepth 1 -exec basename {} \; | fzf)
-	if [ -n "$project_name" ]; then
-		local project_path=$(readlink -f ~/project_list/$project_name)
-		echo $project_path
-	fi
+  local project_name=$(find ~/project_list -maxdepth 1 -exec basename {} \; | fzf)
+  if [ -n "$project_name" ]; then
+    local project_path=$(readlink -f ~/project_list/$project_name)
+    echo $project_path
+  fi
 }
 
 po() {
-	local project=$(pl)
-	if [ -n "$project" ]; then
-		local layout_type="w"
-		local window_name="${2:-dev}"
-		DIR="$project" tmuxifier "$layout_type" "$window_name"
-	fi
+  local project=$(pl)
+  if [ -n "$project" ]; then
+    local layout_type="w"
+    local window_name="${2:-dev}"
+    DIR="$project" tmuxifier "$layout_type" "$window_name"
+  fi
 }
