@@ -17,6 +17,7 @@ link() {
 
 configs=(
   zsh
+  nvim
   rofi
   hypr
   kitty
