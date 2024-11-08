@@ -24,18 +24,18 @@ alias gp='git push'
 
 # FUNCTIONS -------------------------------------------------------------------
 pl() {
-  local project_name=$(find ~/project_list -maxdepth 1 -exec basename {} \; | fzf)
+  local project_name=$(ls ~/projects | sed -r "s/\x1B\[([0-9]{1,3}(;[0-9]{1,2};?)?)?[mGK]//g" | fzf)
   if [ -n "$project_name" ]; then
-    local project_path=$(readlink -f ~/project_list/$project_name)
-    echo $project_path
+    echo $project_name
   fi
 }
 
 po() {
   local project=$(pl)
   if [ -n "$project" ]; then
-    local layout_type="w"
     local window_name="${2:-dev}"
-    DIR="$project" tmuxifier "$layout_type" "$window_name"
+    kitty @ launch --title $project --cwd "~/projects/$project" --type tab
+    kitty @ focus-tab --match title:$project
+    kitty @ launch --title $project --cwd "~/projects/$project"
   fi
 }
