@@ -52,10 +52,10 @@ return {
           severity_sort = true,
           signs = {
             text = {
-              [vim.diagnostic.severity.ERROR] = " ",
-              [vim.diagnostic.severity.WARN] = " ",
-              [vim.diagnostic.severity.HINT] = " ",
-              [vim.diagnostic.severity.INFO] = " ",
+              [vim.diagnostic.severity.ERROR] = icons.Error,
+              [vim.diagnostic.severity.WARN] = icons.Warn,
+              [vim.diagnostic.severity.HINT] = icons.Hint,
+              [vim.diagnostic.severity.INFO] = icons.Info,
             },
           },
         },
@@ -93,11 +93,6 @@ return {
         ---@type lspconfig.options
         servers = {
           lua_ls = {
-            -- mason = false, -- set to false if you don't want this server to be installed with mason
-            -- Use this to add any additional keymaps
-            -- for specific lsp servers
-            -- ---@type LazyKeysSpec[]
-            -- keys = {},
             settings = {
               Lua = {
                 workspace = {
@@ -141,16 +136,6 @@ return {
     end,
     ---@param opts PluginLspOpts
     config = function(_, opts)
-      -- setup keymaps
-      -- LazyVim.lsp.on_attach(function(client, buffer)
-      --   require("lazyvim.plugins.lsp.keymaps").on_attach(client, buffer)
-      -- end)
-      --
-      -- LazyVim.lsp.setup()
-      -- LazyVim.lsp.on_dynamic_capability(require("lazyvim.plugins.lsp.keymaps").on_attach)
-      --
-      -- LazyVim.lsp.words.setup(opts.document_highlight)
-
       -- diagnostics signs
       if vim.fn.has("nvim-0.10.0") == 0 then
         if type(opts.diagnostics.signs) ~= "boolean" then
@@ -165,7 +150,7 @@ return {
       if vim.fn.has("nvim-0.10") == 1 then
         -- inlay hints
         if opts.inlay_hints.enabled then
-          on_supports_method("textDocument/inlayHint", function(client, buffer)
+          on_supports_method("textDocument/inlayHint", function(_, buffer)
             if
               vim.api.nvim_buf_is_valid(buffer)
               and vim.bo[buffer].buftype == ""
@@ -178,7 +163,7 @@ return {
 
         -- code lens
         if opts.codelens.enabled and vim.lsp.codelens then
-          on_supports_method("textDocument/codeLens", function(client, buffer)
+          on_supports_method("textDocument/codeLens", function(_, buffer)
             vim.lsp.codelens.refresh()
             vim.api.nvim_create_autocmd({ "BufEnter", "CursorHold", "InsertLeave" }, {
               buffer = buffer,
