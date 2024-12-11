@@ -50,6 +50,15 @@ return {
       local cmp = require("cmp")
 
       cmp.setup({
+        enabled = function()
+          local context = require("cmp.config.context")
+          -- keep command mode completion enabled when cursor is in a comment
+          if vim.api.nvim_get_mode().mode == "c" then
+            return true
+          else
+            return not context.in_treesitter_capture("comment") and not context.in_syntax_group("Comment")
+          end
+        end,
         window = { completion = { border = ui.border("CmpBorder") } },
         snippet = {
           expand = function(args)
@@ -58,25 +67,39 @@ return {
         },
         sources = {
           { name = "codeium" },
-          { name = "nvim_lsp" },
+          {
+            name = "nvim_lsp",
+            entry_filter = function(entry, _)
+              return require("cmp").lsp.CompletionItemKind.Text ~= entry:get_kind()
+            end,
+          },
           { name = "luasnip" },
-          { name = "buffer" },
           { name = "nvim_lua" },
           { name = "path" },
+          { name = "obsidian.nvim" },
         },
         mapping = {
-          ["<C-p>"] = cmp.mapping.select_prev_item(),
-          ["<C-n>"] = cmp.mapping.select_next_item(),
+          ["<C-k>"] = cmp.mapping.select_prev_item(),
+          ["<C-j>"] = cmp.mapping.select_next_item(),
           ["<C-d>"] = cmp.mapping.scroll_docs(-4),
           ["<C-f>"] = cmp.mapping.scroll_docs(4),
           ["<C-Space>"] = cmp.mapping.complete(),
           ["<C-e>"] = cmp.mapping.close(),
-          ["<CR>"] = cmp.mapping.confirm({
-            behavior = cmp.ConfirmBehavior.Insert,
-            select = true,
-          }),
+          ["<CR>"] = cmp.mapping(function(fallback)
+            if cmp.visible() then
+              if require("luasnip").expandable() then
+                require("luasnip").expand()
+              else
+                cmp.confirm({
+                  select = true,
+                })
+              end
+            else
+              fallback()
+            end
+          end),
 
-          ["<Tab>"] = cmp.mapping(function(fallback)
+          ["<C-l>"] = cmp.mapping(function(fallback)
             if cmp.visible() then
               cmp.select_next_item()
             elseif require("luasnip").expand_or_jumpable() then
@@ -86,7 +109,7 @@ return {
             end
           end, { "i", "s" }),
 
-          ["<S-Tab>"] = cmp.mapping(function(fallback)
+          ["<C-h>"] = cmp.mapping(function(fallback)
             if cmp.visible() then
               cmp.select_prev_item()
             elseif require("luasnip").jumpable(-1) then

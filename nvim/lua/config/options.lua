@@ -7,8 +7,8 @@ vim.g.lazygit_config = true
 vim.g.lua_snippets_path = "./lua/snippets/"
 
 vim.g.lazyvim_statuscolumn = {
-	folds_open = false,
-	folds_githl = false,
+  folds_open = false,
+  folds_githl = false,
 }
 
 local opt = vim.opt
@@ -21,12 +21,12 @@ opt.confirm = true
 opt.cursorline = true
 opt.expandtab = true
 opt.fillchars = {
-	foldopen = "",
-	foldclose = "",
-	fold = " ",
-	foldsep = " ",
-	diff = "╱",
-	eob = " ",
+  foldopen = "",
+  foldclose = "",
+  fold = " ",
+  foldsep = " ",
+  diff = "╱",
+  eob = " ",
 }
 opt.foldlevel = 99
 opt.formatexpr = "v:lua.require'conform'.formatexpr()"
@@ -44,7 +44,7 @@ opt.number = true
 opt.pumblend = 10
 opt.pumheight = 10
 opt.relativenumber = true
-opt.scrolloff = 4
+opt.scrolloff = 999
 opt.sessionoptions = { "buffers", "curdir", "tabpages", "winsize", "help", "globals", "skiprtp", "folds" }
 opt.shiftround = true
 opt.shiftwidth = 2
