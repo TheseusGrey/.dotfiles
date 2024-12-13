@@ -74,6 +74,19 @@ return {
             end,
           },
           { name = "luasnip" },
+          {
+            name = "buffer",
+            option = {
+              get_bufnrs = function()
+                local buffer_name = vim.fn.expand("%")
+                if buffer_name == ".git/COMMIT_EDITMSG" then
+                  return vim.api.nvim_list_bufs()
+                end
+
+                return {}
+              end,
+            },
+          },
           { name = "nvim_lua" },
           { name = "path" },
           { name = "obsidian.nvim" },
