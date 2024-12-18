@@ -36,6 +36,5 @@ po() {
     local window_name="${2:-dev}"
     kitty @ launch --title $project --cwd "~/projects/$project" --type tab
     kitty @ focus-tab --match title:$project
-    kitty @ launch --title $project --cwd "~/projects/$project"
   fi
 }
