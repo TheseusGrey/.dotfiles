@@ -59,7 +59,7 @@ opt.spelloptions:append("noplainbuffer")
 opt.splitbelow = true
 opt.splitkeep = "screen"
 opt.splitright = true
-opt.statuscolumn = [[%!v:lua.require'util.ui'.statuscolumn()]]
+-- opt.statuscolumn = [[%!v:lua.require'util.ui'.statuscolumn()]]
 opt.tabstop = 2
 opt.termguicolors = true
 opt.undofile = true
