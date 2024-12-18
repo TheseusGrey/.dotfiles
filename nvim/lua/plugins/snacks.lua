@@ -3,6 +3,11 @@ return {
   priority = 1000,
   lazy = false,
   opts = {
+    styles = {
+      zen = {
+        keys = { q = "close" },
+      },
+    },
     gitbrowse = { enabled = true },
     input = { enabled = true },
     lazygit = { enabled = true },
