@@ -1,5 +1,6 @@
 {
     "diagnostics.globals": [
-        "on_supports_method"
+        "on_supports_method",
+        "Snacks"
     ]
 }

@@ -1,10 +1,14 @@
 return {
   "folke/snacks.nvim",
+  priority = 1000,
+  lazy = false,
   opts = {
     gitbrowse = { enabled = true },
     input = { enabled = true },
     lazygit = { enabled = true },
+    git = { enabled = true },
     quickfile = { enabled = true },
+    notifier = { enabled = true },
     dim = { enabled = true },
     statuscolumn = { enabled = true },
     zen = { enabled = true },
@@ -14,6 +18,19 @@ return {
         { section = "header" },
         { icon = " ", title = "Keymaps", section = "keys", indent = 2, padding = 1 },
         { icon = " ", title = "Projects", section = "projects", indent = 2, padding = 1 },
+        {
+          icon = " ",
+          title = "Git Status",
+          section = "terminal",
+          enabled = function()
+            return Snacks.git.get_root() ~= nil
+          end,
+          cmd = "git status --short --branch --renames",
+          height = 5,
+          padding = 1,
+          ttl = 5 * 60,
+          indent = 3,
+        },
         { section = "startup" },
       },
     },
@@ -22,9 +39,8 @@ return {
     {
       "<leader>fo",
       function()
-        local s = require("snacks")
-        s.zen()
-        s.dim()
+        Snacks.zen()
+        Snacks.dim()
       end,
       desc = "Toggle focus editing",
     },
