@@ -6,9 +6,10 @@ while true; do
   # Workspace info
   workspace=$(hyprctl activeworkspace)
   active_workspace=$(echo "$workspace" | grep "workspace ID" | awk '{print $3}')
+  has_fullscreen=$(echo "$workspace" | grep "hasfullscreen" | awk '{print $2}')
   window_count=$(echo "$workspace" | grep "windows" | awk '{print $2}')
 
-  if [ "$window_count" -ne "$last_count" ]; then
+  if [ "$window_count" -ne "$last_count" ] && [ "$has_fullscreen" -eq 0 ]; then
     # If there is exactly one window in the workspace
     if [ "$window_count" -eq 1 ]; then
       hyprctl dispatch setfloating
