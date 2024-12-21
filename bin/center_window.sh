@@ -2,16 +2,19 @@
 
 # Infinite loop to check the current workspace
 while true; do
-  # Get the focused workspace
-  focused_workspace=$(hyprctl workspaces | grep "focused" | awk '{print $1}')
-
-  # Get the number of windows in the focused workspace
-  window_count=$(hyprctl clients | grep "workspace: $focused_workspace" | wc -l)
+  # Workspace info
+  workspace=$(hyprctl activeworkspace)
+  active_workspace=$($workspace | grep "workspace ID" | awk '{print $3}')
+  window_count=$($workspace | grep "windows" | awk '{print $2}')
 
   # If there is exactly one window in the workspace
   if [ "$window_count" -eq 1 ]; then
-    # Center the window on this workspace
-    hyprctl dispatch windowrule center
+    hyprctl dispatch setfloating
+    hyprctl dispatch resizeactive exact 80% 80%
+    hyprctl dispatch centerwindow
+  else
+    # Make sure that there are no floating windows, currently focus shifts to the new window, need it to not
+    hyprctl dispatch settiled
   fi
 
   # Sleep to avoid busy-waiting (adjust as needed)
