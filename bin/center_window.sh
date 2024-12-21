@@ -25,4 +25,4 @@ while true; do
 
   # Sleep to avoid busy-waiting (adjust as needed)
   sleep 0.5
-done
+done &
