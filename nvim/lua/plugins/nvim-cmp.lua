@@ -92,9 +92,9 @@ return {
           { name = "obsidian.nvim" },
         },
         mapping = {
-          ["<C-k>"] = cmp.mapping.select_prev_item(),
-          ["<C-j>"] = cmp.mapping.select_next_item(),
-          ["<C-d>"] = cmp.mapping.scroll_docs(-4),
+          ["<S-Tab>"] = cmp.mapping.select_prev_item(),
+          ["<Tab>"] = cmp.mapping.select_next_item(),
+          ["<C-b>"] = cmp.mapping.scroll_docs(-4),
           ["<C-f>"] = cmp.mapping.scroll_docs(4),
           ["<C-Space>"] = cmp.mapping.complete(),
           ["<C-e>"] = cmp.mapping.close(),
@@ -112,7 +112,7 @@ return {
             end
           end),
 
-          ["<C-l>"] = cmp.mapping(function(fallback)
+          ["<C-n>"] = cmp.mapping(function(fallback)
             if cmp.visible() then
               cmp.select_next_item()
             elseif require("luasnip").expand_or_jumpable() then
@@ -122,7 +122,7 @@ return {
             end
           end, { "i", "s" }),
 
-          ["<C-h>"] = cmp.mapping(function(fallback)
+          ["<C-p>"] = cmp.mapping(function(fallback)
             if cmp.visible() then
               cmp.select_prev_item()
             elseif require("luasnip").jumpable(-1) then
