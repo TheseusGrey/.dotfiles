@@ -2,5 +2,8 @@
     "diagnostics.globals": [
         "on_supports_method",
         "Snacks"
+    ],
+    "diagnostics.disable": [
+        "missing-fields"
     ]
 }
