@@ -48,4 +48,3 @@ map("n", "<leader><leader>x", "<cmd>Source %<cr>", { desc = "Source lua file" })
 
 -- Treesitter
 map("n", "<leader>ti", vim.treesitter.inspect_tree, { desc = "Inspect Treesitter tree" })
-map("n", "<leader>te", vim.treesitter.query.edit, { desc = "Open Treesitter query Editor" })
