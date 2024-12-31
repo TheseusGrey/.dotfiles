@@ -44,6 +44,8 @@ map({ "n", "v" }, "<leader>cl", vim.lsp.codelens.run, { desc = "Codelense" })
 map({ "n", "v" }, "<leader>cL", vim.lsp.codelens.refresh, { desc = "Codelense Refresh" })
 map({ "n", "v" }, "<leader>cr", vim.lsp.buf.rename, { desc = "Rename Symbol" })
 
+map("n", "<leader><leader>x", "<cmd>Source %<cr>", { desc = "Source lua file" })
+
 -- Treesitter
 map("n", "<leader>ti", vim.treesitter.inspect_tree, { desc = "Inspect Treesitter tree" })
 map("n", "<leader>te", vim.treesitter.query.edit, { desc = "Open Treesitter query Editor" })
