@@ -11,9 +11,15 @@ return {
     "OXY2DEV/markview.nvim",
     lazy = true,
     ft = "markdown",
-    opts = {
-      initial_state = false,
-    },
+    config = function()
+      local presets = require("markview.presets")
+
+      require("markview").setup({
+        horizontal_rules = presets.horizontal_rules.thin,
+        headings = presets.headings.marker,
+        initial_state = false,
+      })
+    end,
 
     dependencies = {
       "nvim-treesitter/nvim-treesitter",
