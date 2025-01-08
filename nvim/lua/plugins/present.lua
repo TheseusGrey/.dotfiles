@@ -26,5 +26,9 @@ return {
       "nvim-treesitter/nvim-treesitter",
       "nvim-tree/nvim-web-devicons",
     },
+    keys = {
+      { "<leader>Ps", "<cmd>PresentStart<cr>", desc = "Start Presentation" },
+      { "<leader>Pr", "<cmd>PresentResume<cr>", desc = "Resume Presentation" },
+    },
   },
 }
