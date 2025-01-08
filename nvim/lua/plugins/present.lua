@@ -1,6 +1,7 @@
 return {
   {
     dir = "~/projects/present.nvim",
+    event = { "BufReadPost", "BufNewFile", "BufWritePre" },
     opts = {
       integrations = {
         markview = true,
