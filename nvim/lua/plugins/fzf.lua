@@ -6,9 +6,10 @@ end
 
 return {
   "ibhagwan/fzf-lua",
-  lazy = false,
   dependencies = { "nvim-tree/nvim-web-devicons" },
-  opts = {},
+  opts = {
+    fzf_colors = true,
+  },
   keys = {
     { "<leader>ff", "<cmd>FzfLua files<cr>", desc = "Find Files" },
     { "<leader><leader>", find, desc = "Find Git Files, fallback to find all files" },
