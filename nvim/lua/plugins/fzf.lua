@@ -8,13 +8,19 @@ return {
   "ibhagwan/fzf-lua",
   dependencies = { "nvim-tree/nvim-web-devicons" },
   opts = {
+    defaults = {
+      formatter = "path.filename_first",
+    },
     fzf_colors = true,
+    fzf_opts = {
+      ["-1"] = true,
+    },
   },
   keys = {
     { "<leader>ff", "<cmd>FzfLua files<cr>", desc = "Find Files" },
     { "<leader><leader>", find, desc = "Find Git Files, fallback to find all files" },
     { "<leader>fg", "<cmd>FzfLua live_grep<cr>", desc = "Grep files" },
-    { "<leader>gd", "<cmd>FzfLua lsp_definitions", mode = { "n", "v" }, desc = "Goto Definition" },
+    { "<leader>gd", "<cmd>FzfLua lsp_definitions<cr>", mode = { "n", "v" }, desc = "Goto Definition" },
     { "<leader>gr", "<cmd>FzfLua lsp_references<cr>", mode = { "n", "v" }, desc = "Goto references" },
     {
       "<leader>gI",
