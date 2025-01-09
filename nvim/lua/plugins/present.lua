@@ -1,7 +1,10 @@
 return {
   {
+    "TheseusGrey/present.nvim",
+    dev = true,
     dir = "~/projects/present.nvim",
-    event = { "BufReadPost", "BufNewFile", "BufWritePre" },
+    event = { "BufReadPost", "BufNewFile" },
+    ft = "markdown",
     opts = {
       integrations = {
         markview = true,
