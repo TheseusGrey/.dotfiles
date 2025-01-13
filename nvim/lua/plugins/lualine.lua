@@ -21,7 +21,7 @@ return {
     sections = {
       lualine_a = { "mode" },
       lualine_b = { "diagnostics" },
-      lualine_c = { macro_state },
+      lualine_c = { macro_state, require("doing").status },
       lualine_x = {
         {
           require("noice").api.status.command.get,
