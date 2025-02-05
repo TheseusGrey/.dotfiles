@@ -19,9 +19,13 @@ return {
       local presets = require("markview.presets")
 
       require("markview").setup({
-        horizontal_rules = presets.horizontal_rules.thin,
-        headings = presets.headings.marker,
-        initial_state = false,
+        preview = {
+          enable = false,
+        },
+        markdown = {
+          horizontal_rules = presets.horizontal_rules.thin,
+          headings = presets.headings.marker,
+        },
       })
     end,
 

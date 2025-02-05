@@ -20,6 +20,7 @@ opt.conceallevel = 2
 opt.confirm = true
 opt.cursorline = true
 opt.expandtab = true
+opt.exrc = true
 opt.fillchars = {
   foldopen = "",
   foldclose = "",
