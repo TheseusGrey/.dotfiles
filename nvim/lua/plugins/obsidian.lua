@@ -14,6 +14,9 @@ return {
       "nvim-lua/plenary.nvim",
     },
     opts = {
+      picker = {
+        name = "fzf-lua",
+      },
       workspaces = {
         {
           name = "personal",
@@ -29,6 +32,11 @@ return {
       templates = {
         folder = "Templates",
       },
+    },
+    keys = {
+      { "<leader>ot", "<cmd>ObsidianTags<cr>", desc = "Open the Tag picker to for note finding" },
+      { "<leader>oi", "<cmd>ObsidianTemplate<cr>", desc = "Insert the given Obsidian template" },
+      { "<leader>oc", "<cmd>ObsidianTOC<cr>", desc = "Open the Table Of Contents for the current buffer" },
     },
   },
   {
