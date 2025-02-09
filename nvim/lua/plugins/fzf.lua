@@ -1,9 +1,3 @@
-local find = function()
-  if not require("fzf-lua").git_files() then
-    require("fzf-lua").find()
-  end
-end
-
 return {
   "ibhagwan/fzf-lua",
   dependencies = { "nvim-tree/nvim-web-devicons" },
@@ -22,8 +16,8 @@ return {
     },
   },
   keys = {
-    { "<leader>ff", "<cmd>FzfLua files<cr>", desc = "Find Files" },
-    { "<leader><leader>", find, desc = "Find Git Files, fallback to find all files" },
+    { "<leader>ff", "<cmd>FzfLua git_files<cr>", desc = "Find Git files" },
+    { "<leader><leader>", "<cmd>FzfLua files", desc = "Find Files" },
     { "<leader>fg", "<cmd>FzfLua live_grep<cr>", desc = "Grep files" },
     { "<leader>gd", "<cmd>FzfLua lsp_definitions<cr>", mode = { "n", "v" }, desc = "Goto Definition" },
     { "<leader>gr", "<cmd>FzfLua lsp_references<cr>", mode = { "n", "v" }, desc = "Goto references" },
