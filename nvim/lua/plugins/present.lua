@@ -3,7 +3,6 @@ return {
     "TheseusGrey/present.nvim",
     dev = true,
     dir = "~/projects/present.nvim",
-    event = { "BufReadPost", "BufNewFile" },
     dependencies = {
       "OXY2DEV/markview.nvim",
     },
