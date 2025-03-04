@@ -58,7 +58,12 @@ local config = {
   },
 
   init_options = {
-    bundles = {},
+    bundles = {
+      vim.fn.glob(
+        home
+          .. "/.local/share/nvim/mason/packages/java-debug-adapter/extension/server/com.microsoft.java.debug.plugin-0.53.1.jar"
+      ),
+    },
   },
 }
 
