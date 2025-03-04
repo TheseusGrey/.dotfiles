@@ -1,6 +1,62 @@
+local home = os.getenv("HOME")
 local breakpoints = {
   stop = { text = "󱡝", texthl = "Error", linehl = "", numhl = "" },
 }
+
+local function javascript_dap()
+  local dap = require("dap")
+  dap.adapters["pwa-node"] = {
+    type = "server",
+    host = "localhost",
+    port = "${port}",
+    executable = {
+      command = "node",
+      args = { home .. "/.local/share/nvim/mason/packages/js-debug-adapter/js-debug/src/dapDebugServer.js", "${port}" },
+    },
+  }
+
+  dap.configurations.javascript = {
+    {
+      type = "pwa-node",
+      request = "launch",
+      name = "Launch file",
+      program = "${file}",
+      cwd = "${workspaceFolder}",
+    },
+  }
+
+  dap.adapters.chrome = {
+    type = "executable",
+    command = "node",
+    args = { home .. "~/.local/share/nvim/mason/packages/chrome-debug-adapter/src/chromeDebug.ts" },
+  }
+
+  dap.configurations.javascriptreact = {
+    {
+      type = "chrome",
+      request = "attach",
+      program = "${file}",
+      cwd = vim.fn.getcwd(),
+      sourceMaps = true,
+      protocol = "inspector",
+      port = 9222,
+      webRoot = "${workspaceFolder}",
+    },
+  }
+
+  dap.configurations.typescriptreact = {
+    {
+      type = "chrome",
+      request = "attach",
+      program = "${file}",
+      cwd = vim.fn.getcwd(),
+      sourceMaps = true,
+      protocol = "inspector",
+      port = 9222,
+      webRoot = "${workspaceFolder}",
+    },
+  }
+end
 
 return {
   {
@@ -10,9 +66,11 @@ return {
       "nvim-neotest/nvim-nio",
     },
     lazy = true,
-    config = function(opts)
+    config = function()
       local dap, dapui = require("dap"), require("dapui")
       dapui.setup()
+
+      javascript_dap()
 
       vim.fn.sign_define("DapBreakpoint", breakpoints.stop)
       dap.listeners.before.attach.dapui_config = function()
