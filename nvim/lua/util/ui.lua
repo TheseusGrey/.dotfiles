@@ -1,11 +1,10 @@
 local M = {}
 
-
 M.icons = {
-  Error = " ",
-  Warn = " ",
-  Hint = " ",
-  Info = " ",
+  Error = "",
+  Warn = "",
+  Hint = "",
+  Info = "",
 }
 
 function M.border(hl_name)
