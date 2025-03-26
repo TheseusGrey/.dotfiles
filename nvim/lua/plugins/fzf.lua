@@ -19,6 +19,7 @@ return {
     { "<leader>ff", "<cmd>FzfLua git_files<cr>", desc = "Find Git files" },
     { "<leader><leader>", "<cmd>FzfLua files<cr>", desc = "Find Files" },
     { "<leader>fg", "<cmd>FzfLua live_grep<cr>", desc = "Grep files" },
+    { "<leader>fw", "<cmd>FzfLua grep_cWORD<cr>", desc = "Grep Current Word" },
     { "<leader>gd", "<cmd>FzfLua lsp_definitions<cr>", mode = { "n", "v" }, desc = "Goto Definition" },
     { "<leader>gr", "<cmd>FzfLua lsp_references<cr>", mode = { "n", "v" }, desc = "Goto references" },
     {
