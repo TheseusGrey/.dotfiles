@@ -2,7 +2,7 @@ local vault_location = vim.fn.expand("~") .. "/Documents/Lore Store"
 
 return {
   {
-    "epwalsh/obsidian.nvim",
+    "obsidian-nvim/obsidian.nvim",
     version = "*", -- recommended, use latest release instead of latest commit
     lazy = true,
     disable_frontmatter = true,
@@ -14,6 +14,11 @@ return {
       "nvim-lua/plenary.nvim",
     },
     opts = {
+      completion = {
+        nvim_cmp = false,
+        blink = true,
+        min_chars = 1,
+      },
       picker = {
         name = "fzf-lua",
       },
