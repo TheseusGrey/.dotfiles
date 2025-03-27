@@ -16,6 +16,7 @@ return {
     keymap = {
       -- set to 'none' to disable the 'default' preset
       preset = "default",
+      ["<CR>"] = { "select_and_accept", "fallback" },
     },
     snippets = { preset = "luasnip" },
     sources = {
