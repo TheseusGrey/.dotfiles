@@ -70,18 +70,3 @@ vim.api.nvim_create_autocmd("TermOpen", {
     vim.cmd.startinsert()
   end,
 })
-
-vim.api.nvim_create_autocmd("VimEnter", {
-  callback = function()
-    -- Push cmdline to the top of the window
-    vim.opt.cmdheight = 1
-    vim.opt.cmdwinheight = 1
-
-    -- Create a custom command to show cmdline above lualine
-    vim.cmd([[
-      autocmd CmdlineEnter * redraw
-      autocmd CmdlineEnter * echo ""
-      autocmd CmdlineEnter * echohl None
-    ]])
-  end,
-})

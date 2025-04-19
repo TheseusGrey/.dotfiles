@@ -1,10 +1,4 @@
-local function macro_state()
-  local reg = vim.fn.reg_recording()
-  if reg == "" then
-    return ""
-  end
-  return "@" .. reg
-end
+-- local ui = require("util.ui")
 
 return {
   "nvim-lualine/lualine.nvim",
@@ -20,9 +14,16 @@ return {
     },
     sections = {
       lualine_a = { "mode" },
-      lualine_b = { "diagnostics" },
-      lualine_c = { macro_state },
-      lualine_y = {},
+      lualine_b = {
+        {
+          require("noice").api.status.mode.get,
+          cond = require("noice").api.status.mode.has,
+          color = { fg = "#ff9e64" },
+        },
+      },
+      lualine_c = {},
+      lualine_x = {},
+      lualine_y = { "diagnostics" },
       lualine_z = { "location" },
     },
   },
