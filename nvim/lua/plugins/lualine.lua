@@ -21,14 +21,7 @@ return {
     sections = {
       lualine_a = { "mode" },
       lualine_b = { "diagnostics" },
-      lualine_c = { macro_state, require("doing").status },
-      lualine_x = {
-        {
-          require("noice").api.status.command.get,
-          cond = require("noice").api.status.command.has,
-          color = { fg = "#ff9e64" },
-        },
-      },
+      lualine_c = { macro_state },
       lualine_y = {},
       lualine_z = { "location" },
     },

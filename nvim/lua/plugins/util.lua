@@ -29,8 +29,20 @@ return {
       signs = false,
     },
     keys = {
-      { "<leader>st", "<cmd>TodoTelescope<cr>", desc = "show TODOs" },
-      { "<leader>sT", "<cmd>TodoTelescope keywords=TODO,FIX,FIXME<cr>", desc = "show Todo/Fix/Fixme" },
+      {
+        "<leader>ft",
+        function()
+          Snacks.picker.todo_comments()
+        end,
+        desc = "Todo",
+      },
+      {
+        "<leader>fT",
+        function()
+          Snacks.picker.todo_comments({ keywords = { "TODO", "FIX", "FIXME" } })
+        end,
+        desc = "Todo/Fix/Fixme",
+      },
     },
   },
 }
