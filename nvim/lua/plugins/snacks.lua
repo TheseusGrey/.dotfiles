@@ -54,6 +54,12 @@ return {
     { "<leader>g", "", desc = "+goto/git" },
     { "<leader>f", "", desc = "+find/focus" },
     {
+      "<leader>gg",
+      function()
+        Snacks.lazygit.open()
+      end,
+    },
+    {
       "gd",
       function()
         Snacks.picker.lsp_definitions()
