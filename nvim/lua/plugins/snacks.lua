@@ -3,13 +3,14 @@ return {
   priority = 1000,
   lazy = false,
   opts = {
+    dim = { enabled = true },
+    git = { enabled = true },
     gitbrowse = { enabled = true },
+    image = { enabled = true },
     input = { enabled = true },
     lazygit = { enabled = true },
-    git = { enabled = true },
-    quickfile = { enabled = true },
     notifier = { enabled = true },
-    dim = { enabled = true },
+    quickfile = { enabled = true },
     statuscolumn = { enabled = true },
     zen = { enabled = true },
     picker = {
@@ -58,6 +59,14 @@ return {
       function()
         Snacks.lazygit.open()
       end,
+      desc = "Goto (lazy)Git",
+    },
+    {
+      "<leader>gw",
+      function()
+        Snacks.gitbrowse.open()
+      end,
+      desc = "Git Webbrowse",
     },
     {
       "gd",
