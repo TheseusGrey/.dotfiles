@@ -9,6 +9,7 @@ return {
   },
   {
     "windwp/nvim-ts-autotag",
+    ft = { "html", "jsx", "tsx" },
     event = { "BufReadPost", "BufNewFile", "BufWritePre" },
     opts = {},
   },

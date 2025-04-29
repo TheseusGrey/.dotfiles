@@ -193,8 +193,7 @@ return {
     {
       "<leader>fo",
       function()
-        Snacks.zen()
-        Snacks.dim()
+        Snacks.zen.zen()
       end,
       desc = "Toggle focus editing",
     },
