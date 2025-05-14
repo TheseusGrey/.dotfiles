@@ -34,7 +34,7 @@
     }
   },
   "clock": {
-    "format": "{:%I:%M %p}",
+    "format": "{:%R | %d %b, %Y 󰃭}",
     "rotate": 0,
     "format-alt": "{:%R | %d %b, %Y 󰃭}",
     "tooltip-format": "<span>{calendar}</span>",
