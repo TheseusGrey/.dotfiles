@@ -64,6 +64,13 @@ return {
       },
       servers = {
         lua_ls = {},
+        markdown_oxide = {
+          workspace = {
+            didChangeWatchedFiles = {
+              dynamicRegistration = true,
+            },
+          },
+        },
       },
     },
     config = function(_, opts)
@@ -141,7 +148,6 @@ return {
       end
 
       -- get all the servers that are available through mason-lspconfig
-
       local have_mason, mlsp = pcall(require, "mason-lspconfig")
 
       local ensure_installed = {} ---@type string[]
@@ -164,13 +170,11 @@ return {
 
       if have_mason then
         mlsp.setup({
-
           ensure_installed = vim.tbl_deep_extend(
             "force",
             ensure_installed,
             require("util.helpers").opts("mason-lspconfig.nvim").ensure_installed or {}
           ),
-
           handlers = { setup },
         })
       end

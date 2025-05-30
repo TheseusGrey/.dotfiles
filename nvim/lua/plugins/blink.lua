@@ -6,6 +6,14 @@ return {
   opts = {
     signature = { enabled = true },
     completion = {
+      trigger = {
+        show_on_blocked_trigger_characters = function(ctx)
+          if vim.bo.filetype == "markdown" then
+            return { "[[" }
+          end
+          return { " ", "\n", "\t" } -- Default blocked triggers
+        end,
+      },
       documentation = { auto_show = true, auto_show_delay_ms = 250 },
       menu = {
         draw = {

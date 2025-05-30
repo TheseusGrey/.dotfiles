@@ -3,6 +3,7 @@ local vault_location = vim.fn.expand("~") .. "/Documents/Lore Store"
 return {
   {
     "obsidian-nvim/obsidian.nvim",
+    enabled = false,
     version = "*", -- recommended, use latest release instead of latest commit
     lazy = true,
     disable_frontmatter = true,
