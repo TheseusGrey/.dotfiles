@@ -6,7 +6,13 @@ return {
     dim = { enabled = true },
     git = { enabled = true },
     gitbrowse = { enabled = true },
-    image = { enabled = true },
+    image = {
+      enabled = true,
+      doc = {
+        inline = false,
+        float = true,
+      },
+    },
     input = { enabled = true },
     lazygit = { enabled = true },
     notifier = { enabled = true },
