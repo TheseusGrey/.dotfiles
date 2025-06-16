@@ -61,4 +61,15 @@ return {
       "nvim-telescope/telescope.nvim",
     },
   },
+  {
+    "Praczet/words-the-def.nvim",
+    event = {
+      "BufReadPre " .. vault_location .. "/**.md",
+      "BufNewFile " .. vault_location .. "/**.md",
+    },
+    lazy = true,
+    config = function()
+      require("words-the-def").setup({})
+    end,
+  },
 }
