@@ -1,13 +1,16 @@
 return {
   "saghen/blink.cmp",
   version = "1.*",
-  dependencies = { "L3MON4D3/LuaSnip", version = "v2.*" },
+  dependencies = {
+    "archie-judd/blink-cmp-words",
+    { "L3MON4D3/LuaSnip", version = "v2.*" },
+  },
   opts_extend = { "sources.default" },
   opts = {
     signature = { enabled = true },
     completion = {
       trigger = {
-        show_on_blocked_trigger_characters = function(ctx)
+        show_on_blocked_trigger_characters = function()
           if vim.bo.filetype == "markdown" then
             return { "[[" }
           end
@@ -29,6 +32,33 @@ return {
     snippets = { preset = "luasnip" },
     sources = {
       default = { "lsp", "path", "snippets", "buffer" },
+      -- Setup completion by filetype
+      per_filetype = {
+        markdown = { "thesaurus", "dictionary" },
+        text = { "thesaurus", "dictionary" },
+        lua = { inherit_defaults = true, "lazydev" },
+      },
+      providers = {
+
+        thesaurus = {
+          name = "blink-cmp-words",
+          module = "blink-cmp-words.thesaurus",
+          opts = {
+            score_offset = 0,
+            pointer_symbols = { "!", "&", "^" },
+          },
+        },
+
+        dictionary = {
+          name = "blink-cmp-words",
+          module = "blink-cmp-words.dictionary",
+          opts = {
+            dictionary_search_threshold = 3,
+            score_offset = 0,
+            pointer_symbols = { "!", "&", "^" },
+          },
+        },
+      },
     },
   },
 }
