@@ -24,9 +24,9 @@ alias gp='git push'
 
 # FUNCTIONS -------------------------------------------------------------------
 pl() {
-  local project_name=$(ls ~/projects | sed -r "s/\x1B\[([0-9]{1,3}(;[0-9]{1,2};?)?)?[mGK]//g" | fzf)
+  local project_name=$(ls --color=never ~/projects | fzf)
   if [ -n "$project_name" ]; then
-    echo $project_name
+    echo "$project_name"
   fi
 }
 
@@ -34,7 +34,7 @@ po() {
   local project=$(pl)
   if [ -n "$project" ]; then
     local window_name="${2:-dev}"
-    kitty @ launch --title $project --cwd "~/projects/$project" --type tab
-    kitty @ focus-tab --match title:$project
+    kitty @ launch --title "$project" --cwd "~/projects/$project" --type tab
+    kitty @ focus-tab --match "title:$project"
   fi
 }
