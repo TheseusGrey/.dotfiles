@@ -36,7 +36,6 @@ return {
       per_filetype = {
         markdown = { "thesaurus", "dictionary" },
         text = { "thesaurus", "dictionary" },
-        lua = { inherit_defaults = true, "lazydev" },
       },
       providers = {
 
