@@ -34,8 +34,8 @@ return {
       default = { "lsp", "path", "snippets", "buffer" },
       -- Setup completion by filetype
       per_filetype = {
-        markdown = { "thesaurus", "dictionary" },
-        text = { "thesaurus", "dictionary" },
+        markdown = { "thesaurus" },
+        text = { "thesaurus" },
       },
       providers = {
 

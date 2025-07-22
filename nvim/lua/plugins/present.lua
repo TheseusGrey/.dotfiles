@@ -12,13 +12,25 @@ return {
         markview = true,
       },
     },
+
+    keys = {
+      { "<leader>Ps", "<cmd>PresentStart<cr>", desc = "Start Presentation" },
+      { "<leader>Pr", "<cmd>PresentResume<cr>", desc = "Resume Presentation" },
+    },
   },
   { -- for pretty markdown styling
     "OXY2DEV/markview.nvim",
+    dependencies = {
+      "saghen/blink.cmp",
+      "nvim-treesitter/nvim-treesitter",
+      "nvim-tree/nvim-web-devicons",
+    },
     lazy = true,
     ft = "markdown",
+    priority = 49,
     config = function()
       local presets = require("markview.presets")
+      vim.g.markview_blink_loaded = true
 
       require("markview").setup({
         preview = {
@@ -30,14 +42,5 @@ return {
         },
       })
     end,
-
-    dependencies = {
-      "nvim-treesitter/nvim-treesitter",
-      "nvim-tree/nvim-web-devicons",
-    },
-    keys = {
-      { "<leader>Ps", "<cmd>PresentStart<cr>", desc = "Start Presentation" },
-      { "<leader>Pr", "<cmd>PresentResume<cr>", desc = "Resume Presentation" },
-    },
   },
 }
