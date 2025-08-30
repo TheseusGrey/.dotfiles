@@ -44,7 +44,9 @@ return {
           module = "blink-cmp-words.thesaurus",
           opts = {
             score_offset = 0,
-            pointer_symbols = { "!", "&", "^" },
+            definition_pointers = { "!", "&", "^" },
+            similarity_pointers = { "&", "^" },
+            similarity_depth = 2,
           },
         },
 
@@ -54,7 +56,7 @@ return {
           opts = {
             dictionary_search_threshold = 3,
             score_offset = 0,
-            pointer_symbols = { "!", "&", "^" },
+            definition_pointers = { "!", "&", "^" },
           },
         },
       },

@@ -64,13 +64,13 @@ return {
       },
       servers = {
         lua_ls = {},
-        markdown_oxide = {
-          workspace = {
-            didChangeWatchedFiles = {
-              dynamicRegistration = true,
-            },
-          },
-        },
+        -- markdown_oxide = {
+        --   workspace = {
+        --     didChangeWatchedFiles = {
+        --       dynamicRegistration = true,
+        --     },
+        --   },
+        -- },
       },
     },
     config = function(_, opts)
