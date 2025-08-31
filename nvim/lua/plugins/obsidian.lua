@@ -33,7 +33,7 @@ return {
 
       new_notes_location = "current_dir",
       templates = {
-        folder = "Templates",
+        folder = "_templates",
       },
 
       note_frontmatter_func = function(note)
