@@ -1,3 +1,4 @@
+local helpers = require("util.helpers")
 local vault_location = vim.fn.expand("~") .. "/Documents/Lore Store"
 
 return {
@@ -37,12 +38,12 @@ return {
       },
 
       note_frontmatter_func = function(note)
-        -- Add the title of the note as an alias.
-        if note.title then
-          note:add_alias(note.title)
+        local key = note.key
+        if key == nil then
+          key = helpers.generate_uuid()
         end
 
-        local out = { aliases = note.aliases, tags = note.tags, created = note.ctime }
+        local out = { key = key, tags = note.tags, modified = os.date("%Y/%m/%d", os.time()) }
 
         -- `note.metadata` contains any manually added fields in the frontmatter.
         -- So here we just make sure those fields are kept in the frontmatter.
@@ -54,6 +55,7 @@ return {
 
         return out
       end,
+
       picker = {
         name = "snacks.pick",
       },
