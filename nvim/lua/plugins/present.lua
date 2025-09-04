@@ -26,7 +26,7 @@ return {
       "nvim-tree/nvim-web-devicons",
     },
     lazy = true,
-    ft = "markdown",
+    ft = { "codecompanion", "avante" },
     priority = 49,
     config = function()
       local presets = require("markview.presets")
@@ -34,7 +34,8 @@ return {
 
       require("markview").setup({
         preview = {
-          enable = false,
+          filetypes = { "codecompanion", "avante" },
+          ignore_buftypes = { "markdown" },
         },
         markdown = {
           horizontal_rules = presets.horizontal_rules.thin,
