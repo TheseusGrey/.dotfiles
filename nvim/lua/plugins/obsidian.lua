@@ -43,7 +43,11 @@ return {
           key = helpers.generate_uuid()
         end
 
-        local out = { key = key, tags = note.tags, modified = os.date("%Y/%m/%d", os.time()) }
+        if note.title then
+          note:add_alias(note.title)
+        end
+
+        local out = { key = key, aliases = note.aliases, tags = note.tags }
 
         -- `note.metadata` contains any manually added fields in the frontmatter.
         -- So here we just make sure those fields are kept in the frontmatter.
