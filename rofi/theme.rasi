@@ -1,12 +1,27 @@
-* {
-    main-bg:            #242933;
-    alt-bg:             #2E3440;
-    main-fg:            #D8DEE9;
-    select-bg:          #60728A;
-    select-fg:          @main-fg;
-    separatorcolor:     transparent;
-    border-color:       #F9CE73;
-    border-color-alt:   #832640;
-    border-gradient:    linear-gradient(45deg, #F9CE73, #832640);
-}
+// * {
+//     main-bg:            #242933;
+//     alt-bg:             #2E3440;
+//     main-fg:            #D8DEE9;
+//     select-bg:          #60728A;
+//     select-fg:          @main-fg;
+//     separatorcolor:     transparent;
+//     border-color:       #F9CE73;
+//     border-color-alt:   #832640;
+//     border-gradient:    linear-gradient(45deg, #F9CE73, #832640);
+// }
 
+* {
+    bg0:     #242933;
+    bg1:     #2E3440;
+    fg0:     #D8DEE9;
+
+    accent-color:     #A97EA1;
+    urgent-color:     #BF616A;
+
+    background-color:   transparent;
+    text-color:         @fg0;
+
+    margin:     0;
+    padding:    0;
+    spacing:    0;
+}
