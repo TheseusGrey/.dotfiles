@@ -1,41 +1,41 @@
+#!/bin/bash
+
+menu_folder=$DOTFILES/bin/menus/
+menu_list=$(ls $menu_folder | cut -f 1 -d '.')
+
 menu() {
   local prompt="$1"
-  local options="$2"
-  local extra="$3"
-  local preselect="$4"
+  local options=$(join_by "\n" "${@:2}")
 
-  read -r -a args <<<"$extra"
-
-  if [[ -n "$preselect" ]]; then
-    local index
-    index=$(echo -e "$options" | grep -nxF "$preselect" | cut -d: -f1)
-    if [[ -n "$index" ]]; then
-      args+=("-a" "$index")
-    fi
-  fi
-
-  echo -e "$options" | rofi -dmenu "$prompt…" "${args[@]}"
+  echo -e "$options" | rofi -dmenu -p "$prompt…" "$options"
 }
 
-open_menu() {
-  prompt=$1
-  options=$2
-  menu $prompt $(${!options[@]})
+app_menu() {
+  rofi -show drun
 }
 
-function join_by {
-  local d=${1-} f=${2-}
-  if shift 2; then
-    printf %s "$f" "${@/#/$d}"
-  fi
+action_menu() {
+  modes=""
+  for menu in $menu_list; do
+    modes="${modes},${menu}:${menu_folder}${menu}.sh"
+  done
+
+  rofi -show combi -combi-modes $modes -modes combi
 }
 
-screenshot_prompt="Capture"
-declare -A screenshot_options
-screenshot_options["  Screenshot"]=$(echo "NOT IMPLEMENTED")
-screenshot_options["  Screenrecord"]=$(echo "NOT IMPLEMENTED")
-screenshot_options["󰃉  Color"]=$(echo "NOT IMPLEMENTED")
-show_screenshot_menu() {
-  # need to get the keys, and pass them into the menu, might need to adjust the menu function
-  menu $screenshot_prompt $(${!screenshot_options[@]})
+everything_menu() {
+  modes="drun"
+  for menu in $menu_list; do
+    modes="${modes},${menu}:${menu_folder}${menu}.sh"
+  done
+
+  # modes="${modes:1}"
+  rofi -show combi -combi-modes $modes -modes combi
 }
+
+# Okay, list of things we want:
+# 1. The drun menu we're used to for launching apps
+# 2. A "master" menu for all the sub menus we are creating in the /menus folder
+# 3. A "Full" menu that uses -combi-modes to combine all the sub menues we've created
+
+everything_menu
