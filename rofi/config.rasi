@@ -5,14 +5,14 @@ configuration {
     modi:                        "drun,filebrowser,window,run";
     show-icons:                  false;
     display-drun:                " ";
+    display-combi:               " ";
     display-run:                 " ";
     display-filebrowser:         " ";
     display-window:              " ";
     drun-display-format:         "{name}";
     window-format:               "{t}";
 
-    // font:                        "JetBrainsMono Nerd Font 12";
-    font:   "FiraCode Nerd Font Medium 18";
+    font:                        "JetBrainsMono Nerd Font 12";
 }
 
 window {
@@ -36,8 +36,9 @@ prompt, entry, element-icon, element-text {
 }
 
 prompt {
-    font:   "FiraCode Nerd Font Medium 24";
+    font:       "JetBrainsMono Nerd Font 16";
     text-color: @accent-color;
+    padding: 0 8px 0 0;
 }
 
 textbox {
