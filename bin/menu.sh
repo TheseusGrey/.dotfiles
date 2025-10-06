@@ -1,6 +1,13 @@
 #!/bin/bash
 
-menu_folder=$DOTFILES/bin/menus/
+function join_by {
+  local d=${1-} f=${2-}
+  if shift 2; then
+    printf %s "$f" "${@/#/$d}"
+  fi
+}
+
+menu_folder=$DOTFILES/rofi/scripts/
 menu_list=$(ls $menu_folder | cut -f 1 -d '.')
 
 menu() {
@@ -15,27 +22,33 @@ app_menu() {
 }
 
 action_menu() {
-  modes=""
-  for menu in $menu_list; do
-    modes="${modes},${menu}:${menu_folder}${menu}.sh"
-  done
+  modes=$(join_by "," $menu_list)
+  echo $modes
 
-  rofi -show combi -combi-modes $modes -modes combi
+  rofi -show combi -combi-modes "$modes"
 }
 
 everything_menu() {
-  modes="drun"
-  for menu in $menu_list; do
-    modes="${modes},${menu}:${menu_folder}${menu}.sh"
-  done
+  modes="drun,$(join_by "," $menu_list)"
 
-  # modes="${modes:1}"
-  rofi -show combi -combi-modes $modes -modes combi
+  rofi -show combi -combi-modes $modes
 }
 
-# Okay, list of things we want:
-# 1. The drun menu we're used to for launching apps
-# 2. A "master" menu for all the sub menus we are creating in the /menus folder
-# 3. A "Full" menu that uses -combi-modes to combine all the sub menues we've created
+system_menu() {
+  # Uppercase first letter to make things look alil nicer
+  menu_list_text=""
+  for i in ${menu_list[@]}; do menu_list_text="${menu_list_text}${i^}\n"; done
 
-everything_menu
+  modes="Apps\n$menu_list_text"
+  selection=$(echo -e $modes | rofi -dmenu -p "Controls...")
+
+  # Only show sub menu if something was actually picked
+  if [ -n "${selection+x}" ]; then
+    case $selection in
+    Apps) rofi -show drun ;;
+    *) rofi -show ${selection,} ;;
+    esac
+  fi
+}
+
+system_menu

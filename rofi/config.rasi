@@ -2,7 +2,7 @@
 
 // Config //
 configuration {
-    modi:                        "drun,filebrowser,window,run";
+    modi:                        "combi,drun,capture,system";
     show-icons:                  false;
     display-drun:                " ";
     display-combi:               " ";

@@ -24,9 +24,9 @@ else
   # We've picked an option, so do something with it
   case "$@" in
   *Lock*) swaylock ;;
-  *Screensaver*) echo "NOT IMPLEMENTED YET" ;;
+  *Screensaver*) notify-send "NOT IMPLEMENTED YET" ;;
   *Suspend*) systemctl suspend ;;
-  *Relaunch*) echo "NOT IMPLEMENTED YET" ;; # uwsm stop
+  *Relaunch*) notify-send "NOT IMPLEMENTED YET" ;; # uwsm stop
   *Restart*) systemctl reboot ;;
   *Shutdown*) systemctl poweroff ;;
   esac
