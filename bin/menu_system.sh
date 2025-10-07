@@ -17,10 +17,6 @@ menu() {
   echo -e "$options" | rofi -dmenu -p "$prompt…" "$options"
 }
 
-app_menu() {
-  rofi -show drun
-}
-
 action_menu() {
   modes=$(join_by "," $menu_list)
   echo $modes
