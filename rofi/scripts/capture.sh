@@ -13,7 +13,7 @@ fi
 if [ -z "${selection+x}" ]; then
   # Present options for screen captures
   echo -en "\0icon\x1f\n"
-  echo -en "\0prompt\x1fCapture\t> \n"
+  echo -en "\0prompt\x1fCapture\t>\n"
   echo -e "  Screenshot"
   echo -e "  Screen Record"
   echo -e "󰃉  Color"

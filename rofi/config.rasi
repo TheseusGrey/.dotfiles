@@ -4,9 +4,9 @@
 configuration {
     modi:                        "combi,drun,capture,system";
     show-icons:                  false;
-    display-drun:                " ";
+    display-drun:                "󰀻 ";
     display-combi:               " ";
-    display-run:                 " ";
+    display-run:                 "󰀻 ";
     display-filebrowser:         " ";
     display-window:              " ";
     drun-display-format:         "{name}";

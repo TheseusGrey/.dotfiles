@@ -12,7 +12,7 @@ fi
 
 if [ -z "${selection+x}" ]; then
   # Present options for screen captures
-  echo -en "\0prompt\x1fSystem\t> \n"
+  echo -en "\0prompt\x1fSystem\t>\n"
   echo -e "  Lock"
   echo -e "󱄄  Screensaver"
   echo -e "󰤄  Suspend"
