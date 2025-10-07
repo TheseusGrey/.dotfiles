@@ -20,8 +20,8 @@
     "format": "{}",
     "rotate": 0,
     "exec": "echo ; echo  logout",
-    "on-click": "rofi -show power-menu -modi power-menu:~/.dotfiles/bin/power-menu.sh",
-    "on-click-right": "rofi -show power-menu -modi power-menu:~/.dotfiles/bin/power-menu.sh",
+    "on-click": "rofi -show system",
+    "on-click-right": "rofi -show system",
     "interval" : 86400, // once every day
     "tooltip": true
   },

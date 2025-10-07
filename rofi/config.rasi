@@ -76,7 +76,7 @@ element alternate active {
 }
 
 element selected {
-    text-color: @bg0;
+    text-color: @fg0;
 }
 
 element selected normal, element selected active {
