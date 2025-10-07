@@ -39,11 +39,11 @@ system_menu() {
   menu_list_text=""
   for i in ${menu_list[@]}; do menu_list_text="${menu_list_text}${i^}\n"; done
 
-  modes="Apps\n$menu_list_text"
+  modes="${menu_list_text}Apps\n"
   selection=$(echo -e $modes | rofi -dmenu -p "Controls...")
 
   # Only show sub menu if something was actually picked
-  if [ -n "${selection+x}" ]; then
+  if ! [ ${#selection} -eq 0 ]; then
     case $selection in
     Apps) rofi -show drun ;;
     *) rofi -show ${selection,} ;;
