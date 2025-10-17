@@ -12,9 +12,7 @@ return {
     keys = {
       {
         "<leader>e",
-        function()
-          require("oil").toggle_float()
-        end,
+        "<CMD>Oil<CR>",
         desc = "file Explorer",
       },
     },
