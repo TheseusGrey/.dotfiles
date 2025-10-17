@@ -37,28 +37,32 @@ return {
         folder = "_templates",
       },
 
-      note_frontmatter_func = function(note)
-        local key = note.key
-        if key == nil then
-          key = helpers.generate_uuid()
-        end
-
-        if note.title then
-          note:add_alias(note.title)
-        end
-
-        local out = { key = key, aliases = note.aliases, tags = note.tags }
-
-        -- `note.metadata` contains any manually added fields in the frontmatter.
-        -- So here we just make sure those fields are kept in the frontmatter.
-        if note.metadata ~= nil and not vim.tbl_isempty(note.metadata) then
-          for k, v in pairs(note.metadata) do
-            out[k] = v
+      frontmatter = {
+        enabled = true,
+        sort = { "id", "key", "aliases", "tags" },
+        func = function(note)
+          local key = note.key
+          if key == nil then
+            key = helpers.generate_uuid()
           end
-        end
 
-        return out
-      end,
+          if note.title then
+            note:add_alias(note.title)
+          end
+
+          local out = { key = key, aliases = note.aliases, tags = note.tags }
+
+          -- `note.metadata` contains any manually added fields in the frontmatter.
+          -- So here we just make sure those fields are kept in the frontmatter.
+          if note.metadata ~= nil and not vim.tbl_isempty(note.metadata) then
+            for k, v in pairs(note.metadata) do
+              out[k] = v
+            end
+          end
+
+          return out
+        end,
+      },
 
       picker = {
         name = "snacks.pick",
