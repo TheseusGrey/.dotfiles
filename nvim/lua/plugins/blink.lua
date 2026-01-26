@@ -4,6 +4,7 @@ return {
   dependencies = {
     "archie-judd/blink-cmp-words",
     { "L3MON4D3/LuaSnip", version = "v2.*" },
+    "moyiz/blink-emoji.nvim",
   },
   opts_extend = { "sources.default" },
   opts = {
@@ -31,13 +32,34 @@ return {
     },
     snippets = { preset = "luasnip" },
     sources = {
-      default = { "lsp", "path", "snippets", "buffer" },
+      default = { "snippets", "lsp", "path", "buffer", "emoji" },
       -- Setup completion by filetype
       per_filetype = {
-        markdown = { "thesaurus" },
-        text = { "thesaurus" },
+        markdown = { "thesaurus", "emoji" },
+        text = { "thesaurus", "emoji" },
       },
       providers = {
+
+        emoji = {
+          module = "blink-emoji",
+          name = "Emoji",
+          score_offset = 15, -- Tune by preference
+          opts = {
+            insert = true, -- Insert emoji (default) or complete its name
+            ---@type string|table|fun():table
+            trigger = function()
+              return { ":" }
+            end,
+          },
+          should_show_items = function()
+            return vim.tbl_contains(
+              -- Enable emoji completion only for git commits and markdown.
+              -- By default, enabled for all file-types.
+              { "gitcommit", "markdown" },
+              vim.o.filetype
+            )
+          end,
+        },
 
         thesaurus = {
           name = "blink-cmp-words",
