@@ -1,36 +1,37 @@
 return {
   "saghen/blink.cmp",
-  version = "1.*",
   dependencies = {
+    "rafamadriz/friendly-snippets",
+    {
+      "L3MON4D3/LuaSnip",
+      config = function()
+        -- Load custom snippets from ~/.config/nvim/lua/snippets
+        require("luasnip.loaders.from_lua").load({
+          paths = vim.fn.stdpath("config") .. "/lua/snippets",
+        })
+      end,
+    },
     "archie-judd/blink-cmp-words",
-    { "L3MON4D3/LuaSnip", version = "v2.*" },
     "moyiz/blink-emoji.nvim",
   },
-  opts_extend = { "sources.default" },
+  version = "*",
   opts = {
-    signature = { enabled = true },
-    completion = {
-      trigger = {
-        show_on_blocked_trigger_characters = function()
-          if vim.bo.filetype == "markdown" then
-            return { "[[" }
-          end
-          return { " ", "\n", "\t" } -- Default blocked triggers
-        end,
-      },
-      documentation = { auto_show = true, auto_show_delay_ms = 250 },
-      menu = {
-        draw = {
-          columns = { { "kind_icon", "label", "label_description", gap = 1 }, { "kind" } },
-        },
-      },
-    },
+    -- Keymap configuration
     keymap = {
-      -- set to 'none' to disable the 'default' preset
       preset = "default",
-      ["<CR>"] = { "select_and_accept", "fallback" },
+      ["<C-space>"] = { "show", "show_documentation", "hide_documentation" },
+      ["<C-e>"] = { "hide", "fallback" },
+      ["<CR>"] = { "accept", "fallback" },
+      ["<Tab>"] = { "snippet_forward", "select_next", "fallback" },
+      ["<S-Tab>"] = { "snippet_backward", "select_prev", "fallback" },
+      ["<Up>"] = { "select_prev", "fallback" },
+      ["<Down>"] = { "select_next", "fallback" },
+      ["<C-p>"] = { "select_prev", "fallback" },
+      ["<C-n>"] = { "select_next", "fallback" },
+      ["<C-u>"] = { "scroll_documentation_up", "fallback" },
+      ["<C-d>"] = { "scroll_documentation_down", "fallback" },
     },
-    snippets = { preset = "luasnip" },
+
     sources = {
       default = { "snippets", "lsp", "path", "buffer", "emoji" },
       -- Setup completion by filetype
@@ -83,5 +84,33 @@ return {
         },
       },
     },
+
+    completion = {
+      trigger = {
+        show_on_blocked_trigger_characters = function()
+          if vim.bo.filetype == "markdown" then
+            return { "[[" }
+          end
+          return { " ", "\n", "\t" } -- Default blocked triggers
+        end,
+      },
+      documentation = { auto_show = true, auto_show_delay_ms = 250 },
+      menu = {
+        draw = {
+          columns = { { "kind_icon", "label", "label_description", gap = 1 }, { "kind" } },
+        },
+      },
+    },
+
+    -- Signature help configuration
+    signature = {
+      enabled = true,
+    },
+
+    -- Snippet configuration for LuaSnip
+    snippets = {
+      preset = "luasnip",
+    },
   },
+  opts_extend = { "sources.default" },
 }
