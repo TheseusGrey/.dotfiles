@@ -22,6 +22,7 @@ configs=(
   hypr
   kitty
   waybar
+  quickshell
 )
 
 echo ""
