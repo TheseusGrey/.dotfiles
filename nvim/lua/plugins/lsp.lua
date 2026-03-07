@@ -64,6 +64,9 @@ return {
       },
       servers = {
         lua_ls = {},
+        -- qmlls = {
+        --   cmd = { "qmlls", "-E" },
+        -- },
         -- markdown_oxide = {
         --   workspace = {
         --     didChangeWatchedFiles = {
