@@ -9,6 +9,8 @@ Singleton {
     readonly property int activeSize: 40
     readonly property int inactiveSize: 12
 
-    readonly property int fontSize: 16
-    property string fontFamily: "JetBrainsMono Nerd Font"
+    readonly property int fontSize: 14
+    readonly property string fontFamily: "JetBrainsMono Nerd Font"
+
+    readonly property string surfaceColor: "#"
 }
