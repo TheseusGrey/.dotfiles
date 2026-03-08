@@ -12,12 +12,10 @@ PanelWindow {
         right: true
     }
 
-    // How tall the bar is (this one is bigger, as you wanted)
-    height: Appearance.activeSize
+    implicitHeight: Appearance.activeSize
 
     exclusionMode: ExclusionMode.Normal
 
-    // Content goes here
     Row {
         anchors.fill: parent
         spacing: 16

@@ -1,5 +1,12 @@
 import QtQuick
+import qs.config
+import qs.components
 
-Text {
+StyledText {
   text: Time.time + " | " + Time.date
+
+  font {
+    pointSize: Appearance.fontSize
+    family: Appearance.fontFamily
+  }
 }

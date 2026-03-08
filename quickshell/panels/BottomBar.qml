@@ -10,7 +10,7 @@ PanelWindow {
         right: true
     }
 
-    height: Appearance.inactiveSize
+    implicitHeight: Appearance.inactiveSize
 
     exclusionMode: ExclusionMode.Normal
 
