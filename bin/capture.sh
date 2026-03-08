@@ -1,0 +1,1 @@
+/home/ashe/.dotfiles/rofi/scripts/capture.sh

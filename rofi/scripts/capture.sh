@@ -14,15 +14,16 @@ if [ -z "${selection+x}" ]; then
   # Present options for screen captures
   echo -en "\0icon\x1f\n"
   echo -en "\0prompt\x1fCapture\t>\n"
-  echo -e "  Screenshot"
-  echo -e "  Screen Record"
+  echo -e "  ScreenShot"
+  echo -e "  ScreenRecord"
   echo -e "󰃉  Color"
 
 else
   # We've picked an option, so do something with it
   case "$@" in
-  *Screenshot*) notify-send "NOT IMPLEMENTED YET" ;;
-  *Screenrecord*) notify-send "NOT IMPLEMENTED YET" ;;
+  *ScreenShot*) pkill hyprshot || hyprshot -m region ;;
+  *PrintScreen*) pkill hyprshot || hyprshot -m output ;;
+  *ScreenRecord*) notify-send "NOT IMPLEMENTED YET" ;;
   *Color*) pkill hyprpicker || hyprpicker | wl-copy -n ;;
   esac
 
