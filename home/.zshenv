@@ -3,6 +3,7 @@
 export DOTFILES=~/.dotfiles
 export EDITOR=nvim
 export TERMINAL=kitty
+export MANPAGER="nvim --clean +Man!"
 
 export FZF_DEFAULT_OPTS=$FZF_DEFAULT_OPTS"
     --height 62% --layout=reverse \
