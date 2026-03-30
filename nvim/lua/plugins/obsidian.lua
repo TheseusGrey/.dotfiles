@@ -11,6 +11,23 @@ return {
     version = "*", -- recommended, use latest release instead of latest commit
     event = "BufReadPre *.md",
     cond = in_obsidian_vault,
+    keys = {
+      {
+        "<leader>ot",
+        "<CMD>Obsidian template<CR>",
+        desc = "Insert template (Obsidian)",
+      },
+      {
+        "<leader>oT",
+        "<CMD>Obsidian new_from_template<CR>",
+        desc = "New note from template (Obsidian)",
+      },
+      {
+        "<leader>os",
+        "<CMD>Obsidian tags<CR>",
+        desc = "Search tags (Obsidian)",
+      },
+    },
     opts = function()
       local cwd = vim.fn.getcwd()
       local name = vim.fn.fnamemodify(cwd, ":t")
