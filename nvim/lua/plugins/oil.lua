@@ -7,6 +7,9 @@ return {
       view_options = {
         show_hidden = true,
       },
+      keymaps = {
+        ["q"] = { "actions.close", mode = "n" },
+      },
     },
     dependencies = { "nvim-tree/nvim-web-devicons" },
     keys = {

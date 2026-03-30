@@ -41,7 +41,6 @@ vim.api.nvim_create_autocmd("FileType", {
     "checkhealth",
     "dbout",
     "gitsigns.blame",
-    "oil",
   },
   callback = function(event)
     vim.bo[event.buf].buflisted = false
