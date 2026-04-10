@@ -1,3 +1,21 @@
+local function enable_markview_for_presentation()
+  require("markview").commands.Enable()
+
+  vim.defer_fn(function()
+    local present = require("present")
+    local body = present.presentation and present.presentation.windows and present.presentation.windows.body
+    if body and body.buf and vim.api.nvim_buf_is_valid(body.buf) then
+      vim.api.nvim_create_autocmd("BufLeave", {
+        buffer = body.buf,
+        once = true,
+        callback = function()
+          require("markview").commands.Disable()
+        end,
+      })
+    end
+  end, 50)
+end
+
 return {
   {
     "TheseusGrey/present.nvim",
@@ -14,8 +32,22 @@ return {
     },
 
     keys = {
-      { "<leader>Ps", "<cmd>PresentStart<cr>", desc = "Start Presentation" },
-      { "<leader>Pr", "<cmd>PresentResume<cr>", desc = "Resume Presentation" },
+      {
+        "<leader>Ps",
+        function()
+          enable_markview_for_presentation()
+          vim.cmd("PresentStart")
+        end,
+        desc = "Start Presentation",
+      },
+      {
+        "<leader>Pr",
+        function()
+          enable_markview_for_presentation()
+          vim.cmd("PresentResume")
+        end,
+        desc = "Resume Presentation",
+      },
     },
   },
   { -- for pretty markdown styling
@@ -34,6 +66,7 @@ return {
 
       require("markview").setup({
         preview = {
+          enable = false,
           filetypes = { "codecompanion", "avante" },
           ignore_buftypes = { "markdown" },
         },
