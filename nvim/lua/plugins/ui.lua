@@ -99,7 +99,7 @@ require("lualine").setup({
       },
     },
     lualine_c = {},
-    lualine_x = {},
+    lualine_x = { "searchcount" },
     lualine_y = { "diagnostics" },
     lualine_z = { "location" },
   },
