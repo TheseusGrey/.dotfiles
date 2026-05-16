@@ -1,4 +1,4 @@
-# .dotfiles
+# .Dotfiles
 
 My collection of `.dotfiles` I use when and where ever I'm doing stuff. The README is mostly a few of my ramblings and ideas that I wanted to keep track of. Such as the requirements to get things started:
 
