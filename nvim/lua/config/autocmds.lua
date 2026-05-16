@@ -69,3 +69,55 @@ vim.api.nvim_create_autocmd("TermOpen", {
     vim.cmd.startinsert()
   end,
 })
+
+-- Refresh Lualine for macro status
+vim.api.nvim_create_autocmd({ "RecordingEnter", "RecordingLeave" }, {
+  callback = function()
+    -- small delay needed on RecordingLeave as reg_recording()
+    -- clears before the event fully fires
+    vim.schedule(function()
+      require("lualine").refresh()
+    end)
+  end,
+})
+
+-- Format on "save"
+vim.api.nvim_create_autocmd("BufWritePre", {
+  pattern = "*",
+  callback = function(args)
+    require("conform").format({ bufnr = args.buf })
+  end,
+})
+
+-- Post-install steps for a few plugins
+vim.api.nvim_create_autocmd("PackChanged", {
+  callback = function(ev)
+    local name, kind = ev.data.spec.name, ev.data.kind
+    if name == "blink.cmp" and (kind == "install" or kind == "update") then
+      vim.system({ "cargo", "build", "--release" }, {
+        cwd = ev.data.spec.path,
+      })
+
+      -- Used once blink.cmp has been upgraded to v2
+      -- if not ev.data.active then
+      --   vim.cmd.packadd("blink.cmp")
+      --   vim.cmd.packadd("blink.lib")
+      -- end
+      -- require("blink.cmp").build():wait(60000)
+    end
+
+    if name == "LuaSnip" and (kind == "install" or kind == "update") then
+      vim.system({ "make", "install_jsregexp" }, {
+        cwd = ev.data.spec.path,
+      })
+    end
+
+    if name == "Mason" and (kind == "install" or kind == "update") then
+      vim.cmd("MasonUpdate")
+    end
+
+    if name == "Mason" and (kind == "install" or kind == "update") then
+      vim.cmd("TSUpdate")
+    end
+  end,
+})

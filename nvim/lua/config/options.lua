@@ -40,6 +40,7 @@ opt.ignorecase = true
 opt.inccommand = "nosplit"
 opt.jumpoptions = "view"
 opt.laststatus = 3
+opt.cmdheight = 0
 opt.linebreak = true
 opt.list = true
 opt.mouse = "a"

@@ -48,6 +48,3 @@ vim.api.nvim_create_user_command("ToggleTerm", function()
     vim.api.nvim_win_hide(state.win)
   end
 end, {})
-
-vim.keymap.set("t", "<esc><esc>", "<c-\\><c-n>")
-vim.keymap.set({ "n" }, "<leader>tt", "<cmd>ToggleTerm<cr>", { noremap = true, silent = true })

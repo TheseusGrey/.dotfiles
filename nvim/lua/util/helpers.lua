@@ -1,21 +1,27 @@
 local M = {}
 
----@param name string
-function M.get_plugin(name)
-  return require("lazy.core.config").spec.plugins[name]
+---Checks if nvim is currently running inside a git repo
+---@return boolean
+function M.is_git_repo()
+  vim.fn.system("git rev-parse --is-inside-work-tree 2>/dev/null")
+  return vim.v.shell_error == 0
 end
 
----@param name string
-function M.opts(name)
-  local plugin = M.get_plugin(name)
-  if not plugin then
-    return {}
-  end
-  local Plugin = require("lazy.core.plugin")
-  return Plugin.values(plugin, "opts", false)
+---Checks if nvim is currently running inside a obsidian vault
+---@return boolean
+function M.is_obsidian_vault()
+  return vim.fn.isdirectory(vim.fn.getcwd() .. "/.obsidian") == 1
 end
 
--- Generate UUID-like strings
+--- Prepends a plugin path with the github url
+---@param x string
+---@return string
+function M.gh(x)
+  return "https://github.com/" .. x
+end
+
+--- Generates a UUID-like string, useful for semi unique keys
+---@return string
 function M.generate_uuid()
   local template = "xxxx-xxxx-xxxx-xxxx"
   math.randomseed(os.time() + os.clock() * 1000000)
