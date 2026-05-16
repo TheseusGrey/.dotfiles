@@ -1,4 +1,4 @@
--- require("vim._core.ui2").enable()
+require("vim._core.ui2").enable()
 
 if vim.o.filetype == "lazy" then
   vim.cmd([[messages clear]])
