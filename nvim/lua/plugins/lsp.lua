@@ -83,7 +83,8 @@ local function setup(server)
   if server_opts.enabled == false then
     return
   end
-  require("lspconfig")[server].setup(server_opts)
+  vim.lsp.config(server, server_opts)
+  -- vim.lsp[server].setup(server_opts)
 end
 
 -- get all the servers that are available through mason-lspconfig
@@ -109,6 +110,7 @@ end
 
 if have_mason then
   mlsp.setup({
+    automatic_enable = false,
     ensure_installed = ensure_installed,
     handlers = { setup },
   })

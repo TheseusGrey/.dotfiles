@@ -121,3 +121,15 @@ vim.api.nvim_create_autocmd("PackChanged", {
     end
   end,
 })
+
+vim.api.nvim_create_autocmd("FileType", {
+  pattern = "lua",
+  once = true, -- only run setup once
+  callback = function()
+    require("lazydev").setup({
+      library = {
+        { path = "${3rd}/luv/library", words = { "vim%.uv" } },
+      },
+    })
+  end,
+})

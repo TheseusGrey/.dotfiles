@@ -64,9 +64,9 @@ map("n", keymaps.buffer("l"), "<cmd>BufferLineCloseRight<CR>", { desc = "Delete 
 map("n", keymaps.buffer("p"), "<cmd>BufferLinePick<CR>", { desc = "Pick from visible buffers" })
 
 map({ "n", "v" }, keymaps.edit("r"), vim.lsp.buf.rename, { desc = "Rename Symbol" })
-map({ "n", "v" },keymaps.edit("l"), vim.lsp.codelens.run, { desc = "codeLense" })
-map({"n", "v" }, keymaps.edit("A"), source_action, { desc = "Source Action" })
-map({"n", "v" }, keymaps.edit("a"), vim.lsp.buf.code_action, { desc = "Code Action" })
+map({ "n", "v" }, keymaps.edit("l"), vim.lsp.codelens.run, { desc = "codeLense" })
+map({ "n", "v" }, keymaps.edit("A"), source_action, { desc = "Source Action" })
+map({ "n", "v" }, keymaps.edit("a"), vim.lsp.buf.code_action, { desc = "Code Action" })
 
 map("n", "<leader><leader>", Snacks.picker.files, { desc = "Find Files" })
 map("n", keymaps.find("b"), Snacks.picker.buffers, { desc = "Find Buffers" })
@@ -77,12 +77,26 @@ map("n", keymaps.find("w"), Snacks.picker.grep_word, { desc = "Find Word" })
 
 map("n", keymaps.git("B"), Snacks.git.blame_line, { desc = "Git Blame" })
 
-map("n", keymaps.goto("D"), Snacks.picker.lsp_declarations, { desc = "Goto Declaration" })
-map("n", keymaps.goto("I"), Snacks.picker.lsp_implementations, { desc = "Goto Implementation"  })
-map("n", keymaps.goto("d"), Snacks.picker.lsp_definitions, { desc = "Goto Definition" })
-map("n", keymaps.goto("r"), Snacks.picker.lsp_references, { desc = "Goto References", nowait = true })
-map("n", keymaps.goto("t"), Snacks.picker.lsp_type_definitions, { desc = "Goto Type definition"  })
-map("n", keymaps.goto("w"), Snacks.gitbrowse.open, { desc = "Git Webbrowse" })
+map("n", keymaps.go("D"), Snacks.picker.lsp_declarations, { desc = "Goto Declaration" })
+map("n", keymaps.go("I"), Snacks.picker.lsp_implementations, { desc = "Goto Implementation" })
+map("n", keymaps.go("d"), Snacks.picker.lsp_definitions, { desc = "Goto Definition" })
+map("n", keymaps.go("r"), Snacks.picker.lsp_references, { desc = "Goto References", nowait = true })
+map("n", keymaps.go("t"), Snacks.picker.lsp_type_definitions, { desc = "Goto Type definition" })
+map("n", keymaps.go("w"), Snacks.gitbrowse.open, { desc = "Git Webbrowse" })
+
+map("n", keymaps.plugin("u"), vim.pack.update, { desc = "check for Updates" })
+map("n", keymaps.plugin("d"), function()
+  local inactive_plugins = vim
+    .iter(vim.pack.get())
+    :filter(function(p)
+      return p.active == false
+    end)
+    :map(function(p)
+      return p.spec.name
+    end)
+
+  vim.pack.delete(inactive_plugins)
+end, { desc = "Delete inactive plugins" })
 
 map("n", keymaps.toggle("d"), vim.diagnostic.open_float, { desc = "line Diagnostics" })
 map("n", keymaps.toggle("e"), "<CMD>Oil<CR>", { desc = "Explorer" })
@@ -91,4 +105,3 @@ map("n", keymaps.toggle("g"), Snacks.lazygit.open, { desc = "(lazy)Git" })
 map("n", keymaps.toggle("n"), Snacks.notifier.show_history, { desc = "Notification history" })
 map("n", keymaps.toggle("s"), vim.treesitter.inspect_tree, { desc = "TreeSitter tree" })
 map("n", keymaps.toggle("t"), "<cmd>ToggleTerm<cr>", { desc = "Terminal", noremap = true, silent = true })
-

@@ -100,7 +100,7 @@ require("lualine").setup({
     },
     lualine_c = {},
     lualine_x = { "searchcount" },
-    lualine_y = { "diagnostics" },
+    lualine_y = { "diagnostics", "lsp_status" },
     lualine_z = { "location" },
   },
 })
@@ -139,4 +139,5 @@ wk.add({
   { "<leader>b", group = "+buffer", desc = "" },
   { "<leader>e", group = "+edit", icon = "", desc = "" },
   { "<leader>s", group = "+surround", icon = "󰅩", desc = "" },
+  { "<leader>P", group = "+Plugins", icon = "", desc = "" },
 })
