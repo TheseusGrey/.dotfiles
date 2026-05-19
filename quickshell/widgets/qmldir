@@ -1,0 +1,10 @@
+module qs.widgets
+Workspaces 1.0 Workspaces.qml
+Clock 1.0 Clock.qml
+ActiveWindow 1.0 ActiveWindow.qml
+StatusIcons 1.0 StatusIcons.qml
+PowerButton 1.0 PowerButton.qml
+Launcher 1.0 Launcher.qml
+singleton NotificationManager 1.0 NotificationManager.qml
+singleton PanelState 1.0 PanelState.qml
+singleton ShortcutHandler 1.0 ShortcutHandler.qml

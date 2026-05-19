@@ -1,12 +1,26 @@
 import QtQuick
-import qs.config
-import qs.components
+import qs.theme
 
-StyledText {
-  text: Time.time + " | " + Time.date
+Text {
+    id: root
 
-  font {
-    pointSize: Appearance.fontSize
-    family: Appearance.fontFamily
-  }
+    property string timeStr: ""
+    property string dateStr: ""
+
+    text: timeStr + "  " + dateStr
+    color: Theme.fg
+    font.pixelSize: Theme.fontSize
+    font.family: Theme.fontFamily
+
+    Timer {
+        interval: 30000
+        running: true
+        repeat: true
+        triggeredOnStart: true
+        onTriggered: {
+            let now = new Date();
+            root.timeStr = Qt.formatDateTime(now, "hh:mm");
+            root.dateStr = Qt.formatDateTime(now, "ddd, MMM d");
+        }
+    }
 }
