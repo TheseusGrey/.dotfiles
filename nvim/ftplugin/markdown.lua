@@ -22,11 +22,11 @@ vim.g.markview_blink_loaded = true
 
 require("markview").setup({
   preview = {
-    enable = false,
     filetypes = { "codecompanion", "avante" },
     ignore_buftypes = { "markdown" },
   },
   markdown = {
+    enable = false,
     horizontal_rules = presets.horizontal_rules.thin,
     headings = presets.headings.marker,
   },
@@ -46,6 +46,22 @@ if is_obsidian_vault() then
     { src = gh("obsidian-nvim/obsidian.nvim"), version = vim.version.range("*") },
     { src = gh("oflisback/obsidian-bridge.nvim") },
   })
+
+  require("obsidian").setup({
+    legacy_commands = false, -- this will be removed in 4.0.0
+    workspaces = {
+      {
+        name = "personal",
+        path = "~/vaults/personal",
+      },
+      {
+        name = "work",
+        path = "~/vaults/work",
+      },
+    },
+  })
+
+  require("obsidian-bridge").setup()
 
   map("n", keymaps.obsidian("t"), "<CMD>Obsidian template<CR>", { desc = "Obsidian: insert Template" })
   map(
