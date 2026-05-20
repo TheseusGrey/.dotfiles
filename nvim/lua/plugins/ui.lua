@@ -139,5 +139,5 @@ wk.add({
   { "<leader>b", group = "+buffer", desc = "" },
   { "<leader>e", group = "+edit", icon = "", desc = "" },
   { "<leader>s", group = "+surround", icon = "󰅩", desc = "" },
-  { "<leader>P", group = "+Plugins", icon = "", desc = "" },
+  { "<leader>p", group = "+Plugins/Presentations", icon = "", desc = "" },
 })

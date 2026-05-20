@@ -7,11 +7,25 @@ function M.find(key)
   return "<leader>f" .. key
 end
 
+---Function for adding keymaps to "obsidian" group
+---@param key string
+---@return string
+function M.obsidian(key)
+  return "<leader>o" .. key
+end
+
 ---Function for adding keymaps to "plugins" group
 ---@param key string
 ---@return string
 function M.plugin(key)
-  return "<leader>P" .. key
+  return "<leader>p" .. key
+end
+
+---Function for adding keymaps to "presentations" group
+---@param key string
+---@return string
+function M.present(key)
+  return "<leader>p" .. key
 end
 
 ---Function for adding keymaps to "goto" group
