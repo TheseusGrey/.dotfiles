@@ -1,2 +1,2 @@
 module qs.theme
-singleton Theme 1.0 Theme.qml
+singleton ConfigTheme 1.0 ConfigTheme.qml

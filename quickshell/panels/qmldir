@@ -1,6 +1,0 @@
-module qs.panels
-TopBar 1.0 TopBar.qml
-BottomBorder 1.0 BottomBorder.qml
-LeftBorder 1.0 LeftBorder.qml
-RightBorder 1.0 RightBorder.qml
-NotificationPopup 1.0 NotificationPopup.qml

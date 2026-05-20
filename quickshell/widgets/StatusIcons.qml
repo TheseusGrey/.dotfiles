@@ -53,27 +53,27 @@ RowLayout {
         font.family: Theme.fontFamily
     }
 
-    Process {
-        id: btProc
-        command: ["bluetoothctl", "show"]
-        running: true
-
-        property string buffer: ""
-
-        stdout: SplitParser {
-            onRead: data => {
-                if (data.indexOf("Powered: yes") !== -1) {
-                    btIcon.powered = true;
-                } else if (data.indexOf("Powered: no") !== -1) {
-                    btIcon.powered = false;
-                }
-            }
-        }
-
-        onRunningChanged: {
-            if (!running) pollBt.start();
-        }
-    }
+    // Process {
+    //     id: btProc
+    //     command: ["bluetoothctl", "show"]
+    //     running: true
+    //
+    //     property string buffer: ""
+    //
+    //     stdout: SplitParser {
+    //         onRead: data => {
+    //             if (data.indexOf("Powered: yes") !== -1) {
+    //                 btIcon.powered = true;
+    //             } else if (data.indexOf("Powered: no") !== -1) {
+    //                 btIcon.powered = false;
+    //             }
+    //         }
+    //     }
+    //
+    //     onRunningChanged: {
+    //         if (!running) pollBt.start();
+    //     }
+    // }
 
     Timer {
         id: pollBt
