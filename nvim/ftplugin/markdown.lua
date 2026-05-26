@@ -47,17 +47,57 @@ if is_obsidian_vault() then
     { src = gh("oflisback/obsidian-bridge.nvim") },
   })
 
+  local cwd = vim.fn.getcwd()
+  local name = vim.fn.fnamemodify(cwd, ":t")
+
   require("obsidian").setup({
-    legacy_commands = false, -- this will be removed in 4.0.0
-    workspaces = {
-      {
-        name = "personal",
-        path = "~/vaults/personal",
-      },
-      {
-        name = "work",
-        path = "~/vaults/work",
-      },
+    legacy_commands = false,
+    workspaces = { { name = name, path = cwd } },
+
+    daily_notes = {
+      enabled = false,
+    },
+
+    completion = {
+      nvim_cmp = false,
+      blink = true,
+      min_chars = 2,
+    },
+
+    new_notes_location = "current_dir",
+    templates = {
+      folder = "_templates",
+    },
+
+    frontmatter = {
+      enabled = true,
+      sort = { "id", "key", "aliases", "tags" },
+      func = function(note)
+        local key = note.key
+        if key == nil then
+          key = helpers.generate_uuid()
+        end
+
+        if note.title then
+          note:add_alias(note.title)
+        end
+
+        local out = { key = key, aliases = note.aliases, tags = note.tags }
+
+        -- `note.metadata` contains any manually added fields in the frontmatter.
+        -- So here we just make sure those fields are kept in the frontmatter.
+        if note.metadata ~= nil and not vim.tbl_isempty(note.metadata) then
+          for k, v in pairs(note.metadata) do
+            out[k] = v
+          end
+        end
+
+        return out
+      end,
+    },
+
+    picker = {
+      name = "snacks.pick",
     },
   })
 
