@@ -33,6 +33,8 @@ vim.pack.add({
   { src = gh("stevearc/conform.nvim") },
   { src = gh("stevearc/oil.nvim") },
   { src = gh("williamboman/mason-lspconfig.nvim") },
+  { src = gh("obsidian-nvim/obsidian.nvim"), version = vim.version.range("*") },
+  { src = gh("oflisback/obsidian-bridge.nvim") },
 })
 
 if is_git_repo() then

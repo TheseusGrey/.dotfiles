@@ -1,6 +1,7 @@
 local gh = require("util.helpers").gh
 local is_obsidian_vault = require("util.helpers").is_obsidian_vault
 local keymaps = require("util.keymaps")
+local ui = require("util.ui")
 local map = vim.keymap.set
 
 -- PLUGINS --
@@ -42,11 +43,6 @@ map("n", keymaps.present("s"), "<CMD>PresentStart<CR>", { desc = "Presentation S
 map("n", keymaps.present("r"), "<CMD>PresentResume<CR>", { desc = "Presentation Resume" })
 
 if is_obsidian_vault() then
-  vim.pack.add({
-    { src = gh("obsidian-nvim/obsidian.nvim"), version = vim.version.range("*") },
-    { src = gh("oflisback/obsidian-bridge.nvim") },
-  })
-
   local cwd = vim.fn.getcwd()
   local name = vim.fn.fnamemodify(cwd, ":t")
 
@@ -58,10 +54,21 @@ if is_obsidian_vault() then
       enabled = false,
     },
 
+    link = {
+      auto_update = true,
+    },
+
     completion = {
       nvim_cmp = false,
       blink = true,
       min_chars = 2,
+    },
+
+    footer = {
+      enabled = true,
+      format = "{{properties}} properties  {{words}} words  {{chars}} chars",
+      hl_group = "Comment",
+      separator = string.rep("─", ui.screen().width),
     },
 
     new_notes_location = "current_dir",
@@ -103,6 +110,12 @@ if is_obsidian_vault() then
 
   require("obsidian-bridge").setup()
 
+  local wk = require("which-key")
+
+  wk.add({
+    { "<leader>o", group = "+obsidian", desc = "" },
+  })
+
   map("n", keymaps.obsidian("t"), "<CMD>Obsidian template<CR>", { desc = "Obsidian: insert Template" })
   map(
     "n",
@@ -114,5 +127,5 @@ if is_obsidian_vault() then
 end
 
 -- MARKDOWN SPECIFIC CONFIG --
-vim.opt_local.textwidth = 85
+-- vim.opt_local.textwidth = 85
 vim.opt_local.colorcolumn = "85"

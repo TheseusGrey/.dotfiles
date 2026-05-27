@@ -108,7 +108,20 @@ require("snacks").setup({
   },
   styles = {
     zen = {
+      enter = true,
+      fixbuf = false,
+      minimal = false,
+      width = 85,
+      height = 0,
+      backdrop = { transparent = true, blend = 40 },
       keys = { q = "close" },
+      zindex = 40,
+      wo = {
+        winhighlight = "NormalFloat:Normal",
+      },
+      w = {
+        snacks_main = true,
+      },
     },
   },
   dashboard = {

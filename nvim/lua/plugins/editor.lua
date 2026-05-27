@@ -68,9 +68,9 @@ cmp.setup({
     default = { "snippets", "lsp", "path", "buffer", "emoji" },
     -- Setup completion by filetype
     per_filetype = {
-      markdown = { "thesaurus", "emoji" },
+      markdown = { "lsp", "thesaurus", "emoji", inherit_defaults = true },
       text = { "thesaurus", "emoji" },
-      lua = { inherit_defaults = true, "lazydev" },
+      lua = { "lazydev", inherit_defaults = true },
     },
     providers = {
       lazydev = {
