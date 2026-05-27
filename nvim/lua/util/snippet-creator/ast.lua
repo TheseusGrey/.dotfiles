@@ -12,6 +12,7 @@ function M.parse_type_choices(hover_text)
   end
 
   local choices = {}
+  local has_pipe = false
 
   for line in hover_text:gmatch("[^\n]+") do
     local found = false
@@ -19,12 +20,16 @@ function M.parse_type_choices(hover_text)
       table.insert(choices, choice)
       found = true
     end
-    if found and line:find("|") and #choices >= 2 then
-      return choices
+    if line:find("|") then
+      has_pipe = true
     end
-    if found and not line:find("|") then
+    if found and not line:find("|") and not has_pipe then
       choices = {}
     end
+  end
+
+  if has_pipe and #choices >= 2 then
+    return choices
   end
 
   local enum_choices = {}

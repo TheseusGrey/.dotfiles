@@ -20,7 +20,7 @@ function M.create_from_selection()
     return
   end
 
-  ui.prompt_metadata(function(meta)
+  ui.prompt_metadata(source_ft, function(meta)
     vim.schedule(function()
       ui.open_scratch_pad(lines, meta, source_ft)
     end)
@@ -43,7 +43,7 @@ function M.create_from_selection_auto()
     return
   end
 
-  ui.prompt_metadata(function(meta)
+  ui.prompt_metadata(source_ft, function(meta)
     vim.schedule(function()
       vim.notify("Analyzing AST and querying types...", vim.log.levels.INFO)
       ast.build_auto_tags(source_buf, lines, start_row - 1, function(auto_nodes)
