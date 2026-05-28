@@ -51,6 +51,22 @@ local sdkman_dir = os.getenv("SDKMAN_DIR") or (home .. "/.sdkman")
 local java_home = sdkman_dir .. "/candidates/java/current"
 local java_cmd = java_home .. "/bin/java"
 
+-- Ensure Gradle uses the correct Java
+vim.env.JAVA_HOME = java_home
+
+-- Compute gradle wrapper checksum for the current project
+local root_dir = require("jdtls.setup").find_root({ ".git", "mvnw", "gradlew", "pom.xml", "build.gradle" })
+local gradle_checksums = {}
+if root_dir then
+  local wrapper_jar = root_dir .. "/gradle/wrapper/gradle-wrapper.jar"
+  if vim.fn.filereadable(wrapper_jar) == 1 then
+    local sha = vim.fn.system("sha256sum " .. vim.fn.shellescape(wrapper_jar)):match("^(%x+)")
+    if sha then
+      gradle_checksums = { { sha256 = sha, allowed = true } }
+    end
+  end
+end
+
 local config = {
   cmd = {
     java_cmd,
@@ -73,7 +89,7 @@ local config = {
     "-data",
     workspace_dir,
   },
-  root_dir = require("jdtls.setup").find_root({ ".git", "mvnw", "gradlew", "pom.xml", "build.gradle" }),
+  root_dir = root_dir,
 
   settings = {
     java = {
@@ -91,7 +107,10 @@ local config = {
       import = {
         gradle = {
           enabled = true,
-          wrapper = { enabled = true },
+          wrapper = {
+            enabled = true,
+            checksums = gradle_checksums,
+          },
           java = { home = java_home },
         },
         maven = { enabled = true },
