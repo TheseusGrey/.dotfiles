@@ -218,11 +218,12 @@ wk.setup({
 })
 
 wk.add({
-  { "<leader>f", group = "+find/files/focus", desc = "" },
-  { "<leader>t", group = "+toggle (ui elements)", desc = "" },
-  { "<leader>g", group = "+goto/git", desc = "" },
-  { "<leader>b", group = "+buffer", desc = "" },
+  { "<leader>b", group = "+buffer", desc = "" },
+  { "<leader>d", group = "+debug", icon = "", desc = "" },
   { "<leader>e", group = "+edit", icon = "", desc = "" },
-  { "<leader>s", group = "+surround", icon = "󰅩", desc = "" },
+  { "<leader>f", group = "+find/files/focus", icon = "󰈞", desc = "" },
+  { "<leader>g", group = "+goto/git", icon = "", desc = "" },
   { "<leader>p", group = "+Plugins/Presentations", icon = "", desc = "" },
+  { "<leader>s", group = "+surround", icon = "󰅩", desc = "" },
+  { "<leader>t", group = "+toggle (ui elements)", icon = "", desc = "" },
 })

@@ -64,4 +64,11 @@ function M.toggle(key)
   return "<leader>t" .. key
 end
 
+---Function for adding keymaps to "debug" group
+---@param key string
+---@return string
+function M.debug(key)
+  return "<leader>d" .. key
+end
+
 return M
