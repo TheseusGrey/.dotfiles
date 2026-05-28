@@ -14,3 +14,10 @@ source_if_exists ~/.config/zsh/aliases.sh
 source_if_exists ~/.env.sh
 source_if_exists ~/.config/zsh/tools.sh
 
+
+# opencode
+export PATH=/home/parisgoldmansmith/.opencode/bin:$PATH
+
+# sdkman
+export SDKMAN_DIR="$HOME/.sdkman"
+[[ -s "$SDKMAN_DIR/bin/sdkman-init.sh" ]] && source "$SDKMAN_DIR/bin/sdkman-init.sh"

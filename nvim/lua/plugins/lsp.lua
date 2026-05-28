@@ -1,5 +1,7 @@
 local ui = require("util.ui")
 
+require("fidget").setup({})
+
 ---@type table<string, table<vim.lsp.Client, table<number, boolean>>>
 local _supports_method = {}
 
@@ -22,7 +24,6 @@ function on_supports_method(method, fn)
 end
 
 require("mason").setup()
-require("mason-lspconfig").setup()
 
 -- Set up some QOL stuff around LSPs
 
@@ -72,46 +73,29 @@ on_supports_method("textDocument/codeLens", function(_, buffer)
   vim.lsp.codelens.enable(true, { bufnr = buffer })
 end)
 
-local servers = {}
+-- Only servers that need custom config go here.
+-- Everything else auto-starts with defaults via automatic_enable.
+local servers = {
+  harper_ls = {
+    filetypes = { "markdown", "text", "typst" },
+  },
+}
+
 local capabilities = require("blink.cmp").get_lsp_capabilities(vim.lsp.protocol.make_client_capabilities())
 
-local function setup(server)
-  local server_opts = vim.tbl_deep_extend("force", {
+-- Apply shared capabilities + per-server overrides
+for server, opts in pairs(servers) do
+  vim.lsp.config(server, vim.tbl_deep_extend("force", {
     capabilities = vim.deepcopy(capabilities),
-  }, servers[server] or {})
-
-  if server_opts.enabled == false then
-    return
-  end
-  vim.lsp.config(server, server_opts)
-  -- vim.lsp[server].setup(server_opts)
+  }, opts))
 end
 
--- get all the servers that are available through mason-lspconfig
+-- Set default capabilities for all other servers
+vim.lsp.config("*", { capabilities = vim.deepcopy(capabilities) })
+
 local have_mason, mlsp = pcall(require, "mason-lspconfig")
-
-local ensure_installed = {} ---@type string[]
-
-for server, server_opts in pairs(servers) do
-  if server_opts then
-    server_opts = server_opts == true and {} or server_opts
-
-    if server_opts.enabled ~= false then
-      -- run manual setup if mason=false or if this is a server that cannot be installed with mason-lspconfig
-
-      if server_opts.mason == false then
-        setup(server)
-      else
-        ensure_installed[#ensure_installed + 1] = server
-      end
-    end
-  end
-end
-
 if have_mason then
   mlsp.setup({
-    automatic_enable = false,
-    ensure_installed = ensure_installed,
-    handlers = { setup },
+    automatic_enable = true,
   })
 end

@@ -81,6 +81,17 @@ vim.api.nvim_create_autocmd({ "RecordingEnter", "RecordingLeave" }, {
   end,
 })
 
+-- Enable treesitter folding lazily (avoids perf hit on startup/large files)
+vim.api.nvim_create_autocmd("FileType", {
+  group = augroup("treesitter_fold"),
+  callback = function()
+    if vim.bo.buftype == "" then
+      vim.opt_local.foldmethod = "expr"
+      vim.opt_local.foldexpr = "v:lua.vim.treesitter.foldexpr()"
+    end
+  end,
+})
+
 -- Format on "save"
 vim.api.nvim_create_autocmd("BufWritePre", {
   pattern = "*",
@@ -97,13 +108,6 @@ vim.api.nvim_create_autocmd("PackChanged", {
       vim.system({ "cargo", "build", "--release" }, {
         cwd = ev.data.spec.path,
       })
-
-      -- Used once blink.cmp has been upgraded to v2
-      -- if not ev.data.active then
-      --   vim.cmd.packadd("blink.cmp")
-      --   vim.cmd.packadd("blink.lib")
-      -- end
-      -- require("blink.cmp").build():wait(60000)
     end
 
     if name == "LuaSnip" and (kind == "install" or kind == "update") then
@@ -116,7 +120,7 @@ vim.api.nvim_create_autocmd("PackChanged", {
       vim.cmd("MasonUpdate")
     end
 
-    if name == "Mason" and (kind == "install" or kind == "update") then
+    if name == "nvim-treesitter" and (kind == "install" or kind == "update") then
       vim.cmd("TSUpdate")
     end
   end,

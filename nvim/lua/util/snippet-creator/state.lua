@@ -18,7 +18,7 @@ M.state = nil
 M.node_types = {
   {
     label = "insert_node",
-    kind = 15, -- Snippet kind
+    kind = 15,
     detail = "Tabstop with optional placeholder text",
     documentation = "i(position, \"placeholder\")",
   },
