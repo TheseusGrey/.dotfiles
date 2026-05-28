@@ -6,7 +6,6 @@ require("config.terminal")
 
 -- Core Plugin List
 vim.pack.add({
-  -- { src = gh("saghen/blink.lib") }, -- Enable when migrating over to blink.cmp v2
   { src = gh("AlexvZyl/nordic.nvim") },
   { src = gh("L3MON4D3/LuaSnip") },
   { src = gh("akinsho/bufferline.nvim") },
@@ -14,6 +13,7 @@ vim.pack.add({
   { src = gh("catppuccin/nvim") },
   { src = gh("echasnovski/mini.ai") },
   { src = gh("echasnovski/mini.surround") },
+  { src = gh("j-hui/fidget.nvim") },
   { src = gh("folke/flash.nvim") },
   { src = gh("folke/lazydev.nvim") },
   { src = gh("folke/persistence.nvim") },
@@ -21,9 +21,14 @@ vim.pack.add({
   { src = gh("folke/which-key.nvim") },
   { src = gh("mason-org/mason.nvim") },
   { src = gh("moyiz/blink-emoji.nvim") },
+  { src = gh("mfussenegger/nvim-dap") },
+  { src = gh("mfussenegger/nvim-jdtls") },
+  { src = gh("igorlfs/nvim-dap-view") },
   { src = gh("neovim/nvim-lspconfig") },
+  { src = gh("numToStr/FTerm.nvim") },
   { src = gh("nvim-lua/plenary.nvim") },
   { src = gh("nvim-lualine/lualine.nvim") },
+  { src = gh("oribarilan/lensline.nvim") },
   { src = gh("nvim-mini/mini.pairs"), version = "stable" },
   { src = gh("nvim-tree/nvim-web-devicons") },
   { src = gh("nvim-treesitter/nvim-treesitter"), version = "main" },
@@ -47,6 +52,7 @@ require("plugins.colorscheme")
 require("plugins.ui")
 require("plugins.editor")
 require("plugins.lsp")
+require("plugins.debug")
 
 require("config.keymaps")
 require("config.autocmds")
