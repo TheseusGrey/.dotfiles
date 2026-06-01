@@ -1,7 +1,7 @@
 -- █▄▀ █▀▀ █▄█ █▄▄ █ █▄░█ █▀▄ █ █▄░█ █▀▀ █▀
 -- █░█ ██▄ ░█░ █▄█ █ █░▀█ █▄▀ █ █░▀█ █▄█ ▄█
 
-local mainMod = "Super"
+local mainMod = "SUPER"
 
 -- Assign apps
 local term = "kitty"
@@ -45,15 +45,19 @@ hl.bind("XF86MonBrightnessUp", hl.dsp.exec_cmd("brightnesscontrol.sh i"), { repe
 hl.bind("XF86MonBrightnessDown", hl.dsp.exec_cmd("brightnesscontrol.sh d"), { repeating = true })
 
 -- Move between grouped windows
-hl.bind(mainMod .. " + Ctrl + H", hl.dsp.changegroupactive("b"))
-hl.bind(mainMod .. " + Ctrl + L", hl.dsp.changegroupactive("f"))
+-- hl.bind(mainMod .. " + Ctrl + H", hl.dsp.changegroupactive("b"))
+-- hl.bind(mainMod .. " + Ctrl + L", hl.dsp.changegroupactive("f"))
 
 -- Screenshot/Screencapture
 hl.bind("Print", hl.dsp.exec_cmd("~/.dotfiles/bin/capture.sh PrintScreen"), { description = "Print Screen" })
-hl.bind(mainMod .. " + P", hl.dsp.exec_cmd("~/.dotfiles/bin/capture.sh ScreenShot"), { description = "Screenshot Region" })
+hl.bind(
+	mainMod .. " + P",
+	hl.dsp.exec_cmd("~/.dotfiles/bin/capture.sh ScreenShot"),
+	{ description = "Screenshot Region" }
+)
 
 -- Custom scripts
-hl.bind(mainMod .. " + Alt + G", hl.dsp.exec_cmd("gamemode.sh"))
+hl.bind(mainMod .. " + ALT + G", hl.dsp.exec_cmd("gamemode.sh"))
 hl.bind(mainMod .. " + K", hl.dsp.exec_cmd("keyboardswitch.sh"))
 
 -- Move/Change window focus
@@ -64,31 +68,31 @@ hl.bind(mainMod .. " + J", hl.dsp.focus({ direction = "d" }))
 
 -- Switch workspaces
 for i = 1, 9 do
-    hl.bind(mainMod .. " + " .. i, hl.dsp.focus({ workspace = i }))
+	hl.bind(mainMod .. " + " .. i, hl.dsp.focus({ workspace = i }))
 end
 hl.bind(mainMod .. " + 0", hl.dsp.focus({ workspace = 10 }))
 
 -- Switch workspaces to a relative workspace
-hl.bind(mainMod .. " + Alt + H", hl.dsp.focus({ workspace = "r+1" }))
-hl.bind(mainMod .. " + Alt + L", hl.dsp.focus({ workspace = "r-1" }))
+hl.bind(mainMod .. " + ALT + H", hl.dsp.focus({ workspace = "r+1" }))
+hl.bind(mainMod .. " + ALT + L", hl.dsp.focus({ workspace = "r-1" }))
 
 -- Resize windows
-hl.bind(mainMod .. " + Shift + Right", hl.dsp.window.resize({ x = 30, y = 0 }), { repeating = true })
-hl.bind(mainMod .. " + Shift + Left", hl.dsp.window.resize({ x = -30, y = 0 }), { repeating = true })
-hl.bind(mainMod .. " + Shift + Up", hl.dsp.window.resize({ x = 0, y = -30 }), { repeating = true })
-hl.bind(mainMod .. " + Shift + Down", hl.dsp.window.resize({ x = 0, y = 30 }), { repeating = true })
+hl.bind(mainMod .. " + SHIFT + Right", hl.dsp.window.resize({ x = 30, y = 0 }), { repeating = true })
+hl.bind(mainMod .. " + SHIFT + Left", hl.dsp.window.resize({ x = -30, y = 0 }), { repeating = true })
+hl.bind(mainMod .. " + SHIFT + Up", hl.dsp.window.resize({ x = 0, y = -30 }), { repeating = true })
+hl.bind(mainMod .. " + SHIFT + Down", hl.dsp.window.resize({ x = 0, y = 30 }), { repeating = true })
 
 -- Move focused window to a workspace
 for i = 1, 9 do
-    hl.bind(mainMod .. " + Shift + " .. i, hl.dsp.window.move({ workspace = i }))
+	hl.bind(mainMod .. " + SHIFT + " .. i, hl.dsp.window.move({ workspace = i }))
 end
-hl.bind(mainMod .. " + Shift + 0", hl.dsp.window.move({ workspace = 10 }))
+hl.bind(mainMod .. " + SHIFT + 0", hl.dsp.window.move({ workspace = 10 }))
 
 -- Move active window around current workspace
-hl.bind(mainMod .. " + Shift + H", hl.dsp.window.move({ direction = "l" }))
-hl.bind(mainMod .. " + Shift + L", hl.dsp.window.move({ direction = "r" }))
-hl.bind(mainMod .. " + Shift + K", hl.dsp.window.move({ direction = "u" }))
-hl.bind(mainMod .. " + Shift + J", hl.dsp.window.move({ direction = "d" }))
+hl.bind(mainMod .. " + SHIFT + H", hl.dsp.window.move({ direction = "l" }))
+hl.bind(mainMod .. " + SHIFT + L", hl.dsp.window.move({ direction = "r" }))
+hl.bind(mainMod .. " + SHIFT + K", hl.dsp.window.move({ direction = "u" }))
+hl.bind(mainMod .. " + SHIFT + J", hl.dsp.window.move({ direction = "d" }))
 
 -- Scroll through existing workspaces
 hl.bind(mainMod .. " + mouse_down", hl.dsp.focus({ workspace = "e+1" }))
