@@ -2,6 +2,9 @@ import QtQuick
 import Quickshell
 
 ShellRoot {
+    // Screen border overlay
+    BorderOverlay {}
+
     // 1. Top Panel
     PanelWindow {
         id: topPanel
