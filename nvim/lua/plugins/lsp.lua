@@ -79,6 +79,19 @@ local servers = {
   harper_ls = {
     filetypes = { "markdown", "text", "typst" },
   },
+  qmlls = {
+    settings = {
+      qmlls = {
+        qml = {
+          importPaths = {
+            "/usr/lib/qt-6/qml",
+            "/usr/lib/x86_64-linux-gnu/qt6/qml",
+            vim.fn.expand("~/.dotfiles/quickshell"),
+          },
+        },
+      },
+    },
+  },
 }
 
 local capabilities = require("blink.cmp").get_lsp_capabilities(vim.lsp.protocol.make_client_capabilities())
