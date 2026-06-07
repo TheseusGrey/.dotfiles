@@ -11,12 +11,12 @@ hl.exec_cmd("gsettings set org.gnome.desktop.interface color-scheme 'prefer-dark
 
 hl.config({
 	general = {
-		gaps_in = 8,
-		gaps_out = 16,
-		border_size = 2,
+		gaps_in = 0,
+		gaps_out = 0,
+		border_size = 1,
 		col = {
-			active_border = { colors = { "rgba(F9CE73ee)", "rgba(832640ee)" }, angle = 45 },
-			inactive_border = { colors = { "rgba(2A142Cbb)" } },
+			active_border = { colors = { "rgba(F9CE73ee)" }, angle = 45 },
+			-- inactive_border = { colors = { "rgba(2A142Cbb)" } },
 		},
 		layout = "dwindle",
 		resize_on_border = true,
@@ -31,6 +31,8 @@ hl.config({
 		shadow = {
 			enabled = false,
 		},
+		dim_inactive = true,
+		dim_strength = 0.25,
 		blur = {
 			enabled = false,
 			size = 5,
