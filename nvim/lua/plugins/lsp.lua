@@ -82,9 +82,13 @@ local servers = {
   qmlls = {
     settings = {
       qmlls = {
+        cmd_env = {
+          QML2_IMPORT_PATH = "/usr/lib/qt6/qml",
+          QML_IMPORT_PATH = "/usr/lib/qt6/qml",
+        },
         qml = {
           importPaths = {
-            "/usr/lib/qt-6/qml",
+            "/usr/lib/qt6/qml",
             "/usr/lib/x86_64-linux-gnu/qt6/qml",
             vim.fn.expand("~/.dotfiles/quickshell"),
           },
@@ -98,13 +102,13 @@ local capabilities = require("blink.cmp").get_lsp_capabilities(vim.lsp.protocol.
 
 -- Apply shared capabilities + per-server overrides
 for server, opts in pairs(servers) do
-  vim.lsp.config(server, vim.tbl_deep_extend("force", {
-    capabilities = vim.deepcopy(capabilities),
-  }, opts))
+  vim.lsp.config(
+    server,
+    vim.tbl_deep_extend("force", {
+      capabilities = vim.deepcopy(capabilities),
+    }, opts)
+  )
 end
-
--- Set default capabilities for all other servers
-vim.lsp.config("*", { capabilities = vim.deepcopy(capabilities) })
 
 local have_mason, mlsp = pcall(require, "mason-lspconfig")
 if have_mason then
