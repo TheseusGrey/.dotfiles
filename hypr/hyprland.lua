@@ -24,7 +24,7 @@ hl.on("hyprland.start", function()
 
 	hl.exec_cmd("hyprpaper")
 
-	-- hl.exec_cmd("waybar")
+	hl.exec_cmd("quickshell")
 	hl.exec_cmd("blueman-applet")
 	hl.exec_cmd("udiskie --no-automount --smart-tray")
 	hl.exec_cmd("nm-applet --indicator")
