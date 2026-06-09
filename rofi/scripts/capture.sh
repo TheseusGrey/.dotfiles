@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 
+schedule() {
+  systemd-run --user --no-block "$@"
+}
+
 if [ $# -gt 0 ]; then
   # If arguments given, use those as the selection
   selection="${@}"
@@ -21,10 +25,10 @@ if [ -z "${selection+x}" ]; then
 else
   # We've picked an option, so do something with it
   case "$@" in
-  *ScreenShot*) pkill hyprshot || hyprshot -m region ;;
-  *PrintScreen*) pkill hyprshot || hyprshot -m output ;;
+  *ScreenShot*) pkill hyprshot || schedule hyprshot -m region ;;
+  *PrintScreen*) pkill hyprshot || schedule hyprshot -m output ;;
   *ScreenRecord*) notify-send "NOT IMPLEMENTED YET" ;;
-  *Color*) pkill hyprpicker || hyprpicker | wl-copy -n ;;
+  *Color*) pkill hyprpicker || schedule hyprpicker | wl-copy -n ;;
   esac
 
   exit 0
