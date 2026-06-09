@@ -3,6 +3,7 @@ import QtQuick.Shapes
 import Quickshell
 import Quickshell.Wayland
 import qs.config
+import qs.components as Components
 
 PanelWindow {
     id: borderWindow
@@ -138,6 +139,8 @@ PanelWindow {
             anchors.fill: parent
             color: ConfigTheme.borderColor
         }
+
+        Components.Bar {}
     }
 
 
