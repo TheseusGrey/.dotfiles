@@ -14,4 +14,9 @@ QtObject {
 
     // Animations
     readonly property int animDuration: 200
+
+    // Typography
+    readonly property color fontColor: "#DDDDDD"
+    readonly property int fontSize: 24
+    readonly property string fontFamily: "JetBrainsMono Nerd Font Mono"
 }
