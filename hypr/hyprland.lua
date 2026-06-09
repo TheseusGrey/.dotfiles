@@ -8,7 +8,6 @@ hl.monitor({ output = "", mode = "preferred", position = "auto", scale = "auto" 
 
 -- Apps to run on startup
 hl.on("hyprland.start", function()
-	hl.exec_cmd("obsidian & zen-browser")
 	-- hl.exec_cmd("~/.dotfiles/bin/center_window.sh")
 
 	-- Set prefer-dark as default
@@ -24,7 +23,7 @@ hl.on("hyprland.start", function()
 
 	hl.exec_cmd("hyprpaper")
 
-	hl.exec_cmd("quickshell")
+	hl.exec_cmd("qs")
 	hl.exec_cmd("blueman-applet")
 	hl.exec_cmd("udiskie --no-automount --smart-tray")
 	hl.exec_cmd("nm-applet --indicator")
@@ -32,6 +31,8 @@ hl.on("hyprland.start", function()
 
 	hl.exec_cmd("wl-paste --type text --watch cliphist store")
 	hl.exec_cmd("wl-paste --type image --watch cliphist store")
+
+	hl.exec_cmd("obsidian & zen-browser")
 end)
 
 -- █▀▀ █▄░█ █░█
