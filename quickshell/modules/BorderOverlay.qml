@@ -140,7 +140,9 @@ PanelWindow {
             color: ConfigTheme.borderColor
         }
 
-        Components.Bar {}
+        Components.Bar {
+            anchors.fill: parent
+        }
     }
 
 

@@ -4,35 +4,49 @@ import Quickshell
 import Quickshell.Hyprland
 import QtQuick
 import QtQuick.Layouts
+import qs.config
 import qs.components as Components
 
 RowLayout {
-    property int activeWorkspace: HyprlandIpc.focusedMonitor?.activeWorkspace?.id ?? 0
-    property int totalWorkspaces: HyprlandIpc.workspaces.length
-    property string activeWindow: {
-        const w = HyprlandIpc.focusedClient
-        if (!w) return ""
-        return (w.title !== "" ? w.title : w.class) ?? ""
-    }
+    id: root
+    anchors.fill: parent
+    anchors.leftMargin: 12
+    anchors.rightMargin: 12
+    spacing: 12
 
-
-        spacing: 0
+    // === Left section ===
+    RowLayout {
+        Layout.fillHeight: true
+        spacing: 8
 
         Components.StyledText {
             text: {
-                const ws  = `[ ${root.activeWorkspace}/${root.totalWorkspaces} ]`
-                const win = root.activeWindow !== "" ? `  ${root.activeWindow}` : ""
-                return ws + win
+                const wsId = Hyprland.focusedMonitor?.activeWorkspace?.id ?? 0
+                const total = Hyprland.workspaces.values.length
+                const client = Hyprland.focusedClient
+                const win = client ? (client.title !== "" ? client.title : client.class) : ""
+                const ws = `[ ${wsId}/${total} ]`
+                return win !== "" ? `${ws} ${win}` : ws
             }
 
-            color: "#cdd6f4"
-            font.family: "monospace"
             font.pixelSize: 13
             font.weight: Font.Medium
-            renderType: Text.NativeRendering
 
             Layout.fillWidth: true
+            Layout.alignment: Qt.AlignVCenter
             elide: Text.ElideRight
         }
-}
+    }
 
+    // === Center section (placeholder for future components) ===
+    Item {
+        Layout.fillWidth: true
+        Layout.fillHeight: true
+    }
+
+    // === Right section (placeholder for future components) ===
+    RowLayout {
+        Layout.fillHeight: true
+        spacing: 8
+    }
+}
