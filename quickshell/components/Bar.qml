@@ -10,38 +10,63 @@ import qs.components as Components
 RowLayout {
     id: root
     anchors.fill: parent
-    anchors.leftMargin: 12
-    anchors.rightMargin: 12
+    anchors.leftMargin: ConfigTheme.borderThickness + 8
+    anchors.rightMargin: ConfigTheme.borderThickness + 8
     spacing: 12
 
     // === Left section ===
+    Item {
+
+    }
+
     RowLayout {
         Layout.fillHeight: true
+        Layout.fillWidth: true
         spacing: 8
+
+        Rectangle {
+          anchors.fill: parent
+          color: ConfigTheme.surface2
+        }
 
         Components.StyledText {
             text: {
                 const wsId = Hyprland.focusedMonitor?.activeWorkspace?.id ?? 0
                 const total = Hyprland.workspaces.values.length
-                const client = Hyprland.focusedClient
-                const win = client ? (client.title !== "" ? client.title : client.class) : ""
+                const client = Hyprland.activeToplevel
+                const win = client ? client.title : " Desktop"
                 const ws = `[ ${wsId}/${total} ]`
-                return win !== "" ? `${ws} ${win}` : ws
+                return win !== "" ? `${ws} ${win} ` : ws
             }
 
-            font.pixelSize: 13
-            font.weight: Font.Medium
+            font.weight: Font.Bold
 
-            Layout.fillWidth: true
             Layout.alignment: Qt.AlignVCenter
             elide: Text.ElideRight
         }
     }
 
     // === Center section (placeholder for future components) ===
-    Item {
+    RowLayout {
         Layout.fillWidth: true
         Layout.fillHeight: true
+
+        Rectangle {
+          anchors.fill: parent
+          color: ConfigTheme.surface2
+        }
+
+        Components.StyledText {
+            id: clock
+            text: Qt.formatDateTime(new Date(), "[ ddd, MMM dd ] [ HH:mm ]")
+
+            Timer {
+                interval: 1000
+                running: true
+                repeat: true
+                onTriggered: clock.text = Qt.formatDateTime(new Date(), "[ ddd, MMM dd ] [ HH:mm ]")
+            }
+        }
     }
 
     // === Right section (placeholder for future components) ===

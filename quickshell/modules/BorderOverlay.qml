@@ -38,7 +38,7 @@ PanelWindow {
     //
     //     ShapePath {
     //         fillColor: "transparent"
-    //         strokeColor: ConfigTheme.borderColor
+    //         strokeColor: ConfigTheme.surface1
     //         strokeWidth: ConfigTheme.borderThickness
     //
     //         startX: ConfigTheme.borderRounding + ConfigTheme.borderThickness / 2
@@ -107,7 +107,7 @@ PanelWindow {
 
         Rectangle {
             anchors.fill: parent
-            color: ConfigTheme.borderColor
+            color: ConfigTheme.surface1
         }
     }
 
@@ -122,7 +122,7 @@ PanelWindow {
 
         Rectangle {
             anchors.fill: parent
-            color: ConfigTheme.borderColor
+            color: ConfigTheme.surface1
         }
     }
 
@@ -137,7 +137,7 @@ PanelWindow {
 
         Rectangle {
             anchors.fill: parent
-            color: ConfigTheme.borderColor
+            color: ConfigTheme.surface1
         }
 
         Components.Bar {
@@ -157,7 +157,7 @@ PanelWindow {
 
         Rectangle {
             anchors.fill: parent
-            color: ConfigTheme.borderColor
+            color: ConfigTheme.surface1
         }
     }
 }

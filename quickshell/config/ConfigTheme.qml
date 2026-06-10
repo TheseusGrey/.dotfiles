@@ -5,7 +5,8 @@ QtObject {
     // Border
     readonly property int borderThickness: 24
     readonly property int borderRounding: 25
-    readonly property color borderColor: "#313244"
+    readonly property color surface1: "#313244"
+    readonly property color surface2: "#252638"
 
     // Dimensions
     readonly property int navPanelSize: 48
@@ -17,6 +18,6 @@ QtObject {
 
     // Typography
     readonly property color fontColor: "#DDDDDD"
-    readonly property int fontSize: 24
+    readonly property int fontSize: 16
     readonly property string fontFamily: "JetBrainsMono Nerd Font Mono"
 }
