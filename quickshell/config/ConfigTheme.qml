@@ -18,6 +18,6 @@ QtObject {
 
     // Typography
     readonly property color fontColor: "#DDDDDD"
-    readonly property int fontSize: 16
+    readonly property int fontSize: 20
     readonly property string fontFamily: "JetBrainsMono Nerd Font Mono"
 }

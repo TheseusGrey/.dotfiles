@@ -34,7 +34,8 @@ RowLayout {
                 const wsId = Hyprland.focusedMonitor?.activeWorkspace?.id ?? 0
                 const total = Hyprland.workspaces.values.length
                 const client = Hyprland.activeToplevel
-                const win = client ? client.title : " Desktop"
+                const title = client ? client.title.split(/ [—-] /) : [" Desktop"]
+                const win = title[title.length - 1]
                 const ws = `[ ${wsId}/${total} ]`
                 return win !== "" ? `${ws} ${win} ` : ws
             }
