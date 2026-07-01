@@ -12,7 +12,7 @@ PanelWindow {
     anchors.right: true
     anchors.bottom: true
 
-    implicitHeight: 1
+    implicitHeight: 2
     exclusionMode: ExclusionMode.Ignore
     color: "transparent"
 

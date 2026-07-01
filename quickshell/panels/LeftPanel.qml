@@ -21,7 +21,7 @@ PanelWindow {
     anchors.left: true
     anchors.bottom: true
 
-    margins.top: Theme.topPanelHeight
+    margins.top: Theme.topPanelHeight - 1
 
     implicitWidth: PanelState.leftExpanded ? Theme.leftPanelExpanded : Theme.leftPanelCollapsed
     exclusiveZone: PanelState.leftExpanded ? Theme.leftPanelExpanded : Theme.leftPanelCollapsed
@@ -163,10 +163,11 @@ PanelWindow {
                     }
                     Tui.TuiText {
                         Layout.fillWidth: true
-                        property int charWidth: Math.max(1, Math.floor(width / (Theme.fontSizeSmall * 0.6)))
-                        text: " " + Theme.boxHorizontal.repeat(charWidth) + "╮"
+                        property int charWidth: Math.max(0, Math.floor(width / (Theme.fontSizeSmall * 0.6)) - 3)
+                        text: " " + Theme.boxHorizontal.repeat(charWidth) + "─╮"
                         textColor: Theme.border
                         font.pixelSize: Theme.fontSizeSmall
+                        clip: true
                     }
                 }
 
@@ -202,10 +203,11 @@ PanelWindow {
                     }
                     Tui.TuiText {
                         Layout.fillWidth: true
-                        property int charWidth: Math.max(1, Math.floor(width / (Theme.fontSizeSmall * 0.6)))
-                        text: " " + Theme.boxHorizontal.repeat(charWidth) + "╮"
+                        property int charWidth: Math.max(0, Math.floor(width / (Theme.fontSizeSmall * 0.6)) - 3)
+                        text: " " + Theme.boxHorizontal.repeat(charWidth) + "─╮"
                         textColor: Theme.border
                         font.pixelSize: Theme.fontSizeSmall
+                        clip: true
                     }
                 }
 
@@ -241,10 +243,11 @@ PanelWindow {
                     }
                     Tui.TuiText {
                         Layout.fillWidth: true
-                        property int charWidth: Math.max(1, Math.floor(width / (Theme.fontSizeSmall * 0.6)))
-                        text: " " + Theme.boxHorizontal.repeat(charWidth) + "╮"
+                        property int charWidth: Math.max(0, Math.floor(width / (Theme.fontSizeSmall * 0.6)) - 3)
+                        text: " " + Theme.boxHorizontal.repeat(charWidth) + "─╮"
                         textColor: Theme.border
                         font.pixelSize: Theme.fontSizeSmall
+                        clip: true
                     }
                 }
 

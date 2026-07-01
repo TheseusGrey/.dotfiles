@@ -166,7 +166,7 @@ ColumnLayout {
                         Layout.fillWidth: true
                         onClicked: {
                             if (parent.windowAddress !== "") {
-                                Hyprland.dispatch("focuswindow", "address:" + parent.windowAddress);
+                                Hyprland.dispatch("focuswindow address:" + parent.windowAddress);
                             }
                         }
                     }

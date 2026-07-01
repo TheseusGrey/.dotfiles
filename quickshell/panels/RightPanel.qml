@@ -18,13 +18,12 @@ PanelWindow {
     anchors.right: true
     anchors.bottom: true
 
-    margins.top: Theme.topPanelHeight
+    margins.top: Theme.topPanelHeight - 1
 
     readonly property bool isExpanded: PanelState.rightPanelContext !== ""
 
     implicitWidth: isExpanded ? Theme.rightPanelExpanded : Theme.rightPanelCollapsed
-    exclusionMode: isExpanded ? ExclusionMode.Normal : ExclusionMode.Ignore
-    exclusiveZone: Theme.rightPanelExpanded
+    exclusiveZone: isExpanded ? Theme.rightPanelExpanded : Theme.rightPanelCollapsed
     focusable: isExpanded
     color: Theme.bg
 
@@ -171,17 +170,20 @@ PanelWindow {
                     clip: true
 
                     text: {
-                        const title = " " + contextTitle + " ";
+                        const title = contextTitle;
                         const availWidth = Math.floor(parent.width / charWidth);
                         if (availWidth < 6) return Theme.boxTopLeft + Theme.boxTopRight;
 
                         const connectorPos = 2;
-                        const titleLen = title.length;
+                        // Use spaces for the title area so the overlay doesn't double-render
+                        const titleSpace = " " + title + " ";
+                        const titleLen = titleSpace.length;
                         const afterTitle = connectorPos + titleLen;
                         const remaining = Math.max(0, availWidth - afterTitle - 1);
                         const prefix = Theme.boxHorizontal.repeat(connectorPos);
+                        const spacer = " ".repeat(titleLen);
                         const suffix = Theme.boxHorizontal.repeat(remaining);
-                        return "┬" + prefix + title + suffix + Theme.boxTopRight;
+                        return "┬" + prefix + spacer + suffix + Theme.boxTopRight;
                     }
 
                     readonly property real charWidth: headerMetrics.advanceWidth
@@ -207,16 +209,16 @@ PanelWindow {
                     }
                 }
 
-                // Title text colored with accent
+                // Title text colored with accent (positioned over the spacer area)
                 Text {
                     anchors.left: parent.left
-                    anchors.leftMargin: headerText.charWidth * 3.5
+                    anchors.leftMargin: headerText.charWidth * 3
                     anchors.top: parent.top
                     color: Theme.accent
                     font.family: Theme.fontFamily
                     font.pixelSize: Theme.fontSize
                     font.bold: true
-                    text: headerText.contextTitle
+                    text: " " + headerText.contextTitle + " "
                 }
             }
 

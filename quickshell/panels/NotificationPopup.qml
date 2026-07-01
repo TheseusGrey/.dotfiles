@@ -16,13 +16,13 @@ PanelWindow {
     anchors.right: true
 
     margins.top: Theme.topPanelHeight + 8
-    margins.right: 8
+    margins.right: (PanelState.rightPanelContext !== "" ? Theme.rightPanelExpanded : Theme.rightPanelCollapsed) + 8
 
     implicitWidth: 320
     implicitHeight: Math.max(1, popupColumn.implicitHeight + Theme.panelPadding * 2)
 
     exclusionMode: ExclusionMode.Ignore
-    visible: popupModel.count > 0
+    visible: popupModel.count > 0 && PanelState.rightPanelContext !== "notifications"
     color: "transparent"
 
     WlrLayershell.layer: WlrLayer.Overlay
