@@ -1,10 +1,21 @@
 import QtQuick
 import Quickshell
-import qs.modules as Modules
-import qs.config
+import qs.panels as Panels
+import qs.services
 
+// Shell entry point.
+// Loads all panels and ensures singletons are initialized.
 ShellRoot {
-    // Screen border overlay
-    Modules.BorderOverlay {}
-    Modules.Exclusions {}
+    Panels.TopPanel {}
+    Panels.LeftPanel {}
+    Panels.RightPanel {}
+    Panels.OsdOverlay {}
+    Panels.LockScreen {}
+
+    // Force singleton initialization (they have no visual component)
+    Component.onCompleted: {
+        // ShortcutHandler registers the IPC handler on creation
+        void(ShortcutHandler);
+        void(NotificationManager);
+    }
 }

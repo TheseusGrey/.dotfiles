@@ -1,5 +1,9 @@
 module qs.components
 
-StyledWindow 1.0 StyledWindow.qml
-StyledText 1.0 StyledText.qml
-Bar 1.0 Bar.qml
+TuiText 1.0 TuiText.qml
+TuiBorder 1.0 TuiBorder.qml
+TuiPanel 1.0 TuiPanel.qml
+TuiButton 1.0 TuiButton.qml
+TuiProgress 1.0 TuiProgress.qml
+TuiSpinner 1.0 TuiSpinner.qml
+TuiDots 1.0 TuiDots.qml

@@ -1,14 +1,33 @@
 import QtQuick
-import QtQuick.Layouts
 import Quickshell.Hyprland
-import qs.theme
+import qs.services
 
+// Active window title — shows the focused window's title, truncated to maxChars.
+// Reuses the pattern from legacy: split on dash separators, take last segment.
+// Colored in textMuted to be secondary to workspace indicator.
 Text {
-    text: Hyprland.focusedClient?.title ?? ""
-    color: Theme.fgDim
-    font.pixelSize: Theme.fontSize
+    id: root
+
+    property int maxChars: 30
+
+    readonly property string rawTitle: Hyprland.activeToplevel?.title ?? ""
+    readonly property string displayTitle: {
+        if (rawTitle === "") return "";
+        // Split on common title separators (— or -) and take the last segment
+        // This extracts the app name from titles like "file.txt — Neovim"
+        const parts = rawTitle.split(/ [—\-] /);
+        const name = parts[parts.length - 1].trim();
+        if (name.length > maxChars) {
+            return name.substring(0, maxChars - 1) + "…";
+        }
+        return name;
+    }
+
+    text: displayTitle
+    color: Theme.textMuted
     font.family: Theme.fontFamily
-    elide: Text.ElideRight
+    font.pixelSize: Theme.fontSize
+    elide: Text.ElideNone  // we handle truncation manually above
     maximumLineCount: 1
-    width: Math.min(implicitWidth, 300)
+    verticalAlignment: Text.AlignVCenter
 }

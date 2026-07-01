@@ -1,26 +1,21 @@
 import QtQuick
-import qs.theme
+import Quickshell
+import qs.services
 
+// Clock widget — uses SystemClock for efficient updates.
+// Displays time in HH:MM format. Color: textBright (prominent).
 Text {
     id: root
 
-    property string timeStr: ""
-    property string dateStr: ""
-
-    text: timeStr + "  " + dateStr
-    color: Theme.fg
-    font.pixelSize: Theme.fontSize
-    font.family: Theme.fontFamily
-
-    Timer {
-        interval: 30000
-        running: true
-        repeat: true
-        triggeredOnStart: true
-        onTriggered: {
-            let now = new Date();
-            root.timeStr = Qt.formatDateTime(now, "hh:mm");
-            root.dateStr = Qt.formatDateTime(now, "ddd, MMM d");
-        }
+    SystemClock {
+        id: clock
+        precision: SystemClock.Minutes
     }
+
+    text: Qt.formatDateTime(clock.date, "HH:mm")
+    color: Theme.textBright
+    font.family: Theme.fontFamily
+    font.pixelSize: Theme.fontSize
+    font.bold: true
+    verticalAlignment: Text.AlignVCenter
 }

@@ -1,0 +1,5 @@
+module qs.components
+
+StyledWindow 1.0 StyledWindow.qml
+StyledText 1.0 StyledText.qml
+Bar 1.0 Bar.qml

@@ -1,10 +1,19 @@
 module qs.widgets
-Workspaces 1.0 Workspaces.qml
-Clock 1.0 Clock.qml
+
+WorkspaceIndicator 1.0 WorkspaceIndicator.qml
 ActiveWindow 1.0 ActiveWindow.qml
-StatusIcons 1.0 StatusIcons.qml
-PowerButton 1.0 PowerButton.qml
-Launcher 1.0 Launcher.qml
-singleton NotificationManager 1.0 NotificationManager.qml
-singleton PanelState 1.0 PanelState.qml
-singleton ShortcutHandler 1.0 ShortcutHandler.qml
+Clock 1.0 Clock.qml
+DateWidget 1.0 DateWidget.qml
+StatusButtons 1.0 StatusButtons.qml
+VolumeControl 1.0 VolumeControl.qml
+BrightnessControl 1.0 BrightnessControl.qml
+WiFiPanel 1.0 WiFiPanel.qml
+BluetoothPanel 1.0 BluetoothPanel.qml
+PowerMenu 1.0 PowerMenu.qml
+NotificationList 1.0 NotificationList.qml
+Finder 1.0 Finder.qml
+KeybindSheet 1.0 KeybindSheet.qml
+WorkspaceList 1.0 WorkspaceList.qml
+Calendar 1.0 Calendar.qml
+SystemStats 1.0 SystemStats.qml
+MediaPlayer 1.0 MediaPlayer.qml
