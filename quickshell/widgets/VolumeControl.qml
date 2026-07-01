@@ -84,7 +84,7 @@ Item {
 
     Timer {
         id: volPollTimer
-        interval: 1000
+        interval: 500
         repeat: false
         onTriggered: volProc.running = true
     }
@@ -145,11 +145,16 @@ Item {
     }
 
     function setVolume(percent) {
-        cmdProc.command = ["wpctl", "set-volume", "@DEFAULT_AUDIO_SINK@", percent + "%"];
+        const clamped = Math.max(0, Math.min(100, percent));
+        // Optimistic UI update — don't wait for next poll
+        root.defaultVolume = clamped / 100.0;
+        cmdProc.command = ["wpctl", "set-volume", "@DEFAULT_AUDIO_SINK@", clamped + "%"];
         cmdProc.running = true;
     }
 
     function toggleMute() {
+        // Optimistic UI update
+        root.defaultMuted = !root.defaultMuted;
         cmdProc.command = ["wpctl", "set-mute", "@DEFAULT_AUDIO_SINK@", "toggle"];
         cmdProc.running = true;
     }
@@ -241,7 +246,7 @@ Item {
         // ─── Sink list ───────────────────────────────────────────────
         Tui.TuiText {
             text: "outputs"
-            textColor: Theme.textMuted
+            textColor: Theme.textPrimary
             font.bold: true
         }
 
@@ -258,7 +263,7 @@ Item {
                 // Tree glyph
                 Tui.TuiText {
                     text: index === root.sinks.length - 1 ? Theme.treeEnd : Theme.treeBranch
-                    textColor: Theme.border
+                    textColor: Theme.accentSecondary
                 }
 
                 // Sink name (clickable to switch)

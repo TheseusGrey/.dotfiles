@@ -248,7 +248,7 @@ Item {
         // ─── Network header ──────────────────────────────────────────
         Tui.TuiText {
             text: "networks"
-            textColor: Theme.textMuted
+            textColor: Theme.textPrimary
             font.bold: true
         }
 
@@ -284,7 +284,7 @@ Item {
                             // Tree glyph
                             Tui.TuiText {
                                 text: index === root.networks.length - 1 ? Theme.treeEnd : Theme.treeBranch
-                                textColor: Theme.border
+                                textColor: Theme.accentSecondary
                             }
 
                             // Connected indicator

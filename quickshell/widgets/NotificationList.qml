@@ -27,7 +27,7 @@ Item {
 
             Tui.TuiText {
                 text: root.hasNotifications ? NotificationManager.count + " notification" + (NotificationManager.count > 1 ? "s" : "") : ""
-                textColor: Theme.textMuted
+                textColor: Theme.textPrimary
                 font.bold: true
             }
 

@@ -24,7 +24,7 @@ PanelWindow {
     margins.top: Theme.topPanelHeight
 
     implicitWidth: PanelState.leftExpanded ? Theme.leftPanelExpanded : Theme.leftPanelCollapsed
-    exclusiveZone: Theme.leftPanelCollapsed
+    exclusiveZone: PanelState.leftExpanded ? Theme.leftPanelExpanded : Theme.leftPanelCollapsed
     color: Theme.bg
 
     WlrLayershell.layer: WlrLayer.Top
@@ -38,36 +38,35 @@ PanelWindow {
     }
 
     // ─── Hover detection for expand/collapse ───
-    MouseArea {
-        id: hoverArea
-        anchors.fill: parent
-        hoverEnabled: true
-        propagateComposedEvents: true  // Allow child clicks through
-
-        onContainsMouseChanged: {
-            if (containsMouse) {
+    // HoverHandler doesn't get confused by child MouseAreas (unlike MouseArea.containsMouse).
+    // It reports hover for the entire item bounds regardless of overlapping input handlers.
+    HoverHandler {
+        id: panelHover
+        onHoveredChanged: {
+            if (hovered) {
+                collapseTimer.stop();
                 expandTimer.start();
             } else {
                 expandTimer.stop();
                 collapseTimer.start();
             }
         }
+    }
 
-        // Small delay to prevent flicker
-        Timer {
-            id: expandTimer
-            interval: 150
-            onTriggered: PanelState.leftExpanded = true
-        }
+    // Small delay to prevent flicker on enter
+    Timer {
+        id: expandTimer
+        interval: 150
+        onTriggered: PanelState.leftExpanded = true
+    }
 
-        Timer {
-            id: collapseTimer
-            interval: 300
-            onTriggered: {
-                // Don't collapse if mouse came back
-                if (!hoverArea.containsMouse) {
-                    PanelState.leftExpanded = false;
-                }
+    // Longer delay on leave so brief exits (e.g. tooltip) don't collapse
+    Timer {
+        id: collapseTimer
+        interval: 300
+        onTriggered: {
+            if (!panelHover.hovered) {
+                PanelState.leftExpanded = false;
             }
         }
     }
@@ -149,7 +148,7 @@ PanelWindow {
                 // ─── Section: Workspaces ───
                 Tui.TuiText {
                     text: "╭─ workspaces ─╮"
-                    textColor: Theme.border
+                    textColor: Theme.accentSecondary
                     font.pixelSize: Theme.fontSizeSmall
                 }
 
@@ -160,7 +159,9 @@ PanelWindow {
 
                 // ─── Separator ───
                 Tui.TuiText {
-                    text: "├" + Theme.boxHorizontal.repeat(16) + "┤"
+                    Layout.fillWidth: true
+                    property int charWidth: Math.max(1, Math.floor(width / (Theme.fontSizeSmall * 0.6)) - 2)
+                    text: "├" + Theme.boxHorizontal.repeat(charWidth) + "┤"
                     textColor: Theme.border
                     font.pixelSize: Theme.fontSizeSmall
                 }
@@ -168,7 +169,7 @@ PanelWindow {
                 // ─── Section: Calendar ───
                 Tui.TuiText {
                     text: "╭─ calendar ─╮"
-                    textColor: Theme.border
+                    textColor: Theme.accentSecondary
                     font.pixelSize: Theme.fontSizeSmall
                 }
 
@@ -179,7 +180,9 @@ PanelWindow {
 
                 // ─── Separator ───
                 Tui.TuiText {
-                    text: "├" + Theme.boxHorizontal.repeat(16) + "┤"
+                    Layout.fillWidth: true
+                    property int charWidth: Math.max(1, Math.floor(width / (Theme.fontSizeSmall * 0.6)) - 2)
+                    text: "├" + Theme.boxHorizontal.repeat(charWidth) + "┤"
                     textColor: Theme.border
                     font.pixelSize: Theme.fontSizeSmall
                 }
@@ -187,7 +190,7 @@ PanelWindow {
                 // ─── Section: System ───
                 Tui.TuiText {
                     text: "╭─ system ─╮"
-                    textColor: Theme.border
+                    textColor: Theme.accentSecondary
                     font.pixelSize: Theme.fontSizeSmall
                 }
 
@@ -199,7 +202,9 @@ PanelWindow {
                 // ─── Section: Media (only if active) ───
                 Tui.TuiText {
                     visible: mediaPlayer.hasPlayer
-                    text: "├" + Theme.boxHorizontal.repeat(16) + "┤"
+                    Layout.fillWidth: true
+                    property int charWidth: Math.max(1, Math.floor(width / (Theme.fontSizeSmall * 0.6)) - 2)
+                    text: "├" + Theme.boxHorizontal.repeat(charWidth) + "┤"
                     textColor: Theme.border
                     font.pixelSize: Theme.fontSizeSmall
                 }
@@ -212,7 +217,9 @@ PanelWindow {
 
                 // ─── Bottom cap ───
                 Tui.TuiText {
-                    text: "╰" + Theme.boxHorizontal.repeat(16) + "╯"
+                    Layout.fillWidth: true
+                    property int charWidth: Math.max(1, Math.floor(width / (Theme.fontSizeSmall * 0.6)) - 2)
+                    text: "╰" + Theme.boxHorizontal.repeat(charWidth) + "╯"
                     textColor: Theme.border
                     font.pixelSize: Theme.fontSizeSmall
                 }

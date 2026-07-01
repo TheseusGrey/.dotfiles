@@ -88,7 +88,7 @@ Item {
     Process {
         id: brightProc
         command: ["brightnessctl", "-m", "-d", root.activeDevice]
-        running: root.activeDevice !== ""
+        running: false
 
         stdout: SplitParser {
             onRead: data => {
@@ -103,7 +103,7 @@ Item {
         }
 
         onRunningChanged: {
-            if (!running) brightPollTimer.start();
+            if (!running && root.activeDevice !== "") brightPollTimer.start();
         }
     }
 
@@ -121,6 +121,14 @@ Item {
         interval: 5000
         repeat: false
         onTriggered: deviceListProc.running = true
+    }
+
+    // Start the brightness poll once the active device is known
+    onActiveDeviceChanged: {
+        if (activeDevice !== "") {
+            brightPollTimer.stop();
+            brightProc.running = true;
+        }
     }
 
     Component.onCompleted: {
@@ -233,7 +241,7 @@ Item {
         // ─── Device list ─────────────────────────────────────────────
         Tui.TuiText {
             text: "devices"
-            textColor: Theme.textMuted
+            textColor: Theme.textPrimary
             font.bold: true
         }
 
@@ -250,7 +258,7 @@ Item {
                 // Tree glyph
                 Tui.TuiText {
                     text: index === root.devices.length - 1 ? Theme.treeEnd : Theme.treeBranch
-                    textColor: Theme.border
+                    textColor: Theme.accentSecondary
                 }
 
                 // Device name (clickable to switch)

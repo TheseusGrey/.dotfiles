@@ -48,13 +48,13 @@ Singleton {
 
     // ─── Typography ──────────────────────────────────────────────────
     readonly property string fontFamily: "JetBrainsMono Nerd Font Mono"
-    readonly property int fontSize: 13
-    readonly property int fontSizeLarge: 15
-    readonly property int fontSizeSmall: 11
-    readonly property int fontSizeIcon: 16
+    readonly property int fontSize: 14
+    readonly property int fontSizeLarge: 17
+    readonly property int fontSizeSmall: 12
+    readonly property int fontSizeIcon: 18
 
     // ─── Geometry ────────────────────────────────────────────────────
-    readonly property int topPanelHeight: 32
+    readonly property int topPanelHeight: 40
     readonly property int leftPanelCollapsed: 48
     readonly property int leftPanelExpanded: 300
     readonly property int rightPanelCollapsed: 48

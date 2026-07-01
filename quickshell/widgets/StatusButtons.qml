@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Layouts
+import Quickshell.Io
 import qs.services
 import qs.components as Tui
 
@@ -9,6 +10,38 @@ import qs.components as Tui
 RowLayout {
     id: root
     spacing: Theme.itemSpacing
+
+    // Detect wired connectivity for network icon
+    property bool hasEthernet: false
+
+    Process {
+        id: netCheckProc
+        command: ["nmcli", "-t", "-f", "TYPE,STATE", "device"]
+        running: true
+
+        property string buffer: ""
+
+        stdout: SplitParser {
+            onRead: data => {
+                netCheckProc.buffer += data + "\n";
+            }
+        }
+
+        onRunningChanged: {
+            if (!running) {
+                root.hasEthernet = netCheckProc.buffer.indexOf("ethernet:connected") !== -1;
+                netCheckProc.buffer = "";
+                netCheckTimer.start();
+            }
+        }
+    }
+
+    Timer {
+        id: netCheckTimer
+        interval: 5000
+        repeat: false
+        onTriggered: netCheckProc.running = true
+    }
 
     // Volume control
     Tui.TuiButton {
@@ -32,9 +65,9 @@ RowLayout {
         Layout.alignment: Qt.AlignVCenter
     }
 
-    // WiFi
+    // Network (WiFi or Ethernet)
     Tui.TuiButton {
-        text: "󰖩"
+        text: root.hasEthernet ? "󰈀" : "󰖩"
         fontSize: Theme.fontSizeIcon
         active: PanelState.rightPanelContext === "wifi"
         activeColor: Theme.nord8
