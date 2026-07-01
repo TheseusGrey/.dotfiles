@@ -31,12 +31,12 @@ ColumnLayout {
             text: "cpu"
             textColor: Theme.textMuted
             font.pixelSize: Theme.fontSizeSmall
-            Layout.preferredWidth: 24
+            Layout.preferredWidth: 28
         }
 
         Tui.TuiProgress {
+            Layout.fillWidth: true
             value: root.cpuUsage
-            barLength: 10
             filledColor: root.cpuUsage > 0.8 ? Theme.error
                        : root.cpuUsage > 0.6 ? Theme.warning
                        : Theme.nord7
@@ -46,7 +46,7 @@ ColumnLayout {
             text: `${Math.round(root.cpuUsage * 100)}%`
             textColor: Theme.textMuted
             font.pixelSize: Theme.fontSizeSmall
-            Layout.preferredWidth: 28
+            Layout.preferredWidth: 32
             horizontalAlignment: Text.AlignRight
         }
     }
@@ -60,12 +60,12 @@ ColumnLayout {
             text: "mem"
             textColor: Theme.textMuted
             font.pixelSize: Theme.fontSizeSmall
-            Layout.preferredWidth: 24
+            Layout.preferredWidth: 28
         }
 
         Tui.TuiProgress {
+            Layout.fillWidth: true
             value: root.memUsage
-            barLength: 10
             filledColor: root.memUsage > 0.8 ? Theme.error
                        : root.memUsage > 0.6 ? Theme.warning
                        : Theme.nord9
@@ -75,7 +75,7 @@ ColumnLayout {
             text: root.memText !== "" ? root.memText : `${Math.round(root.memUsage * 100)}%`
             textColor: Theme.textMuted
             font.pixelSize: Theme.fontSizeSmall
-            Layout.preferredWidth: 52
+            Layout.preferredWidth: 64
             horizontalAlignment: Text.AlignRight
         }
     }

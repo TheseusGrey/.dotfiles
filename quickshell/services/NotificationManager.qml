@@ -11,6 +11,9 @@ Singleton {
     readonly property var notifications: _server.trackedNotifications
     readonly property int count: _server.trackedNotifications.values.length
 
+    // Signal emitted for each new notification (for popup/toast system)
+    signal notificationPosted(var notification)
+
     NotificationServer {
         id: _server
         keepOnReload: true
@@ -22,6 +25,7 @@ Singleton {
         target: _server
         function onNotification(notification) {
             notification.tracked = true;
+            root.notificationPosted(notification);
         }
     }
 

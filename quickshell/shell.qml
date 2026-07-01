@@ -18,6 +18,8 @@ ShellRoot {
     Panels.TopPanel {}
     Panels.LeftPanel {}
     Panels.RightPanel {}
+    Panels.BottomBorder {}
+    Panels.NotificationPopup {}
     Panels.OsdOverlay {}
     Panels.LockScreen {}
 

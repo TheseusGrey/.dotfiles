@@ -99,18 +99,32 @@ Item {
                         // ─── Group separator (except first) ──────────
                         Tui.TuiText {
                             visible: index > 0
-                            text: "├" + Theme.boxHorizontal.repeat(30) + "┤"
+                            Layout.fillWidth: true
+                            property int charWidth: Math.max(1, Math.floor(width / (Theme.fontSizeSmall * 0.6)) - 2)
+                            text: "├" + Theme.boxHorizontal.repeat(charWidth) + "┤"
                             textColor: Theme.border
                             font.pixelSize: Theme.fontSizeSmall
                             Layout.topMargin: 4
                         }
 
                         // ─── Group title ─────────────────────────────
-                        Tui.TuiText {
-                            text: Theme.boxTopLeft + Theme.boxHorizontal + " " + modelData.title + " " + Theme.boxHorizontal.repeat(Math.max(0, 26 - modelData.title.length)) + Theme.boxTopRight
-                            textColor: Theme.border
-                            font.pixelSize: Theme.fontSizeSmall
+                        RowLayout {
+                            Layout.fillWidth: true
                             Layout.bottomMargin: 2
+                            spacing: 0
+
+                            Tui.TuiText {
+                                text: Theme.boxTopLeft + Theme.boxHorizontal + " " + modelData.title + " "
+                                textColor: Theme.border
+                                font.pixelSize: Theme.fontSizeSmall
+                            }
+                            Tui.TuiText {
+                                Layout.fillWidth: true
+                                property int charWidth: Math.max(1, Math.floor(width / (Theme.fontSizeSmall * 0.6)))
+                                text: Theme.boxHorizontal.repeat(charWidth) + Theme.boxTopRight
+                                textColor: Theme.border
+                                font.pixelSize: Theme.fontSizeSmall
+                            }
                         }
 
                         // ─── Binds in this group ─────────────────────
@@ -129,8 +143,10 @@ Item {
                                     font.family: Theme.fontFamily
                                     font.pixelSize: Theme.fontSizeSmall
                                     font.bold: true
-                                    Layout.preferredWidth: 140
+                                    Layout.preferredWidth: 120
+                                    Layout.maximumWidth: 130
                                     horizontalAlignment: Text.AlignRight
+                                    elide: Text.ElideRight
                                 }
 
                                 // Separator dot
@@ -148,6 +164,7 @@ Item {
                                     font.family: Theme.fontFamily
                                     font.pixelSize: Theme.fontSizeSmall
                                     Layout.fillWidth: true
+                                    elide: Text.ElideRight
                                 }
                             }
                         }
@@ -156,7 +173,9 @@ Item {
 
                 // Bottom cap
                 Tui.TuiText {
-                    text: Theme.boxBottomLeft + Theme.boxHorizontal.repeat(30) + Theme.boxBottomRight
+                    Layout.fillWidth: true
+                    property int charWidth: Math.max(1, Math.floor(width / (Theme.fontSizeSmall * 0.6)) - 2)
+                    text: Theme.boxBottomLeft + Theme.boxHorizontal.repeat(charWidth) + Theme.boxBottomRight
                     textColor: Theme.border
                     font.pixelSize: Theme.fontSizeSmall
                     Layout.topMargin: 4

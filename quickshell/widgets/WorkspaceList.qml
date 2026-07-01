@@ -141,6 +141,7 @@ ColumnLayout {
 
                     readonly property bool isLast: index === wsDelegate.windowCount - 1
                     readonly property string appClass: modelData.lastIpcObject?.class ?? ""
+                    readonly property string windowAddress: modelData.lastIpcObject?.address ?? ""
                     readonly property string title: {
                         const t = modelData.title ?? "";
                         return t.length > 24 ? t.substring(0, 24) + "…" : t;
@@ -158,12 +159,16 @@ ColumnLayout {
                         textColor: wsDelegate.isFocused ? Theme.accent : Theme.textPrimary
                     }
 
-                    // Window title
-                    Tui.TuiText {
+                    // Window title (clickable to focus)
+                    Tui.TuiButton {
                         text: parent.title
-                        textColor: Theme.textMuted
-                        font.pixelSize: Theme.fontSizeSmall
+                        fontSize: Theme.fontSizeSmall
                         Layout.fillWidth: true
+                        onClicked: {
+                            if (parent.windowAddress !== "") {
+                                Hyprland.dispatch("focuswindow", "address:" + parent.windowAddress);
+                            }
+                        }
                     }
                 }
             }

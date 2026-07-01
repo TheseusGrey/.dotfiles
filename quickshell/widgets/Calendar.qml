@@ -161,10 +161,16 @@ ColumnLayout {
     }
 
     // ─── Today shortcut (shown if not viewing current month) ───
-    Tui.TuiButton {
-        visible: root.displayMonth !== root.todayMonth || root.displayYear !== root.todayYear
-        text: "● today"
-        onClicked: root.goToToday()
-        Layout.alignment: Qt.AlignRight
+    Item {
+        Layout.fillWidth: true
+        Layout.preferredHeight: todayBtn.implicitHeight
+
+        Tui.TuiButton {
+            id: todayBtn
+            anchors.right: parent.right
+            visible: root.displayMonth !== root.todayMonth || root.displayYear !== root.todayYear
+            text: "● today"
+            onClicked: root.goToToday()
+        }
     }
 }

@@ -23,7 +23,8 @@ PanelWindow {
     readonly property bool isExpanded: PanelState.rightPanelContext !== ""
 
     implicitWidth: isExpanded ? Theme.rightPanelExpanded : Theme.rightPanelCollapsed
-    exclusionMode: ExclusionMode.Ignore
+    exclusionMode: isExpanded ? ExclusionMode.Normal : ExclusionMode.Ignore
+    exclusiveZone: Theme.rightPanelExpanded
     focusable: isExpanded
     color: Theme.bg
 

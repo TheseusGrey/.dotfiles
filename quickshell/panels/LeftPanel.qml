@@ -146,10 +146,28 @@ PanelWindow {
                 spacing: Theme.itemSpacing
 
                 // ─── Section: Workspaces ───
-                Tui.TuiText {
-                    text: "╭─ workspaces ─╮"
-                    textColor: Theme.accentSecondary
-                    font.pixelSize: Theme.fontSizeSmall
+                RowLayout {
+                    Layout.fillWidth: true
+                    spacing: 0
+
+                    Tui.TuiText {
+                        text: "╭─ "
+                        textColor: Theme.border
+                        font.pixelSize: Theme.fontSizeSmall
+                    }
+                    Tui.TuiText {
+                        text: "workspaces"
+                        textColor: Theme.accentSecondary
+                        font.pixelSize: Theme.fontSizeSmall
+                        font.bold: true
+                    }
+                    Tui.TuiText {
+                        Layout.fillWidth: true
+                        property int charWidth: Math.max(1, Math.floor(width / (Theme.fontSizeSmall * 0.6)))
+                        text: " " + Theme.boxHorizontal.repeat(charWidth) + "╮"
+                        textColor: Theme.border
+                        font.pixelSize: Theme.fontSizeSmall
+                    }
                 }
 
                 Widgets.WorkspaceList {
@@ -167,10 +185,28 @@ PanelWindow {
                 }
 
                 // ─── Section: Calendar ───
-                Tui.TuiText {
-                    text: "╭─ calendar ─╮"
-                    textColor: Theme.accentSecondary
-                    font.pixelSize: Theme.fontSizeSmall
+                RowLayout {
+                    Layout.fillWidth: true
+                    spacing: 0
+
+                    Tui.TuiText {
+                        text: "╭─ "
+                        textColor: Theme.border
+                        font.pixelSize: Theme.fontSizeSmall
+                    }
+                    Tui.TuiText {
+                        text: "calendar"
+                        textColor: Theme.accentSecondary
+                        font.pixelSize: Theme.fontSizeSmall
+                        font.bold: true
+                    }
+                    Tui.TuiText {
+                        Layout.fillWidth: true
+                        property int charWidth: Math.max(1, Math.floor(width / (Theme.fontSizeSmall * 0.6)))
+                        text: " " + Theme.boxHorizontal.repeat(charWidth) + "╮"
+                        textColor: Theme.border
+                        font.pixelSize: Theme.fontSizeSmall
+                    }
                 }
 
                 Widgets.Calendar {
@@ -188,10 +224,28 @@ PanelWindow {
                 }
 
                 // ─── Section: System ───
-                Tui.TuiText {
-                    text: "╭─ system ─╮"
-                    textColor: Theme.accentSecondary
-                    font.pixelSize: Theme.fontSizeSmall
+                RowLayout {
+                    Layout.fillWidth: true
+                    spacing: 0
+
+                    Tui.TuiText {
+                        text: "╭─ "
+                        textColor: Theme.border
+                        font.pixelSize: Theme.fontSizeSmall
+                    }
+                    Tui.TuiText {
+                        text: "system"
+                        textColor: Theme.accentSecondary
+                        font.pixelSize: Theme.fontSizeSmall
+                        font.bold: true
+                    }
+                    Tui.TuiText {
+                        Layout.fillWidth: true
+                        property int charWidth: Math.max(1, Math.floor(width / (Theme.fontSizeSmall * 0.6)))
+                        text: " " + Theme.boxHorizontal.repeat(charWidth) + "╮"
+                        textColor: Theme.border
+                        font.pixelSize: Theme.fontSizeSmall
+                    }
                 }
 
                 Widgets.SystemStats {

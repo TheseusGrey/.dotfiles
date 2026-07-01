@@ -3,5 +3,7 @@ module qs.panels
 TopPanel 1.0 TopPanel.qml
 LeftPanel 1.0 LeftPanel.qml
 RightPanel 1.0 RightPanel.qml
+BottomBorder 1.0 BottomBorder.qml
+NotificationPopup 1.0 NotificationPopup.qml
 OsdOverlay 1.0 OsdOverlay.qml
 LockScreen 1.0 LockScreen.qml

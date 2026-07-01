@@ -268,7 +268,11 @@ Item {
 
                 // Sink name (clickable to switch)
                 Tui.TuiButton {
-                    text: modelData.name
+                    text: {
+                        const name = modelData.name;
+                        const maxLen = 28;
+                        return name.length > maxLen ? name.substring(0, maxLen - 1) + "…" : name;
+                    }
                     active: modelData.id === root.defaultSinkId
                     activeColor: Theme.nord7
                     onClicked: root.setSink(modelData.id)
