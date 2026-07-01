@@ -24,7 +24,7 @@ Text {
     }
 
     text: displayTitle
-    color: Theme.textMuted
+    color: Theme.textBright
     font.family: Theme.fontFamily
     font.pixelSize: Theme.fontSize
     elide: Text.ElideNone  // we handle truncation manually above

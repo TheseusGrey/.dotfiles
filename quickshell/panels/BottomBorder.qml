@@ -12,8 +12,8 @@ PanelWindow {
     anchors.right: true
     anchors.bottom: true
 
-    implicitHeight: 2
-    exclusionMode: ExclusionMode.Ignore
+    implicitHeight: 12
+    // exclusionMode: ExclusionMode.Ignore
     color: "transparent"
 
     WlrLayershell.layer: WlrLayer.Top
@@ -21,6 +21,6 @@ PanelWindow {
 
     Rectangle {
         anchors.fill: parent
-        color: Theme.border
+        color: Theme.bg
     }
 }

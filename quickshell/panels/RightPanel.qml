@@ -224,7 +224,6 @@ PanelWindow {
             Item {
                 Layout.fillWidth: true
                 Layout.fillHeight: true
-                Layout.topMargin: 4
 
                 // Left side border (│ characters)
                 Column {
@@ -235,7 +234,7 @@ PanelWindow {
                     width: headerText.charWidth
 
                     Repeater {
-                        model: Math.max(0, Math.floor(contentLeftBorder.height / headerText.implicitHeight))
+                        model: Math.max(0, Math.floor(contentLeftBorder.height / headerText.implicitHeight) + 1)
                         Text {
                             color: Theme.border
                             font.family: Theme.fontFamily
@@ -254,7 +253,7 @@ PanelWindow {
                     width: headerText.charWidth
 
                     Repeater {
-                        model: Math.max(0, Math.floor(contentRightBorder.height / headerText.implicitHeight))
+                        model: Math.max(0, Math.floor(contentRightBorder.height / headerText.implicitHeight) + 1)
                         Text {
                             color: Theme.border
                             font.family: Theme.fontFamily
@@ -335,7 +334,7 @@ PanelWindow {
                 text: {
                     const availWidth = Math.floor(parent.width / headerText.charWidth);
                     if (availWidth < 4) return Theme.boxBottomLeft + Theme.boxBottomRight;
-                    const fill = Theme.boxHorizontal.repeat(Math.max(0, availWidth - 2));
+                    const fill = Theme.boxHorizontal.repeat(Math.max(0, availWidth - 1));
                     return Theme.boxBottomLeft + fill + Theme.boxBottomRight;
                 }
             }

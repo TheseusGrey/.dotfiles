@@ -9,9 +9,6 @@ import qs.widgets as Widgets
 
 // Left panel — hover-to-expand sidebar.
 //
-// Collapsed (48px): minimal indicator glyph (⋮ or ◂) hinting expandable content.
-// Expanded (300px): workspace tree, calendar, system stats, media player.
-//
 // Has exclusive zone for collapsed width so windows don't overlap.
 //
 PanelWindow {
