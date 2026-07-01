@@ -21,20 +21,20 @@ ColumnLayout {
     // Map of WM_CLASS → nerd font icon
     // Common apps; falls back to  for unknown
     readonly property var appIcons: ({
-        "firefox": "",
-        "firefox-esr": "",
-        "chromium": "",
-        "google-chrome": "",
+        "firefox": "",
+        "firefox-esr": "",
+        "chromium": "",
+        "google-chrome": "",
         "brave-browser": "󰖟",
         "code": "󰨞",
         "code-oss": "󰨞",
         "codium": "󰨞",
-        "neovim": "",
-        "nvim": "",
-        "kitty": "",
-        "alacritty": "",
-        "foot": "",
-        "wezterm": "",
+        "neovim": "",
+        "nvim": "",
+        "kitty": "",
+        "alacritty": "",
+        "foot": "",
+        "wezterm": "",
         "thunar": "󰉋",
         "nautilus": "󰉋",
         "nemo": "󰉋",
@@ -42,26 +42,24 @@ ColumnLayout {
         "spotify": "󰓇",
         "discord": "󰙯",
         "vesktop": "󰙯",
-        "telegram-desktop": "",
+        "telegram-desktop": "",
         "signal": "󰍡",
         "slack": "󰒱",
         "obs": "󰑋",
-        "gimp": "",
-        "inkscape": "",
+        "gimp": "",
+        "inkscape": "",
         "blender": "󰂫",
         "steam": "󰓓",
         "lutris": "󰊗",
         "pavucontrol": "󰕾",
         "easyeffects": "󰺢",
         "obsidian": "󰎛",
-        "zathura": "",
-        "evince": "",
         "mpv": "󰕧",
         "vlc": "󰕼",
         "transmission-gtk": "󰇚",
         "qbittorrent": "󰇚",
-        "org.gnome.Settings": "",
-        "gnome-control-center": "",
+        "org.gnome.Settings": "",
+        "gnome-control-center": "",
         "xdg-desktop-portal": "󰀻"
     })
 
@@ -162,6 +160,7 @@ ColumnLayout {
                     // Window title (clickable to focus)
                     Tui.TuiButton {
                         text: parent.title
+                        textAlign: Text.AlignLeft
                         fontSize: Theme.fontSizeSmall
                         Layout.fillWidth: true
                         onClicked: {

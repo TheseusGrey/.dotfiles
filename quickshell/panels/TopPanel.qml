@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Layouts
 import Quickshell
+import Quickshell.Widgets
 import Quickshell.Wayland
 import qs.services
 import qs.components as Tui
@@ -31,10 +32,13 @@ PanelWindow {
     WlrLayershell.namespace: "shell-top"
 
     // ─── Bottom border line (subtle separator from desktop) ────────
-    Rectangle {
+    WrapperRectangle {
         anchors.bottom: parent.bottom
         anchors.left: parent.left
         anchors.right: parent.right
+
+        leftMargin: 20
+
         height: 1
         color: Theme.border
     }

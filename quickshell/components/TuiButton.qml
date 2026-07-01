@@ -9,6 +9,7 @@ Item {
     id: root
 
     property string text: ""
+    property int textAlign: Text.AlignHCenter
     property color normalColor: Theme.textPrimary
     property color hoverColor: Theme.accent
     property color activeColor: Theme.accentSecondary
@@ -29,7 +30,7 @@ Item {
         font.pixelSize: root.fontSize
         font.bold: mouseArea.containsMouse || root.active
         verticalAlignment: Text.AlignVCenter
-        horizontalAlignment: Text.AlignHCenter
+        horizontalAlignment: root.textAlign
     }
 
     MouseArea {

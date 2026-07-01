@@ -21,8 +21,6 @@ PanelWindow {
     anchors.left: true
     anchors.bottom: true
 
-    margins.top: Theme.topPanelHeight - 1
-
     implicitWidth: PanelState.leftExpanded ? Theme.leftPanelExpanded : Theme.leftPanelCollapsed
     exclusiveZone: PanelState.leftExpanded ? Theme.leftPanelExpanded : Theme.leftPanelCollapsed
     color: Theme.bg

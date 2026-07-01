@@ -12,9 +12,9 @@ Item {
 
     // ─── Actions model ───────────────────────────────────────────────
     readonly property var actions: [
-        { icon: "", label: "lock", cmd: "loginctl lock-session", color: Theme.accent },
+        { icon: "", label: "lock", cmd: "loginctl lock-session", color: Theme.accent },
         { icon: "󰗽", label: "logout", cmd: "hyprctl dispatch exit", color: Theme.nord13 },
-        { icon: "", label: "reboot", cmd: "systemctl reboot", color: Theme.warning },
+        { icon: "󰜉", label: "reboot", cmd: "systemctl reboot", color: Theme.warning },
         { icon: "⏻", label: "shutdown", cmd: "systemctl poweroff", color: Theme.error }
     ]
 

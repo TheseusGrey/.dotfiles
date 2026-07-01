@@ -43,57 +43,13 @@ RowLayout {
         onTriggered: netCheckProc.running = true
     }
 
-    // Volume control
+    // Finder / App launcher
     Tui.TuiButton {
-        text: "󰕾"
+        text: "󰍉"
         fontSize: Theme.fontSizeIcon
-        active: PanelState.rightPanelContext === "volume"
-        activeColor: Theme.nord7
-        onClicked: PanelState.openRight("volume")
-
-        Layout.alignment: Qt.AlignVCenter
-    }
-
-    // Brightness
-    Tui.TuiButton {
-        text: "󰃟"
-        fontSize: Theme.fontSizeIcon
-        active: PanelState.rightPanelContext === "brightness"
-        activeColor: Theme.nord13
-        onClicked: PanelState.openRight("brightness")
-
-        Layout.alignment: Qt.AlignVCenter
-    }
-
-    // Network (WiFi or Ethernet)
-    Tui.TuiButton {
-        text: root.hasEthernet ? "󰈀" : "󰖩"
-        fontSize: Theme.fontSizeIcon
-        active: PanelState.rightPanelContext === "wifi"
-        activeColor: Theme.nord8
-        onClicked: PanelState.openRight("wifi")
-
-        Layout.alignment: Qt.AlignVCenter
-    }
-
-    // Bluetooth
-    Tui.TuiButton {
-        text: "󰂯"
-        fontSize: Theme.fontSizeIcon
-        active: PanelState.rightPanelContext === "bluetooth"
-        activeColor: Theme.nord9
-        onClicked: PanelState.openRight("bluetooth")
-
-        Layout.alignment: Qt.AlignVCenter
-    }
-
-    // Power menu
-    Tui.TuiButton {
-        text: "⏻"
-        fontSize: Theme.fontSizeIcon
-        active: PanelState.rightPanelContext === "power"
-        activeColor: Theme.error
-        onClicked: PanelState.openRight("power")
+        active: PanelState.rightPanelContext === "finder"
+        activeColor: Theme.accent
+        onClicked: PanelState.openRight("finder")
 
         Layout.alignment: Qt.AlignVCenter
     }
@@ -122,16 +78,6 @@ RowLayout {
         Layout.alignment: Qt.AlignVCenter
     }
 
-    // Finder / App launcher
-    Tui.TuiButton {
-        text: "󰍉"
-        fontSize: Theme.fontSizeIcon
-        active: PanelState.rightPanelContext === "finder"
-        activeColor: Theme.accent
-        onClicked: PanelState.openRight("finder")
-
-        Layout.alignment: Qt.AlignVCenter
-    }
 
     // Keybind cheat-sheet
     Tui.TuiButton {
@@ -140,6 +86,61 @@ RowLayout {
         active: PanelState.rightPanelContext === "keybinds"
         activeColor: Theme.nord15
         onClicked: PanelState.openRight("keybinds")
+
+        Layout.alignment: Qt.AlignVCenter
+    }
+
+    // Volume control
+    Tui.TuiButton {
+        text: "󰕾"
+        fontSize: Theme.fontSizeIcon
+        active: PanelState.rightPanelContext === "volume"
+        activeColor: Theme.nord7
+        onClicked: PanelState.openRight("volume")
+
+        Layout.alignment: Qt.AlignVCenter
+    }
+
+    // Brightness
+    Tui.TuiButton {
+        text: "󰃟"
+        fontSize: Theme.fontSizeIcon
+        active: PanelState.rightPanelContext === "brightness"
+        activeColor: Theme.nord13
+        onClicked: PanelState.openRight("brightness")
+
+        Layout.alignment: Qt.AlignVCenter
+    }
+
+    // Bluetooth
+    Tui.TuiButton {
+        text: "󰂯"
+        fontSize: Theme.fontSize
+        active: PanelState.rightPanelContext === "bluetooth"
+        activeColor: Theme.nord9
+        onClicked: PanelState.openRight("bluetooth")
+
+        Layout.alignment: Qt.AlignVCenter
+    }
+
+    // Network (WiFi or Ethernet)
+    Tui.TuiButton {
+        text: root.hasEthernet ? "󰈀" : "󰖩"
+        fontSize: Theme.fontSizeIcon
+        active: PanelState.rightPanelContext === "wifi"
+        activeColor: Theme.nord8
+        onClicked: PanelState.openRight("wifi")
+
+        Layout.alignment: Qt.AlignVCenter
+    }
+
+    // Power menu
+    Tui.TuiButton {
+        text: "⏻"
+        fontSize: Theme.fontSizeIcon
+        active: PanelState.rightPanelContext === "power"
+        activeColor: Theme.error
+        onClicked: PanelState.openRight("power")
 
         Layout.alignment: Qt.AlignVCenter
     }

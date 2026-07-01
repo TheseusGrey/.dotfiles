@@ -18,8 +18,6 @@ PanelWindow {
     anchors.right: true
     anchors.bottom: true
 
-    margins.top: Theme.topPanelHeight - 1
-
     readonly property bool isExpanded: PanelState.rightPanelContext !== ""
 
     implicitWidth: isExpanded ? Theme.rightPanelExpanded : Theme.rightPanelCollapsed
@@ -183,7 +181,7 @@ PanelWindow {
                         const prefix = Theme.boxHorizontal.repeat(connectorPos);
                         const spacer = " ".repeat(titleLen);
                         const suffix = Theme.boxHorizontal.repeat(remaining);
-                        return "┬" + prefix + spacer + suffix + Theme.boxTopRight;
+                        return Theme.boxTopLeft + prefix + spacer + suffix + Theme.boxTopRight;
                     }
 
                     readonly property real charWidth: headerMetrics.advanceWidth
@@ -191,7 +189,7 @@ PanelWindow {
                         switch (PanelState.rightPanelContext) {
                             case "volume": return "volume";
                             case "brightness": return "brightness";
-                            case "wifi": return "wifi";
+                            case "wifi": return "network";
                             case "bluetooth": return "bluetooth";
                             case "power": return "power";
                             case "notifications": return "notifications";
