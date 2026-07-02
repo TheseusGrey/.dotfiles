@@ -5,17 +5,26 @@ import Quickshell.Io
 import qs.services
 import qs.components as Tui
 
-// Volume control panel — lists all PipeWire audio sinks.
-// Active sink is highlighted. Click to switch. Shows ▌░ progress bar.
-// Uses wpctl for volume control and pactl for sink enumeration.
+// Volume control panel — lists all PipeWire audio sinks and sources.
+// Active devices are highlighted. Click to switch. Shows ▌░ progress bar.
+// Uses wpctl for volume control and pactl for device enumeration.
+// Includes both outputs (sinks) and inputs (sources/microphones).
+// Virtual sources (e.g. EasyEffects) are shown alongside hardware mics.
+// Monitor sources (loopback) are filtered out.
 Item {
     id: root
 
-    // ─── Data model ──────────────────────────────────────────────────
+    // ─── Output data model ───────────────────────────────────────────
     property var sinks: []
     property int defaultSinkId: -1
     property real defaultVolume: 0.0
     property bool defaultMuted: false
+
+    // ─── Input data model ─────────────────────────────────────────────
+    property var sources: []
+    property int defaultSourceId: -1
+    property real defaultInputVolume: 0.0
+    property bool defaultInputMuted: false
 
     // ─── Sink enumeration ────────────────────────────────────────────
     Process {
@@ -87,6 +96,123 @@ Item {
         interval: 500
         repeat: false
         onTriggered: volProc.running = true
+    }
+
+    // ─── Source (input) enumeration ──────────────────────────────────
+    Process {
+        id: sourceListProc
+        command: ["sh", "-c", "pactl -f json list sources 2>/dev/null"]
+        running: true
+
+        property string buffer: ""
+
+        stdout: SplitParser {
+            onRead: data => {
+                sourceListProc.buffer += data + "\n";
+            }
+        }
+
+        onRunningChanged: {
+            if (!running) {
+                try {
+                    const parsed = JSON.parse(sourceListProc.buffer);
+                    let result = [];
+                    for (let i = 0; i < parsed.length; i++) {
+                        const src = parsed[i];
+                        const name = src.description || src.name || ("Source " + src.index);
+                        const internalName = src.name || "";
+                        // Filter out output monitor sources (loopback captures)
+                        // These have "monitor" in the internal name or class is "monitor"
+                        if (internalName.indexOf(".monitor") !== -1) continue;
+                        if (src.monitor_source !== undefined && src.monitor_source !== "") continue;
+                        // Keep everything else: hardware mics, virtual mics (EasyEffects, etc.)
+                        result.push({
+                            id: src.index,
+                            name: name,
+                            internalName: internalName,
+                            volume: src.volume ? Math.round((src.volume["front-left"]?.value_percent || 0)) : 0,
+                            muted: src.mute || false
+                        });
+                    }
+                    root.sources = result;
+                } catch (e) {
+                    root.sources = [{
+                        id: 0,
+                        name: "Default Input",
+                        internalName: "",
+                        volume: Math.round(root.defaultInputVolume * 100),
+                        muted: root.defaultInputMuted
+                    }];
+                }
+                sourceListProc.buffer = "";
+                sourceRefreshTimer.start();
+            }
+        }
+    }
+
+    Timer {
+        id: sourceRefreshTimer
+        interval: 5000
+        repeat: false
+        onTriggered: sourceListProc.running = true
+    }
+
+    // ─── Default source volume polling ───────────────────────────────
+    Process {
+        id: inputVolProc
+        command: ["wpctl", "get-volume", "@DEFAULT_AUDIO_SOURCE@"]
+        running: true
+
+        stdout: SplitParser {
+            onRead: data => {
+                root.defaultInputMuted = data.indexOf("[MUTED]") !== -1;
+                const match = data.match(/Volume:\s+([\d.]+)/);
+                if (match) root.defaultInputVolume = parseFloat(match[1]);
+            }
+        }
+
+        onRunningChanged: {
+            if (!running) inputVolPollTimer.start();
+        }
+    }
+
+    Timer {
+        id: inputVolPollTimer
+        interval: 500
+        repeat: false
+        onTriggered: inputVolProc.running = true
+    }
+
+    // ─── Default source ID detection ─────────────────────────────────
+    Process {
+        id: defaultSourceProc
+        command: ["sh", "-c", "pactl get-default-source 2>/dev/null"]
+        running: true
+
+        stdout: SplitParser {
+            onRead: data => {
+                const name = data.trim();
+                if (name === "") return;
+                for (let i = 0; i < root.sources.length; i++) {
+                    if (root.sources[i].name === name || root.sources[i].internalName === name) {
+                        root.defaultSourceId = root.sources[i].id;
+                        return;
+                    }
+                }
+                if (root.sources.length > 0) root.defaultSourceId = root.sources[0].id;
+            }
+        }
+
+        onRunningChanged: {
+            if (!running) defaultSourcePollTimer.start();
+        }
+    }
+
+    Timer {
+        id: defaultSourcePollTimer
+        interval: 3000
+        repeat: false
+        onTriggered: defaultSourceProc.running = true
     }
 
     // ─── Default sink ID detection ───────────────────────────────────
@@ -165,6 +291,27 @@ Item {
         // Refresh after switch
         refreshTimer.interval = 500;
         refreshTimer.start();
+    }
+
+    // ─── Input volume adjustment commands ────────────────────────────
+    function setInputVolume(percent) {
+        const clamped = Math.max(0, Math.min(100, percent));
+        root.defaultInputVolume = clamped / 100.0;
+        cmdProc.command = ["wpctl", "set-volume", "@DEFAULT_AUDIO_SOURCE@", clamped + "%"];
+        cmdProc.running = true;
+    }
+
+    function toggleInputMute() {
+        root.defaultInputMuted = !root.defaultInputMuted;
+        cmdProc.command = ["wpctl", "set-mute", "@DEFAULT_AUDIO_SOURCE@", "toggle"];
+        cmdProc.running = true;
+    }
+
+    function setSource(sourceId) {
+        cmdProc.command = ["wpctl", "set-default", sourceId.toString()];
+        cmdProc.running = true;
+        sourceRefreshTimer.interval = 500;
+        sourceRefreshTimer.start();
     }
 
     // ─── Layout ──────────────────────────────────────────────────────
@@ -281,12 +428,122 @@ Item {
             }
         }
 
+        // ─── Input separator ─────────────────────────────────────────
+        Tui.TuiText {
+            Layout.fillWidth: true
+            text: Theme.boxHorizontal.repeat(40)
+            textColor: Theme.border
+        }
+
+        // ─── Input volume display ────────────────────────────────────
+        RowLayout {
+            Layout.fillWidth: true
+            spacing: 6
+
+            Tui.TuiText {
+                text: root.defaultInputMuted ? "󰍭" : "󰍬"
+                textColor: root.defaultInputMuted ? Theme.textMuted : Theme.nord9
+                font.pixelSize: Theme.fontSizeLarge
+            }
+
+            // Input volume progress bar
+            Tui.TuiProgress {
+                Layout.fillWidth: true
+                value: root.defaultInputVolume
+                filledColor: root.defaultInputMuted ? Theme.textMuted : Theme.nord9
+            }
+
+            Tui.TuiText {
+                text: Math.round(root.defaultInputVolume * 100) + "%"
+                textColor: root.defaultInputMuted ? Theme.textMuted : Theme.textPrimary
+            }
+
+            // Scroll wheel adjustment for input
+            MouseArea {
+                Layout.fillWidth: true
+                propagateComposedEvents: true
+                onWheel: wheel => {
+                    const delta = wheel.angleDelta.y > 0 ? 5 : -5;
+                    const newVol = Math.max(0, Math.min(100, Math.round(root.defaultInputVolume * 100) + delta));
+                    root.setInputVolume(newVol);
+                }
+            }
+        }
+
+        // ─── Input controls row ──────────────────────────────────────
+        RowLayout {
+            Layout.fillWidth: true
+            spacing: Theme.itemSpacing
+
+            Tui.TuiButton {
+                text: "[-]"
+                onClicked: {
+                    const newVol = Math.max(0, Math.round(root.defaultInputVolume * 100) - 5);
+                    root.setInputVolume(newVol);
+                }
+            }
+
+            Tui.TuiButton {
+                text: root.defaultInputMuted ? "[unmute]" : "[mute]"
+                activeColor: Theme.nord9
+                active: root.defaultInputMuted
+                onClicked: root.toggleInputMute()
+            }
+
+            Tui.TuiButton {
+                text: "[+]"
+                onClicked: {
+                    const newVol = Math.min(100, Math.round(root.defaultInputVolume * 100) + 5);
+                    root.setInputVolume(newVol);
+                }
+            }
+        }
+
+        // ─── Source list header ──────────────────────────────────────
+        Tui.TuiText {
+            text: "inputs"
+            textColor: Theme.textPrimary
+            font.bold: true
+        }
+
+        // ─── Source list ─────────────────────────────────────────────
+        Repeater {
+            model: root.sources
+
+            RowLayout {
+                required property var modelData
+                required property int index
+
+                Layout.fillWidth: true
+                spacing: 6
+
+                // Tree glyph
+                Tui.TuiText {
+                    text: index === root.sources.length - 1 ? Theme.treeEnd : Theme.treeBranch
+                    textColor: Theme.accentSecondary
+                }
+
+                // Source name (clickable to switch)
+                Tui.TuiButton {
+                    text: {
+                        const name = modelData.name;
+                        const maxLen = 28;
+                        return name.length > maxLen ? name.substring(0, maxLen - 1) + "…" : name;
+                    }
+                    active: modelData.id === root.defaultSourceId
+                    activeColor: Theme.nord9
+                    onClicked: root.setSource(modelData.id)
+                    Layout.fillWidth: true
+                }
+            }
+        }
+
         // ─── Spacer ─────────────────────────────────────────────────
         Item { Layout.fillHeight: true }
 
         // ─── Help bar ────────────────────────────────────────────────
         Tui.TuiText {
-            text: "scroll:adjust  click:switch sink"
+            text: "scroll:adjust  click:switch device"
             textColor: Theme.textMuted
             font.pixelSize: Theme.fontSizeSmall
         }
