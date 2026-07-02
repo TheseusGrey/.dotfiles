@@ -4,3 +4,4 @@ singleton Theme 1.0 Theme.qml
 singleton PanelState 1.0 PanelState.qml
 singleton NotificationManager 1.0 NotificationManager.qml
 singleton ShortcutHandler 1.0 ShortcutHandler.qml
+singleton FinderServer 1.0 FinderServer.qml

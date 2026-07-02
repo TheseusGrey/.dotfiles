@@ -23,16 +23,35 @@ Item {
     id: root
 
     // ─── Mode system ─────────────────────────────────────────────────
+    // "custom" mode is NOT in the cycle list — it's only activated via FinderServer
     readonly property var modes: ["apps", "screenshot", "keybinds"]
     property int currentModeIndex: 0
-    readonly property string currentMode: modes[currentModeIndex]
+    property string currentMode: modes[currentModeIndex]
+
+    // External mode override (set by openFinder IPC via PanelState.finderRequestedMode)
 
     function cycleMode() {
+        // Cannot cycle away from custom mode — Escape to cancel
+        if (currentMode === "custom") return;
         currentModeIndex = (currentModeIndex + 1) % modes.length;
         query = "";
         searchInput.text = "";
         selectedIndex = 0;
         updateFilter();
+    }
+
+    // Set a specific mode by name (used by IPC openFinder)
+    function setMode(mode) {
+        if (mode === "custom") {
+            // Custom mode is handled specially
+            root.currentMode = "custom";
+            return;
+        }
+        const idx = modes.indexOf(mode);
+        if (idx !== -1) {
+            currentModeIndex = idx;
+            root.currentMode = modes[idx];
+        }
     }
 
     // ─── Common state ────────────────────────────────────────────────
@@ -170,14 +189,44 @@ Item {
         keybindLoader.running = true;
     }
 
+    // ─── FinderServer integration (custom mode) ──────────────────────
+    Connections {
+        target: FinderServer
+        function onCustomRequestReceived() {
+            // Switch to custom mode when a socket request arrives
+            root.currentMode = "custom";
+            root.query = "";
+            root.selectedIndex = 0;
+            if (root.visible) {
+                searchInput.text = "";
+                root.updateFilter();
+                searchInput.forceActiveFocus();
+            }
+        }
+    }
+
     onVisibleChanged: {
         if (visible) {
             searchInput.text = "";
             root.query = "";
             root.selectedIndex = 0;
-            root.currentModeIndex = 0;
+            // If there's a pending custom request, stay in custom mode
+            if (FinderServer.hasPendingRequest) {
+                root.currentMode = "custom";
+            } else if (PanelState.finderRequestedMode !== "") {
+                root.setMode(PanelState.finderRequestedMode);
+                PanelState.finderRequestedMode = "";
+            } else {
+                root.currentModeIndex = 0;
+                root.currentMode = modes[0];
+            }
             root.updateFilter();
             searchInput.forceActiveFocus();
+        } else {
+            // Panel closed — if custom mode was active, cancel the request
+            if (root.currentMode === "custom" && FinderServer.hasPendingRequest) {
+                FinderServer.resolveCancelled();
+            }
         }
     }
 
@@ -407,6 +456,12 @@ Item {
                     arg: k.arg,
                     type: "keybind"
                 }));
+            case "custom":
+                return FinderServer.customItems.map(item => ({
+                    name: item,
+                    subtitle: "",
+                    type: "custom"
+                }));
             default:
                 return [];
         }
@@ -436,6 +491,11 @@ Item {
                 // (user is searching to remember what a key does)
                 PanelState.closeAll();
                 break;
+            case "custom":
+                // Send selection back to the socket client
+                FinderServer.resolveSelection(data.name);
+                PanelState.closeAll();
+                break;
         }
     }
 
@@ -455,8 +515,18 @@ Item {
             Layout.fillWidth: true
             spacing: 4
 
+            // Custom mode indicator (replaces normal mode tabs)
+            Tui.TuiText {
+                visible: root.currentMode === "custom"
+                text: "[" + (FinderServer.customPrompt || "select") + "]"
+                textColor: Theme.nord15
+                font.bold: true
+                font.pixelSize: Theme.fontSizeSmall
+            }
+
+            // Normal mode tabs (hidden during custom mode)
             Repeater {
-                model: root.modes
+                model: root.currentMode !== "custom" ? root.modes : []
 
                 Tui.TuiText {
                     required property var modelData
@@ -476,7 +546,15 @@ Item {
             Item { Layout.fillWidth: true }
 
             Tui.TuiText {
+                visible: root.currentMode !== "custom"
                 text: "tab:mode"
+                textColor: Theme.textMuted
+                font.pixelSize: Theme.fontSizeSmall
+            }
+
+            Tui.TuiText {
+                visible: root.currentMode === "custom"
+                text: "esc:cancel"
                 textColor: Theme.textMuted
                 font.pixelSize: Theme.fontSizeSmall
             }
@@ -531,7 +609,12 @@ Item {
                     }
                     Keys.onReturnPressed: root.activateSelected()
                     Keys.onEnterPressed: root.activateSelected()
-                    Keys.onEscapePressed: PanelState.closeAll()
+                    Keys.onEscapePressed: {
+                        if (root.currentMode === "custom") {
+                            FinderServer.resolveCancelled();
+                        }
+                        PanelState.closeAll();
+                    }
                     Keys.onTabPressed: event => {
                         event.accepted = true;
                         root.cycleMode();
@@ -677,6 +760,7 @@ Item {
                     case "apps": return "↑↓:navigate  enter:launch  tab:mode  esc:close";
                     case "screenshot": return "↑↓:navigate  enter:capture  tab:mode  esc:close";
                     case "keybinds": return "↑↓:navigate  tab:mode  esc:close";
+                    case "custom": return "↑↓:navigate  enter:select  esc:cancel";
                 }
             }
             textColor: Theme.textMuted

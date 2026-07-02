@@ -28,5 +28,6 @@ ShellRoot {
         // ShortcutHandler registers the IPC handler on creation
         void(ShortcutHandler);
         void(NotificationManager);
+        void(FinderServer);
     }
 }

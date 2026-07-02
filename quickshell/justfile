@@ -1,0 +1,108 @@
+# Quickshell Finder — example usage recipes
+#
+# Prerequisites:
+#   - socat (for socket communication)
+#   - jq (for JSON parsing)
+#   - quickshell running with this config
+#
+# The socket server listens at /tmp/qs-finder.sock
+
+SOCKET := "/tmp/qs-finder.sock"
+
+# ─── IPC Mode Switching ───────────────────────────────────────────────
+
+# Open finder in apps mode (default)
+finder-apps:
+    qs ipc call shell openFinder apps
+
+# Open finder in screenshot mode
+finder-screenshot:
+    qs ipc call shell openFinder screenshot
+
+# Open finder in keybinds mode
+finder-keybinds:
+    qs ipc call shell openFinder keybinds
+
+# Toggle finder (default mode)
+finder:
+    qs ipc call shell toggleFinder
+
+# ─── Custom Finder (Socket Protocol) ─────────────────────────────────
+
+# Pick a color from a list
+pick-color:
+    #!/bin/bash
+    result=$(echo '{"items":["red","green","blue","yellow","purple","orange"],"prompt":"pick a color"}' \
+        | socat - UNIX-CONNECT:{{SOCKET}})
+    echo "Result: $result"
+    selection=$(echo "$result" | jq -r '.selection // empty')
+    if [ -n "$selection" ]; then
+        echo "You picked: $selection"
+    else
+        echo "Cancelled"
+    fi
+
+# Pick from git branches
+pick-branch:
+    #!/bin/bash
+    branches=$(git branch --format='%(refname:short)' | jq -R . | jq -s .)
+    result=$(echo "{\"items\":$branches,\"prompt\":\"checkout branch\"}" \
+        | socat - UNIX-CONNECT:{{SOCKET}})
+    selection=$(echo "$result" | jq -r '.selection // empty')
+    if [ -n "$selection" ]; then
+        git checkout "$selection"
+    fi
+
+# Pick a running process to kill
+pick-kill:
+    #!/bin/bash
+    procs=$(ps -eo comm= --sort=-%mem | head -20 | jq -R . | jq -s .)
+    result=$(echo "{\"items\":$procs,\"prompt\":\"kill process\"}" \
+        | socat - UNIX-CONNECT:{{SOCKET}})
+    selection=$(echo "$result" | jq -r '.selection // empty')
+    if [ -n "$selection" ]; then
+        pkill -x "$selection" && echo "Killed: $selection"
+    fi
+
+# Pick a directory to cd into (prints path — use with: cd $(just pick-dir))
+pick-dir:
+    #!/bin/bash
+    dirs=$(find . -maxdepth 2 -type d | head -30 | jq -R . | jq -s .)
+    result=$(echo "{\"items\":$dirs,\"prompt\":\"directory\"}" \
+        | socat - UNIX-CONNECT:{{SOCKET}})
+    selection=$(echo "$result" | jq -r '.selection // empty')
+    if [ -n "$selection" ]; then
+        echo "$selection"
+    fi
+
+# Generic: pipe items from stdin
+# Usage: echo -e "foo\nbar\nbaz" | just pick-stdin "choose one"
+pick-stdin prompt="select":
+    #!/bin/bash
+    items=$(cat | jq -R . | jq -s .)
+    result=$(echo "{\"items\":$items,\"prompt\":\"{{prompt}}\"}" \
+        | socat - UNIX-CONNECT:{{SOCKET}})
+    echo "$result" | jq -r '.selection // empty'
+
+# ─── Protocol Documentation ──────────────────────────────────────────
+
+# Show protocol info
+protocol-info:
+    @echo "Quickshell Finder Socket Protocol"
+    @echo "================================="
+    @echo ""
+    @echo "Socket: {{SOCKET}}"
+    @echo ""
+    @echo "Request (client → quickshell, newline-terminated JSON):"
+    @echo '  {"items":["Option A","Option B"],"prompt":"Pick one"}'
+    @echo ""
+    @echo "Response (quickshell → client, newline-terminated JSON):"
+    @echo '  {"selection":"Option A"}     — user selected an item'
+    @echo '  {"cancelled":true}           — user pressed Escape'
+    @echo '  {"error":"..."}              — invalid request'
+    @echo ""
+    @echo "IPC (mode switching, no return value):"
+    @echo "  qs ipc call shell openFinder apps"
+    @echo "  qs ipc call shell openFinder screenshot"
+    @echo "  qs ipc call shell openFinder keybinds"
+    @echo "  qs ipc call shell toggleFinder"

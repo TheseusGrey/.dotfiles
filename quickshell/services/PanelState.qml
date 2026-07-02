@@ -14,6 +14,10 @@ Singleton {
     // Values: "volume", "brightness", "wifi", "bluetooth", "power", "notifications", "finder", "keybinds", ""
     property string rightPanelContext: ""
 
+    // Requested finder mode (set before opening finder, consumed by Finder on visible)
+    // Values: "apps", "screenshot", "keybinds", "" (empty = default/apps)
+    property string finderRequestedMode: ""
+
     // Whether left panel is expanded
     property bool leftExpanded: false
 
