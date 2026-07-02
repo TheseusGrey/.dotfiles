@@ -6,6 +6,11 @@
 #   - quickshell running with this config
 #
 # The socket server listens at /tmp/qs-finder.sock
+#
+# NOTE: We use coproc + socat to keep the socket connection alive while
+# waiting for user input. The pipe pattern (echo | socat) causes socat to
+# close the connection when stdin EOF's, which kills the session before
+# the user can make a selection.
 
 SOCKET := "/tmp/qs-finder.sock"
 
@@ -32,8 +37,11 @@ finder:
 # Pick a color from a list
 pick-color:
     #!/bin/bash
-    result=$(echo '{"items":["red","green","blue","yellow","purple","orange"],"prompt":"pick a color"}' \
-        | socat -t30 - UNIX-CONNECT:{{SOCKET}})
+    coproc SOCK { socat - UNIX-CONNECT:{{SOCKET}}; }
+    echo '{"items":["red","green","blue","yellow","purple","orange"],"prompt":"pick a color"}' >&${SOCK[1]}
+    read -r result <&${SOCK[0]}
+    exec {SOCK[1]}>&-
+    wait $SOCK_PID 2>/dev/null
     echo "Result: $result"
     selection=$(echo "$result" | jq -r '.selection // empty')
     if [ -n "$selection" ]; then
@@ -46,8 +54,11 @@ pick-color:
 pick-branch:
     #!/bin/bash
     branches=$(git branch --format='%(refname:short)' | jq -R . | jq -s .)
-    result=$(echo "{\"items\":$branches,\"prompt\":\"checkout branch\"}" \
-        | socat -t30 - UNIX-CONNECT:{{SOCKET}})
+    coproc SOCK { socat - UNIX-CONNECT:{{SOCKET}}; }
+    echo "{\"items\":$branches,\"prompt\":\"checkout branch\"}" >&${SOCK[1]}
+    read -r result <&${SOCK[0]}
+    exec {SOCK[1]}>&-
+    wait $SOCK_PID 2>/dev/null
     selection=$(echo "$result" | jq -r '.selection // empty')
     if [ -n "$selection" ]; then
         git checkout "$selection"
@@ -57,8 +68,11 @@ pick-branch:
 pick-kill:
     #!/bin/bash
     procs=$(ps -eo comm= --sort=-%mem | head -20 | jq -R . | jq -s .)
-    result=$(echo "{\"items\":$procs,\"prompt\":\"kill process\"}" \
-        | socat -t30 - UNIX-CONNECT:{{SOCKET}})
+    coproc SOCK { socat - UNIX-CONNECT:{{SOCKET}}; }
+    echo "{\"items\":$procs,\"prompt\":\"kill process\"}" >&${SOCK[1]}
+    read -r result <&${SOCK[0]}
+    exec {SOCK[1]}>&-
+    wait $SOCK_PID 2>/dev/null
     selection=$(echo "$result" | jq -r '.selection // empty')
     if [ -n "$selection" ]; then
         pkill -x "$selection" && echo "Killed: $selection"
@@ -68,8 +82,11 @@ pick-kill:
 pick-dir:
     #!/bin/bash
     dirs=$(find . -maxdepth 2 -type d | head -30 | jq -R . | jq -s .)
-    result=$(echo "{\"items\":$dirs,\"prompt\":\"directory\"}" \
-        | socat -t30 - UNIX-CONNECT:{{SOCKET}})
+    coproc SOCK { socat - UNIX-CONNECT:{{SOCKET}}; }
+    echo "{\"items\":$dirs,\"prompt\":\"directory\"}" >&${SOCK[1]}
+    read -r result <&${SOCK[0]}
+    exec {SOCK[1]}>&-
+    wait $SOCK_PID 2>/dev/null
     selection=$(echo "$result" | jq -r '.selection // empty')
     if [ -n "$selection" ]; then
         echo "$selection"
@@ -80,8 +97,11 @@ pick-dir:
 pick-stdin prompt="select":
     #!/bin/bash
     items=$(cat | jq -R . | jq -s .)
-    result=$(echo "{\"items\":$items,\"prompt\":\"{{prompt}}\"}" \
-        | socat -t30 - UNIX-CONNECT:{{SOCKET}})
+    coproc SOCK { socat - UNIX-CONNECT:{{SOCKET}}; }
+    echo "{\"items\":$items,\"prompt\":\"{{prompt}}\"}" >&${SOCK[1]}
+    read -r result <&${SOCK[0]}
+    exec {SOCK[1]}>&-
+    wait $SOCK_PID 2>/dev/null
     echo "$result" | jq -r '.selection // empty'
 
 # ─── Protocol Documentation ──────────────────────────────────────────
@@ -106,3 +126,9 @@ protocol-info:
     @echo "  qs ipc call shell openFinder screenshot"
     @echo "  qs ipc call shell openFinder keybinds"
     @echo "  qs ipc call shell toggleFinder"
+    @echo ""
+    @echo "Socket client pattern (bash coproc):"
+    @echo '  coproc SOCK { socat - UNIX-CONNECT:/tmp/qs-finder.sock; }'
+    @echo '  echo '"'"'{"items":["a","b"],"prompt":"pick"}'"'"' >&$${SOCK[1]}'
+    @echo '  read -r result <&$${SOCK[0]}'
+    @echo '  exec {SOCK[1]}>&-'
