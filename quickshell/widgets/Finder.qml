@@ -5,28 +5,45 @@ import Quickshell.Io
 import qs.services
 import qs.components as Tui
 
-// Finder — fzf-style app launcher.
-// Immediate keyboard focus, fuzzy text filtering, arrow keys to navigate.
-// Visual style: text input with │ cursor, filtered list below.
-// Enter to launch, Escape to close.
+// Finder — multi-mode fuzzy search launcher.
 //
-// Flow:
-// 1. Panel opens → TextInput gets focus
-// 2. Type to filter (fuzzy match on app name)
-// 3. Arrow keys move selection highlight (bold + accent)
-// 4. Enter launches selected app
-// 5. Escape closes panel
+// Modes (Tab to cycle):
+//   apps       — desktop applications (default)
+//   screenshot — capture.sh screen actions
+//   keybinds   — searchable Hyprland keybinds
+//
+// Features:
+//   - fzf-equivalent fuzzy scoring (sequential match, word boundary bonus,
+//     consecutive bonus, camelCase bonus)
+//   - Character-level match highlighting via RichText <span> tags
+//   - Arrow keys navigate, Enter activates, Escape closes
+//   - Mode indicator in prompt area
+//
 Item {
     id: root
 
-    // ─── App data ────────────────────────────────────────────────────
-    property var allApps: []
-    property var filteredApps: []
+    // ─── Mode system ─────────────────────────────────────────────────
+    readonly property var modes: ["apps", "screenshot", "keybinds"]
+    property int currentModeIndex: 0
+    readonly property string currentMode: modes[currentModeIndex]
+
+    function cycleMode() {
+        currentModeIndex = (currentModeIndex + 1) % modes.length;
+        query = "";
+        searchInput.text = "";
+        selectedIndex = 0;
+        updateFilter();
+    }
+
+    // ─── Common state ────────────────────────────────────────────────
+    property var filteredItems: []   // [{name, subtitle, data, matchIndices}]
     property int selectedIndex: 0
     property string query: ""
-    property bool appsLoaded: false  // cache flag — only reload on timer
 
-    // ─── App loading (cached — loads once, refreshes every 60s) ──────
+    // ─── Apps data ───────────────────────────────────────────────────
+    property var allApps: []
+    property bool appsLoaded: false
+
     Process {
         id: appLoader
         command: ["sh", "-c", "~/.config/quickshell/scripts/list-apps.sh"]
@@ -43,23 +60,19 @@ Item {
                     if (app.name && app.exec) {
                         appLoader.pendingApps.push(app);
                     }
-                } catch (e) {
-                    // Skip malformed lines
-                }
+                } catch (e) {}
             }
         }
 
         onRunningChanged: {
             if (!running && pendingApps.length > 0) {
-                // Commit loaded apps atomically
                 root.allApps = pendingApps;
                 root.appsLoaded = true;
-                root.updateFilter();
+                if (root.currentMode === "apps") root.updateFilter();
             }
         }
     }
 
-    // Refresh app list every 60s (apps rarely change mid-session)
     Timer {
         id: refreshAppsTimer
         interval: 60000
@@ -71,93 +84,364 @@ Item {
         }
     }
 
-    // Initial load on first creation
+    // ─── Screenshot data ─────────────────────────────────────────────
+    readonly property var screenshotActions: [
+        { name: "Screenshot Region",  icon: "", cmd: "hyprshot -m region" },
+        { name: "Screenshot Screen",  icon: "", cmd: "hyprshot -m output" },
+        { name: "Screenshot Window",  icon: "", cmd: "hyprshot -m window" },
+        { name: "Color Picker",       icon: "󰃉", cmd: "hyprpicker | wl-copy -n" },
+        { name: "Screen Record",      icon: "", cmd: "notify-send 'Not implemented'" }
+    ]
+
+    // ─── Keybinds data ───────────────────────────────────────────────
+    property var allKeybinds: []
+    property bool keybindsLoaded: false
+
+    Process {
+        id: keybindLoader
+        command: ["hyprctl", "-j", "binds"]
+        running: false
+
+        property string buffer: ""
+
+        stdout: SplitParser {
+            onRead: data => { keybindLoader.buffer += data + "\n"; }
+        }
+
+        onRunningChanged: {
+            if (!running) {
+                try {
+                    const parsed = JSON.parse(keybindLoader.buffer);
+                    let result = [];
+                    for (let i = 0; i < parsed.length; i++) {
+                        const b = parsed[i];
+                        const mods = root.modMaskToString(b.modmask || 0);
+                        const key = b.key || "";
+                        const combo = mods ? mods + " + " + key : key;
+                        const desc = b.description || root.dispatcherDescription(b.dispatcher, b.arg);
+                        result.push({
+                            name: combo,
+                            subtitle: desc,
+                            dispatcher: b.dispatcher,
+                            arg: b.arg
+                        });
+                    }
+                    root.allKeybinds = result;
+                    root.keybindsLoaded = true;
+                } catch (e) {
+                    root.allKeybinds = [];
+                }
+                keybindLoader.buffer = "";
+                if (root.currentMode === "keybinds") root.updateFilter();
+            }
+        }
+    }
+
+    function modMaskToString(mask) {
+        let parts = [];
+        if (mask & 64) parts.push("super");
+        if (mask & 1) parts.push("shift");
+        if (mask & 4) parts.push("ctrl");
+        if (mask & 8) parts.push("alt");
+        return parts.join("+");
+    }
+
+    function dispatcherDescription(dispatcher, arg) {
+        switch (dispatcher) {
+            case "exec": return arg ? arg.split("/").pop().split(" ")[0] : "run command";
+            case "killactive": return "close window";
+            case "movefocus": return "focus " + arg;
+            case "workspace": return "workspace " + arg;
+            case "movetoworkspace": return "move to ws " + arg;
+            case "movewindow": return "move window " + arg;
+            case "resizeactive": return "resize window";
+            case "togglefloating": return "toggle float";
+            case "fullscreen": return "fullscreen";
+            case "togglesplit": return "toggle split";
+            case "movewindow": return "move window " + arg;
+            default: return dispatcher + (arg ? " " + arg : "");
+        }
+    }
+
+    // ─── Initialization ──────────────────────────────────────────────
     Component.onCompleted: {
         appLoader.pendingApps = [];
         appLoader.running = true;
+        keybindLoader.running = true;
     }
 
-    // ─── Filtering (fuzzy-ish) ───────────────────────────────────────
-    function updateFilter() {
-        if (root.query === "") {
-            root.filteredApps = root.allApps.slice(0, 50);
-        } else {
-            const q = root.query.toLowerCase();
-            let scored = [];
-            for (let i = 0; i < root.allApps.length; i++) {
-                const app = root.allApps[i];
-                const name = app.name.toLowerCase();
-                const score = fuzzyScore(q, name);
-                if (score > 0) {
-                    scored.push({ app: app, score: score });
-                }
-            }
-            scored.sort((a, b) => b.score - a.score);
-            root.filteredApps = scored.slice(0, 50).map(s => s.app);
-        }
-        root.selectedIndex = 0;
-    }
-
-    // Simple fuzzy scoring: sequential character matching with bonus for
-    // consecutive matches and start-of-word matches.
-    function fuzzyScore(query, target) {
-        let qi = 0;
-        let score = 0;
-        let consecutive = 0;
-        let lastMatchIdx = -2;
-
-        for (let ti = 0; ti < target.length && qi < query.length; ti++) {
-            if (target[ti] === query[qi]) {
-                qi++;
-                score += 1;
-
-                // Bonus for consecutive characters
-                if (ti === lastMatchIdx + 1) {
-                    consecutive++;
-                    score += consecutive * 2;
-                } else {
-                    consecutive = 0;
-                }
-
-                // Bonus for start of word
-                if (ti === 0 || target[ti - 1] === ' ' || target[ti - 1] === '-' || target[ti - 1] === '_') {
-                    score += 5;
-                }
-
-                lastMatchIdx = ti;
-            }
-        }
-
-        // All query chars must be matched
-        return qi === query.length ? score : 0;
-    }
-
-    // ─── App launching ───────────────────────────────────────────────
-    Process {
-        id: launchProc
-        running: false
-    }
-
-    function launchApp(app) {
-        launchProc.command = ["sh", "-c", app.exec + " &"];
-        launchProc.running = true;
-        PanelState.closeAll();
-    }
-
-    function launchSelected() {
-        if (root.filteredApps.length > 0 && root.selectedIndex < root.filteredApps.length) {
-            launchApp(root.filteredApps[root.selectedIndex]);
-        }
-    }
-
-    // ─── Keyboard handling ───────────────────────────────────────────
     onVisibleChanged: {
         if (visible) {
             searchInput.text = "";
             root.query = "";
             root.selectedIndex = 0;
+            root.currentModeIndex = 0;
             root.updateFilter();
             searchInput.forceActiveFocus();
+        }
+    }
+
+    // ─── fzf-equivalent fuzzy matching ───────────────────────────────
+    // Returns { score: number, indices: number[] } or null if no match.
+    //
+    // Scoring rules (modeled after fzf's algorithm):
+    //   +1 per matched char
+    //   +5 bonus for word boundary match (after space, -, _, /)
+    //   +3 bonus for camelCase boundary (lowercase→uppercase)
+    //   +consecutive*2 bonus for consecutive matched chars
+    //   +10 bonus for first char match (prefix match)
+    //   -1 penalty per gap between matches (max -3 per gap)
+    //
+    function fuzzyMatch(query, target) {
+        if (query === "") return { score: 0, indices: [] };
+
+        const q = query.toLowerCase();
+        const t = target.toLowerCase();
+        const tOrig = target;
+        const qLen = q.length;
+        const tLen = t.length;
+
+        // Quick reject: query longer than target
+        if (qLen > tLen) return null;
+
+        // Quick check: all chars exist in target
+        let checkIdx = 0;
+        for (let i = 0; i < qLen; i++) {
+            checkIdx = t.indexOf(q[i], checkIdx);
+            if (checkIdx === -1) return null;
+            checkIdx++;
+        }
+
+        // Full scoring pass with backtracking for optimal match
+        const result = root.fuzzyMatchRecursive(q, t, tOrig, 0, 0, [], 0);
+        return result;
+    }
+
+    function fuzzyMatchRecursive(query, targetLower, targetOrig, qi, ti, indices, depth) {
+        if (depth > 10) return null;  // recursion limit
+        if (qi === query.length) {
+            // Score the match
+            return { score: root.scoreMatch(indices, targetLower, targetOrig), indices: indices };
+        }
+        if (ti >= targetLower.length) return null;
+
+        let bestResult = null;
+
+        for (let i = ti; i < targetLower.length; i++) {
+            if (targetLower[i] === query[qi]) {
+                // Try matching here
+                const newIndices = indices.concat([i]);
+                const result = root.fuzzyMatchRecursive(query, targetLower, targetOrig, qi + 1, i + 1, newIndices, depth + 1);
+                if (result && (!bestResult || result.score > bestResult.score)) {
+                    bestResult = result;
+                }
+                // Only try the first few alternatives to keep performance sane
+                if (depth > 3) break;
+            }
+        }
+        return bestResult;
+    }
+
+    function scoreMatch(indices, targetLower, targetOrig) {
+        let score = 0;
+        let consecutive = 0;
+
+        for (let i = 0; i < indices.length; i++) {
+            const idx = indices[i];
+            score += 1;  // base point per match
+
+            // First char bonus
+            if (idx === 0) score += 10;
+
+            // Consecutive bonus
+            if (i > 0 && idx === indices[i - 1] + 1) {
+                consecutive++;
+                score += consecutive * 2;
+            } else {
+                // Gap penalty (mild)
+                if (i > 0) {
+                    const gap = idx - indices[i - 1] - 1;
+                    score -= Math.min(gap, 3);
+                }
+                consecutive = 0;
+            }
+
+            // Word boundary bonus
+            if (idx === 0 || " -_/".indexOf(targetLower[idx - 1]) !== -1) {
+                score += 5;
+            }
+
+            // CamelCase bonus
+            if (idx > 0 && targetOrig[idx - 1] === targetOrig[idx - 1].toLowerCase()
+                && targetOrig[idx] === targetOrig[idx].toUpperCase()
+                && targetOrig[idx] !== targetOrig[idx].toLowerCase()) {
+                score += 3;
+            }
+        }
+
+        // Length penalty: prefer shorter targets (less noise)
+        score -= Math.floor(targetLower.length / 10);
+
+        return score;
+    }
+
+    // ─── Highlight rendering ─────────────────────────────────────────
+    // Takes a string and array of matched indices, returns RichText HTML
+    // with matched chars in accent color.
+    function highlightMatch(text, indices) {
+        if (!indices || indices.length === 0) {
+            return escapeHtml(text);
+        }
+
+        const indexSet = {};
+        for (let i = 0; i < indices.length; i++) {
+            indexSet[indices[i]] = true;
+        }
+
+        let result = "";
+        let inHighlight = false;
+
+        for (let i = 0; i < text.length; i++) {
+            const isMatch = indexSet[i] === true;
+            if (isMatch && !inHighlight) {
+                result += '<span style="color:' + Theme.accent + ';font-weight:bold">';
+                inHighlight = true;
+            } else if (!isMatch && inHighlight) {
+                result += '</span>';
+                inHighlight = false;
+            }
+            result += escapeHtml(text[i]);
+        }
+        if (inHighlight) result += '</span>';
+        return result;
+    }
+
+    function escapeHtml(str) {
+        return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    }
+
+    // ─── Filtering (all modes) ───────────────────────────────────────
+    function updateFilter() {
+        const items = getSourceItems();
+        if (root.query === "") {
+            // No query — show all items without highlighting
+            let result = [];
+            const limit = Math.min(items.length, 50);
+            for (let i = 0; i < limit; i++) {
+                result.push({
+                    name: items[i].name,
+                    subtitle: items[i].subtitle || "",
+                    data: items[i],
+                    matchIndices: [],
+                    nameHtml: escapeHtml(items[i].name)
+                });
+            }
+            root.filteredItems = result;
+        } else {
+            let scored = [];
+            for (let i = 0; i < items.length; i++) {
+                const item = items[i];
+                // Match against name primarily
+                const nameResult = fuzzyMatch(root.query, item.name);
+                // Also try matching against subtitle for better recall
+                const subResult = item.subtitle ? fuzzyMatch(root.query, item.subtitle) : null;
+
+                let bestScore = 0;
+                let bestIndices = [];
+                let matchedField = "name";
+
+                if (nameResult) {
+                    bestScore = nameResult.score;
+                    bestIndices = nameResult.indices;
+                }
+                if (subResult && subResult.score > bestScore) {
+                    bestScore = subResult.score;
+                    bestIndices = subResult.indices;
+                    matchedField = "subtitle";
+                }
+
+                if (bestScore > 0) {
+                    scored.push({
+                        name: item.name,
+                        subtitle: item.subtitle || "",
+                        data: item,
+                        score: bestScore,
+                        matchIndices: matchedField === "name" ? bestIndices : [],
+                        subtitleIndices: matchedField === "subtitle" ? bestIndices : [],
+                        nameHtml: matchedField === "name"
+                            ? highlightMatch(item.name, bestIndices)
+                            : escapeHtml(item.name),
+                        subtitleHtml: matchedField === "subtitle"
+                            ? highlightMatch(item.subtitle, bestIndices)
+                            : undefined
+                    });
+                }
+            }
+            scored.sort((a, b) => b.score - a.score);
+            root.filteredItems = scored.slice(0, 50);
+        }
+        root.selectedIndex = 0;
+    }
+
+    function getSourceItems() {
+        switch (root.currentMode) {
+            case "apps":
+                return root.allApps.map(a => ({
+                    name: a.name,
+                    subtitle: a.comment || "",
+                    exec: a.exec,
+                    type: "app"
+                }));
+            case "screenshot":
+                return root.screenshotActions.map(a => ({
+                    name: a.name,
+                    subtitle: a.icon,
+                    cmd: a.cmd,
+                    type: "screenshot"
+                }));
+            case "keybinds":
+                return root.allKeybinds.map(k => ({
+                    name: k.name,
+                    subtitle: k.subtitle,
+                    dispatcher: k.dispatcher,
+                    arg: k.arg,
+                    type: "keybind"
+                }));
+            default:
+                return [];
+        }
+    }
+
+    // ─── Activation ──────────────────────────────────────────────────
+    Process {
+        id: launchProc
+        running: false
+    }
+
+    function activateItem(item) {
+        const data = item.data;
+        switch (data.type) {
+            case "app":
+                launchProc.command = ["sh", "-c", data.exec + " &"];
+                launchProc.running = true;
+                PanelState.closeAll();
+                break;
+            case "screenshot":
+                launchProc.command = ["sh", "-c", data.cmd + " &"];
+                launchProc.running = true;
+                PanelState.closeAll();
+                break;
+            case "keybind":
+                // For keybinds, just close — it's informational
+                // (user is searching to remember what a key does)
+                PanelState.closeAll();
+                break;
+        }
+    }
+
+    function activateSelected() {
+        if (root.filteredItems.length > 0 && root.selectedIndex < root.filteredItems.length) {
+            activateItem(root.filteredItems[root.selectedIndex]);
         }
     }
 
@@ -166,8 +450,39 @@ Item {
         anchors.fill: parent
         spacing: Theme.itemSpacing
 
+        // ─── Mode indicator (Tab to switch) ──────────────────────────
+        RowLayout {
+            Layout.fillWidth: true
+            spacing: 4
+
+            Repeater {
+                model: root.modes
+
+                Tui.TuiText {
+                    required property var modelData
+                    required property int index
+                    text: {
+                        const label = modelData;
+                        return index === root.currentModeIndex
+                            ? "[" + label + "]"
+                            : " " + label + " ";
+                    }
+                    textColor: index === root.currentModeIndex ? Theme.accent : Theme.textMuted
+                    font.bold: index === root.currentModeIndex
+                    font.pixelSize: Theme.fontSizeSmall
+                }
+            }
+
+            Item { Layout.fillWidth: true }
+
+            Tui.TuiText {
+                text: "tab:mode"
+                textColor: Theme.textMuted
+                font.pixelSize: Theme.fontSizeSmall
+            }
+        }
+
         // ─── Search input ────────────────────────────────────────────
-        // Styled like a TUI text input: > prompt, blinking cursor
         Item {
             Layout.fillWidth: true
             Layout.preferredHeight: searchRow.implicitHeight + 8
@@ -208,26 +523,48 @@ Item {
 
                     Keys.onUpPressed: {
                         if (root.selectedIndex > 0) root.selectedIndex--;
+                        ensureVisible();
                     }
                     Keys.onDownPressed: {
-                        if (root.selectedIndex < root.filteredApps.length - 1) root.selectedIndex++;
+                        if (root.selectedIndex < root.filteredItems.length - 1) root.selectedIndex++;
+                        ensureVisible();
                     }
-                    Keys.onReturnPressed: root.launchSelected()
-                    Keys.onEnterPressed: root.launchSelected()
+                    Keys.onReturnPressed: root.activateSelected()
+                    Keys.onEnterPressed: root.activateSelected()
                     Keys.onEscapePressed: PanelState.closeAll()
+                    Keys.onTabPressed: event => {
+                        event.accepted = true;
+                        root.cycleMode();
+                    }
                 }
             }
         }
 
         // ─── Match count ─────────────────────────────────────────────
-        Tui.TuiText {
-            text: root.filteredApps.length + "/" + root.allApps.length
-            textColor: Theme.textMuted
-            font.pixelSize: Theme.fontSizeSmall
+        RowLayout {
+            Layout.fillWidth: true
+            spacing: 6
+
+            Tui.TuiText {
+                text: root.filteredItems.length + "/" + getSourceItems().length
+                textColor: Theme.textMuted
+                font.pixelSize: Theme.fontSizeSmall
+            }
+
+            Item { Layout.fillWidth: true }
+
+            Tui.TuiText {
+                visible: root.query !== ""
+                text: "matching: \"" + root.query + "\""
+                textColor: Theme.textMuted
+                font.pixelSize: Theme.fontSizeSmall
+                font.italic: true
+            }
         }
 
         // ─── Results list ────────────────────────────────────────────
         Flickable {
+            id: resultsFlickable
             Layout.fillWidth: true
             Layout.fillHeight: true
             contentHeight: resultColumn.implicitHeight
@@ -240,22 +577,22 @@ Item {
                 spacing: 0
 
                 Repeater {
-                    model: root.filteredApps
+                    model: root.filteredItems
 
                     Item {
-                        id: appItem
+                        id: resultItem
                         required property var modelData
                         required property int index
 
                         Layout.fillWidth: true
-                        Layout.preferredHeight: appRow.implicitHeight + 6
+                        Layout.preferredHeight: resultRow.implicitHeight + 6
 
                         readonly property bool isSelected: index === root.selectedIndex
 
-                        // Selection background — gradient for selected, flat for hover
+                        // Selection background
                         Rectangle {
                             anchors.fill: parent
-                            visible: appItem.isSelected
+                            visible: resultItem.isSelected
                             gradient: Gradient {
                                 orientation: Gradient.Horizontal
                                 GradientStop { position: 0.0; color: Theme.bgHover }
@@ -265,12 +602,12 @@ Item {
                         }
                         Rectangle {
                             anchors.fill: parent
-                            visible: !appItem.isSelected && appItemMouse.containsMouse
+                            visible: !resultItem.isSelected && resultMouse.containsMouse
                             color: Theme.bgElevated
                         }
 
                         RowLayout {
-                            id: appRow
+                            id: resultRow
                             anchors.left: parent.left
                             anchors.right: parent.right
                             anchors.verticalCenter: parent.verticalCenter
@@ -280,43 +617,52 @@ Item {
 
                             // Selection indicator
                             Tui.TuiText {
-                                text: appItem.isSelected ? ">" : " "
+                                text: resultItem.isSelected ? ">" : " "
                                 textColor: Theme.accent
                                 font.bold: true
                             }
 
-                            // App name
-                            Tui.TuiText {
-                                text: appItem.modelData.name
-                                textColor: appItem.isSelected ? Theme.accent : Theme.textPrimary
-                                font.bold: appItem.isSelected
+                            // Name with match highlighting
+                            Text {
+                                text: resultItem.modelData.nameHtml || root.escapeHtml(resultItem.modelData.name)
+                                textFormat: Text.RichText
+                                color: resultItem.isSelected ? Theme.accent : Theme.textPrimary
+                                font.family: Theme.fontFamily
+                                font.pixelSize: Theme.fontSize
+                                font.bold: resultItem.isSelected
                                 Layout.fillWidth: true
-
-                                // Truncate long names
                                 elide: Text.ElideRight
                             }
 
-                            // Comment/description (dim, italic, truncated)
-                            Tui.TuiText {
-                                visible: appItem.modelData.comment !== undefined && appItem.modelData.comment !== ""
+                            // Subtitle (comment/description)
+                            Text {
+                                visible: resultItem.modelData.subtitle !== ""
                                 text: {
-                                    const c = appItem.modelData.comment || "";
-                                    return c.length > 25 ? c.substring(0, 25) + "…" : c;
+                                    if (resultItem.modelData.subtitleHtml) {
+                                        return resultItem.modelData.subtitleHtml;
+                                    }
+                                    const s = resultItem.modelData.subtitle || "";
+                                    const truncated = s.length > 30 ? s.substring(0, 30) + "…" : s;
+                                    return root.escapeHtml(truncated);
                                 }
-                                textColor: Theme.textMuted
+                                textFormat: Text.RichText
+                                color: Theme.textMuted
+                                font.family: Theme.fontFamily
                                 font.pixelSize: Theme.fontSizeSmall
                                 font.italic: true
+                                Layout.maximumWidth: 160
+                                elide: Text.ElideRight
                             }
                         }
 
                         MouseArea {
-                            id: appItemMouse
+                            id: resultMouse
                             anchors.fill: parent
                             hoverEnabled: true
                             cursorShape: Qt.PointingHandCursor
                             onClicked: {
-                                root.selectedIndex = appItem.index;
-                                root.launchSelected();
+                                root.selectedIndex = resultItem.index;
+                                root.activateSelected();
                             }
                         }
                     }
@@ -326,9 +672,29 @@ Item {
 
         // ─── Help bar ────────────────────────────────────────────────
         Tui.TuiText {
-            text: "↑↓:navigate  enter:launch  esc:close"
+            text: {
+                switch (root.currentMode) {
+                    case "apps": return "↑↓:navigate  enter:launch  tab:mode  esc:close";
+                    case "screenshot": return "↑↓:navigate  enter:capture  tab:mode  esc:close";
+                    case "keybinds": return "↑↓:navigate  tab:mode  esc:close";
+                }
+            }
             textColor: Theme.textMuted
             font.pixelSize: Theme.fontSizeSmall
+        }
+    }
+
+    // ─── Scroll helper ───────────────────────────────────────────────
+    function ensureVisible() {
+        // Approximate item height and scroll to keep selected visible
+        const itemHeight = 26;  // approximate row height
+        const viewHeight = resultsFlickable.height;
+        const targetY = root.selectedIndex * itemHeight;
+
+        if (targetY < resultsFlickable.contentY) {
+            resultsFlickable.contentY = targetY;
+        } else if (targetY + itemHeight > resultsFlickable.contentY + viewHeight) {
+            resultsFlickable.contentY = targetY + itemHeight - viewHeight;
         }
     }
 }
