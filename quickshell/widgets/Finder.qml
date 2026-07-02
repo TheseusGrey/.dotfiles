@@ -34,6 +34,7 @@ Item {
         // Cannot cycle away from custom mode — Escape to cancel
         if (currentMode === "custom") return;
         currentModeIndex = (currentModeIndex + 1) % modes.length;
+        currentMode = modes[currentModeIndex];
         query = "";
         searchInput.text = "";
         selectedIndex = 0;
@@ -59,47 +60,16 @@ Item {
     property int selectedIndex: 0
     property string query: ""
 
-    // ─── Apps data ───────────────────────────────────────────────────
-    property var allApps: []
-    property bool appsLoaded: false
+    // ─── Apps data (native DesktopEntries API) ─────────────────────
+    // Uses Quickshell's built-in DesktopEntries singleton which properly
+    // scans all XDG directories, handles OnlyShowIn/NotShowIn, NoDisplay,
+    // localization, and desktop actions per the freedesktop spec.
+    readonly property bool appsLoaded: DesktopEntries.applications.values.length > 0
 
-    Process {
-        id: appLoader
-        command: ["sh", "-c", "~/.config/quickshell/scripts/list-apps.sh"]
-        running: false
-
-        property var pendingApps: []
-
-        stdout: SplitParser {
-            onRead: data => {
-                const line = data.trim();
-                if (line === "") return;
-                try {
-                    const app = JSON.parse(line);
-                    if (app.name && app.exec) {
-                        appLoader.pendingApps.push(app);
-                    }
-                } catch (e) {}
-            }
-        }
-
-        onRunningChanged: {
-            if (!running && pendingApps.length > 0) {
-                root.allApps = pendingApps;
-                root.appsLoaded = true;
-                if (root.currentMode === "apps") root.updateFilter();
-            }
-        }
-    }
-
-    Timer {
-        id: refreshAppsTimer
-        interval: 60000
-        running: true
-        repeat: true
-        onTriggered: {
-            appLoader.pendingApps = [];
-            appLoader.running = true;
+    Connections {
+        target: DesktopEntries
+        function onApplicationsChanged() {
+            if (root.currentMode === "apps") root.updateFilter();
         }
     }
 
@@ -184,8 +154,6 @@ Item {
 
     // ─── Initialization ──────────────────────────────────────────────
     Component.onCompleted: {
-        appLoader.pendingApps = [];
-        appLoader.running = true;
         keybindLoader.running = true;
     }
 
@@ -443,13 +411,33 @@ Item {
     function getSourceItems() {
         switch (root.currentMode) {
             case "apps":
-                return root.allApps.map(a => ({
-                    name: a.name,
-                    subtitle: a.comment || "",
-                    keywords: a.keywords || "",
-                    exec: a.exec,
-                    type: "app"
-                }));
+                const entries = DesktopEntries.applications.values;
+                let apps = [];
+                for (let i = 0; i < entries.length; i++) {
+                    const e = entries[i];
+                    apps.push({
+                        name: e.name,
+                        subtitle: e.comment || e.genericName || "",
+                        keywords: (e.keywords || []).join(";"),
+                        entry: e,
+                        type: "app"
+                    });
+                    // Include desktop actions as separate entries
+                    if (e.actions && e.actions.length > 0) {
+                        for (let j = 0; j < e.actions.length; j++) {
+                            const action = e.actions[j];
+                            apps.push({
+                                name: e.name + " — " + action.name,
+                                subtitle: "",
+                                keywords: "",
+                                entry: e,
+                                action: action,
+                                type: "app"
+                            });
+                        }
+                    }
+                }
+                return apps;
             case "screenshot":
                 return root.screenshotActions.map(a => ({
                     name: a.name,
@@ -486,8 +474,13 @@ Item {
         const data = item.data;
         switch (data.type) {
             case "app":
-                launchProc.command = ["sh", "-c", data.exec + " &"];
-                launchProc.running = true;
+                if (data.action) {
+                    // Desktop action — execute action's command
+                    data.action.execute();
+                } else {
+                    // Main entry — use native execute()
+                    data.entry.execute();
+                }
                 PanelState.closeAll();
                 break;
             case "screenshot":
@@ -601,6 +594,7 @@ Item {
                     selectByMouse: true
                     selectionColor: Theme.bgHover
                     selectedTextColor: Theme.textBright
+                    activeFocusOnTab: false
                     clip: true
 
                     onTextChanged: {
