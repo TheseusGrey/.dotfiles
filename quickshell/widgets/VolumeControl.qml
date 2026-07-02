@@ -197,7 +197,7 @@ Item {
 
             // Scroll wheel adjustment overlay
             MouseArea {
-                anchors.fill: parent
+                Layout.fillWidth: true
                 propagateComposedEvents: true
                 onWheel: wheel => {
                     const delta = wheel.angleDelta.y > 0 ? 5 : -5;

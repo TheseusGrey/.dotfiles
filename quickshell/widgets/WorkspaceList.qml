@@ -122,7 +122,8 @@ ColumnLayout {
 
                 // Click to switch workspace
                 MouseArea {
-                    anchors.fill: parent
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
                     onClicked: wsDelegate.modelData.activate()
                 }
             }
@@ -165,7 +166,8 @@ ColumnLayout {
                         Layout.fillWidth: true
                         onClicked: {
                             if (parent.windowAddress !== "") {
-                                Hyprland.dispatch("focuswindow address:" + parent.windowAddress);
+                                Hyprland.dispatch("hl.dsp.focus({ window = 'address:" + parent.windowAddress + "' })")
+                                // Hyprland.dispatch("focuswindow address:" + parent.windowAddress);
                             }
                         }
                     }
