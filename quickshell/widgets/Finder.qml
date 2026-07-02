@@ -394,6 +394,8 @@ Item {
                 const nameResult = fuzzyMatch(root.query, item.name);
                 // Also try matching against subtitle for better recall
                 const subResult = item.subtitle ? fuzzyMatch(root.query, item.subtitle) : null;
+                // Also try keywords (semicolon-separated, treated as space-separated terms)
+                const kwResult = item.keywords ? fuzzyMatch(root.query, item.keywords.replace(/;/g, " ")) : null;
 
                 let bestScore = 0;
                 let bestIndices = [];
@@ -407,6 +409,12 @@ Item {
                     bestScore = subResult.score;
                     bestIndices = subResult.indices;
                     matchedField = "subtitle";
+                }
+                if (kwResult && kwResult.score > bestScore) {
+                    // Keywords matched — show as name match (no highlight on keywords)
+                    bestScore = kwResult.score;
+                    bestIndices = [];
+                    matchedField = "name";
                 }
 
                 if (bestScore > 0) {
@@ -438,6 +446,7 @@ Item {
                 return root.allApps.map(a => ({
                     name: a.name,
                     subtitle: a.comment || "",
+                    keywords: a.keywords || "",
                     exec: a.exec,
                     type: "app"
                 }));
