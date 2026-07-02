@@ -33,7 +33,7 @@ finder:
 pick-color:
     #!/bin/bash
     result=$(echo '{"items":["red","green","blue","yellow","purple","orange"],"prompt":"pick a color"}' \
-        | socat - UNIX-CONNECT:{{SOCKET}})
+        | socat -t30 - UNIX-CONNECT:{{SOCKET}})
     echo "Result: $result"
     selection=$(echo "$result" | jq -r '.selection // empty')
     if [ -n "$selection" ]; then
@@ -47,7 +47,7 @@ pick-branch:
     #!/bin/bash
     branches=$(git branch --format='%(refname:short)' | jq -R . | jq -s .)
     result=$(echo "{\"items\":$branches,\"prompt\":\"checkout branch\"}" \
-        | socat - UNIX-CONNECT:{{SOCKET}})
+        | socat -t30 - UNIX-CONNECT:{{SOCKET}})
     selection=$(echo "$result" | jq -r '.selection // empty')
     if [ -n "$selection" ]; then
         git checkout "$selection"
@@ -58,7 +58,7 @@ pick-kill:
     #!/bin/bash
     procs=$(ps -eo comm= --sort=-%mem | head -20 | jq -R . | jq -s .)
     result=$(echo "{\"items\":$procs,\"prompt\":\"kill process\"}" \
-        | socat - UNIX-CONNECT:{{SOCKET}})
+        | socat -t30 - UNIX-CONNECT:{{SOCKET}})
     selection=$(echo "$result" | jq -r '.selection // empty')
     if [ -n "$selection" ]; then
         pkill -x "$selection" && echo "Killed: $selection"
@@ -69,7 +69,7 @@ pick-dir:
     #!/bin/bash
     dirs=$(find . -maxdepth 2 -type d | head -30 | jq -R . | jq -s .)
     result=$(echo "{\"items\":$dirs,\"prompt\":\"directory\"}" \
-        | socat - UNIX-CONNECT:{{SOCKET}})
+        | socat -t30 - UNIX-CONNECT:{{SOCKET}})
     selection=$(echo "$result" | jq -r '.selection // empty')
     if [ -n "$selection" ]; then
         echo "$selection"
@@ -81,7 +81,7 @@ pick-stdin prompt="select":
     #!/bin/bash
     items=$(cat | jq -R . | jq -s .)
     result=$(echo "{\"items\":$items,\"prompt\":\"{{prompt}}\"}" \
-        | socat - UNIX-CONNECT:{{SOCKET}})
+        | socat -t30 - UNIX-CONNECT:{{SOCKET}})
     echo "$result" | jq -r '.selection // empty'
 
 # ─── Protocol Documentation ──────────────────────────────────────────

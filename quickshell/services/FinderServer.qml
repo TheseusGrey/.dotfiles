@@ -51,9 +51,14 @@ Singleton {
     property var activeSocket: null
 
     function sendResponse(text) {
-        if (root.activeSocket && root.activeSocket.connected) {
-            root.activeSocket.write(text);
-            root.activeSocket.flush();
+        if (root.activeSocket) {
+            try {
+                root.activeSocket.write(text);
+                root.activeSocket.flush();
+            } catch (e) {
+                // Socket already closed by peer — response is lost but that's OK,
+                // the client disconnected voluntarily.
+            }
         }
     }
 
@@ -88,6 +93,7 @@ Singleton {
                 id: clientSocket
 
                 property string buffer: ""
+                property bool requestHandled: false
 
                 parser: SplitParser {
                     onRead: data => {
@@ -98,6 +104,7 @@ Singleton {
                         try {
                             const request = JSON.parse(clientSocket.buffer);
                             clientSocket.buffer = "";
+                            clientSocket.requestHandled = true;
                             root.handleRequest(request, clientSocket);
                         } catch (e) {
                             // Not valid JSON yet — might be partial, wait for more data
@@ -113,13 +120,17 @@ Singleton {
 
                 onConnectedChanged: {
                     if (!connected) {
-                        // Client disconnected before we could respond
-                        if (root.activeSocket === clientSocket && root.hasPendingRequest) {
+                        // Client disconnected.
+                        // Only cancel if the request was never received (i.e. client
+                        // disconnected before sending a valid JSON request).
+                        // After the request is handled, the client may half-close or
+                        // fully disconnect — that's fine; the finder stays open and
+                        // we write the response when the user makes a choice.
+                        if (root.activeSocket === clientSocket && root.hasPendingRequest && !clientSocket.requestHandled) {
                             root.hasPendingRequest = false;
                             root.customItems = [];
                             root.customPrompt = "";
                             root.activeSocket = null;
-                            // Close the finder panel since the requester is gone
                             PanelState.closeRight();
                         }
                     }
