@@ -9,20 +9,18 @@ set -euo pipefail
 
 WIDTH=1280
 HEIGHT=720
-TITLE="float-term"
+CLASS="float-term"
 
 if [[ $# -eq 0 ]]; then
     echo "Usage: float-term <command> [args...]" >&2
     exit 1
 fi
 
-# Hyprland window rules for floating + centered (applied by title match)
-# Add to hyprland.conf: windowrulev2 = float,title:^(float-term)$
-# Add to hyprland.conf: windowrulev2 = size 1280 720,title:^(float-term)$
-# Add to hyprland.conf: windowrulev2 = center,title:^(float-term)$
-
+# Uses --class to set the Wayland app_id for reliable Hyprland matching.
+# Window rule in hypr/windowrules.lua matches on class "float-term".
 exec kitty \
-    --title "$TITLE" \
+    --class "$CLASS" \
+    --title "$CLASS" \
     --override initial_window_width="${WIDTH}" \
     --override initial_window_height="${HEIGHT}" \
     --override remember_window_size=no \

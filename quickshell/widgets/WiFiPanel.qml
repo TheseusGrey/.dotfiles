@@ -24,6 +24,10 @@ Item {
     property bool wifiEnabled: true
     property bool scanning: false
 
+    // Derived from activeConnections
+    property bool hasWiredConnection: false
+    property string wiredConnectionName: ""
+
     // ─── Network speed tracking ──────────────────────────────────────
     property real rxBytesPerSec: 0
     property real txBytesPerSec: 0
@@ -37,14 +41,24 @@ Item {
         return bytesPerSec.toFixed(0) + " B/s";
     }
 
-    // Auto-detect which interface to monitor (prefer wifi, fall back to wired)
+    // Unified handler: detect wired status + speed interface
     onActiveConnectionsChanged: {
+        let wired = false;
+        let wiredName = "";
         let iface = "";
         for (let i = 0; i < activeConnections.length; i++) {
             const conn = activeConnections[i];
-            if (conn.isWifi) { iface = conn.device; break; }
-            if (conn.isWired && iface === "") iface = conn.device;
+            if (conn.isWired) {
+                wired = true;
+                if (wiredName === "") wiredName = conn.name;
+                if (iface === "") iface = conn.device;
+            }
+            if (conn.isWifi) {
+                iface = conn.device;  // prefer wifi for speed
+            }
         }
+        hasWiredConnection = wired;
+        wiredConnectionName = wiredName;
         if (iface !== "" && iface !== speedInterface) {
             speedInterface = iface;
             lastRxBytes = -1;
@@ -284,7 +298,8 @@ Item {
 
     Process {
         id: ufwLogProc
-        command: ["dmesg", "--time-format", "reltime", "-l", "warn", "--facility", "kern"]
+        // journalctl can be read by the user (no root needed), filter for UFW messages
+        command: ["journalctl", "-k", "--no-pager", "-q", "--since", "today", "-o", "short-unix"]
         running: true
 
         property string buffer: ""
@@ -299,30 +314,30 @@ Item {
             if (!running) {
                 let blocked = [];
                 const lines = ufwLogProc.buffer.trim().split("\n");
-                for (let i = lines.length - 1; i >= 0 && blocked.length < 5; i--) {
+                let count = 0;
+
+                for (let i = lines.length - 1; i >= 0; i--) {
                     const line = lines[i];
                     if (line.indexOf("[UFW BLOCK]") < 0) continue;
+                    count++;
 
-                    // Extract fields from UFW log
-                    const srcMatch = line.match(/SRC=([^\s]+)/);
-                    const dptMatch = line.match(/DPT=([^\s]+)/);
-                    const protoMatch = line.match(/PROTO=([^\s]+)/);
-                    const dstMatch = line.match(/DST=([^\s]+)/);
+                    if (blocked.length < 5) {
+                        // Extract fields from UFW log
+                        const srcMatch = line.match(/SRC=([^\s]+)/);
+                        const dptMatch = line.match(/DPT=([^\s]+)/);
+                        const protoMatch = line.match(/PROTO=([^\s]+)/);
+                        const dstMatch = line.match(/DST=([^\s]+)/);
 
-                    blocked.push({
-                        src: srcMatch ? srcMatch[1] : "?",
-                        dst: dstMatch ? dstMatch[1] : "?",
-                        port: dptMatch ? dptMatch[1] : "?",
-                        proto: protoMatch ? protoMatch[1].toLowerCase() : "?"
-                    });
+                        blocked.push({
+                            src: srcMatch ? srcMatch[1] : "?",
+                            dst: dstMatch ? dstMatch[1] : "?",
+                            port: dptMatch ? dptMatch[1] : "?",
+                            proto: protoMatch ? protoMatch[1].toLowerCase() : "?"
+                        });
+                    }
                 }
 
                 root.ufwBlocked = blocked;
-                // Count total blocks in buffer
-                let count = 0;
-                for (let j = 0; j < lines.length; j++) {
-                    if (lines[j].indexOf("[UFW BLOCK]") >= 0) count++;
-                }
                 root.ufwBlockCount = count;
                 ufwLogProc.buffer = "";
                 ufwPollTimer.start();
@@ -341,11 +356,40 @@ Item {
     }
 
     function connectTo(ssid) {
-        cmdProc.command = ["nmcli", "device", "wifi", "connect", ssid];
+        // If a password was entered, use it
+        if (root.pendingPassword !== "") {
+            cmdProc.command = ["nmcli", "device", "wifi", "connect", ssid, "password", root.pendingPassword];
+        } else {
+            cmdProc.command = ["nmcli", "device", "wifi", "connect", ssid];
+        }
+        root.connectingToSsid = ssid;
         cmdProc.running = true;
-        // Refresh after a brief delay to get new state
         refreshAfterCmd.start();
     }
+
+    function connectWithPassword(ssid, password) {
+        root.pendingPassword = "";
+        root.passwordPromptSsid = "";
+        cmdProc.command = ["nmcli", "device", "wifi", "connect", ssid, "password", password];
+        root.connectingToSsid = ssid;
+        cmdProc.running = true;
+        refreshAfterCmd.start();
+    }
+
+    function requestPassword(ssid) {
+        root.passwordPromptSsid = ssid;
+        root.pendingPassword = "";
+    }
+
+    function cancelPassword() {
+        root.passwordPromptSsid = "";
+        root.pendingPassword = "";
+    }
+
+    // Password prompt state
+    property string passwordPromptSsid: ""
+    property string pendingPassword: ""
+    property string connectingToSsid: ""
 
     function disconnect() {
         cmdProc.command = ["nmcli", "device", "disconnect", root.wifiInterface];
@@ -404,16 +448,31 @@ Item {
             spacing: 6
 
             Tui.TuiText {
-                text: root.wifiEnabled ? "󰖩" : "󰖪"
-                textColor: root.wifiEnabled ? Theme.nord8 : Theme.textMuted
+                text: {
+                    // Show icon based on connection type
+                    if (root.connectedSsid !== "") return "󰖩";  // wifi connected
+                    if (root.hasWiredConnection) return "󰈀";    // wired
+                    if (root.wifiEnabled) return "󰖩";           // wifi on but not connected
+                    return "󰖪";                                 // wifi off
+                }
+                textColor: {
+                    if (root.connectedSsid !== "") return Theme.nord8;
+                    if (root.hasWiredConnection) return Theme.success;
+                    return Theme.textMuted;
+                }
                 font.pixelSize: Theme.fontSizeLarge
             }
 
             Tui.TuiText {
-                text: root.connectedSsid !== "" ? root.connectedSsid : root.wifiEnabled ? "not connected" : "wifi off"
-                textColor: root.connectedSsid !== "" ? Theme.textBright : Theme.textMuted
-                font.bold: root.connectedSsid !== ""
-                font.italic: root.connectedSsid === ""  // italic for disconnected status
+                text: {
+                    if (root.connectedSsid !== "") return root.connectedSsid;
+                    if (root.hasWiredConnection) return root.wiredConnectionName + " (ethernet)";
+                    if (root.wifiEnabled) return "not connected";
+                    return "wifi off";
+                }
+                textColor: (root.connectedSsid !== "" || root.hasWiredConnection) ? Theme.textBright : Theme.textMuted
+                font.bold: root.connectedSsid !== "" || root.hasWiredConnection
+                font.italic: root.connectedSsid === "" && !root.hasWiredConnection
                 Layout.fillWidth: true
             }
 
@@ -572,9 +631,10 @@ Item {
             Item { Layout.fillWidth: true }
 
             Tui.TuiText {
-                visible: root.ufwBlockCount > 0
-                text: root.ufwBlockCount + " blocked"
-                textColor: Theme.nord13
+                text: root.ufwBlockCount > 0
+                    ? root.ufwBlockCount + " blocked today"
+                    : "0 blocked"
+                textColor: root.ufwBlockCount > 0 ? Theme.nord13 : Theme.textMuted
                 font.pixelSize: Theme.fontSizeSmall
             }
         }
@@ -635,6 +695,102 @@ Item {
             font.bold: true
         }
 
+        // ─── Password prompt (shown when connecting to secured network) ─
+        ColumnLayout {
+            visible: root.passwordPromptSsid !== ""
+            Layout.fillWidth: true
+            spacing: 4
+
+            RowLayout {
+                spacing: 6
+                Tui.TuiText {
+                    text: "󰒃"
+                    textColor: Theme.nord13
+                }
+                Tui.TuiText {
+                    text: "password for: " + root.passwordPromptSsid
+                    textColor: Theme.textBright
+                    font.bold: true
+                }
+            }
+
+            Item {
+                Layout.fillWidth: true
+                Layout.preferredHeight: passwordRow.implicitHeight + 8
+
+                Rectangle {
+                    anchors.fill: parent
+                    color: Theme.bgElevated
+                    border.color: Theme.nord13
+                    border.width: 1
+                }
+
+                RowLayout {
+                    id: passwordRow
+                    anchors.fill: parent
+                    anchors.margins: 4
+                    spacing: 6
+
+                    Tui.TuiText {
+                        text: ">"
+                        textColor: Theme.nord13
+                        font.bold: true
+                    }
+
+                    TextInput {
+                        id: passwordInput
+                        Layout.fillWidth: true
+                        color: Theme.textPrimary
+                        font.family: Theme.fontFamily
+                        font.pixelSize: Theme.fontSize
+                        echoMode: TextInput.Password
+                        clip: true
+                        focus: root.passwordPromptSsid !== ""
+
+                        Keys.onReturnPressed: {
+                            if (text !== "") {
+                                root.connectWithPassword(root.passwordPromptSsid, text);
+                                text = "";
+                            }
+                        }
+                        Keys.onEnterPressed: Keys.onReturnPressed(event)
+                        Keys.onEscapePressed: {
+                            root.cancelPassword();
+                            text = "";
+                        }
+                    }
+                }
+            }
+
+            RowLayout {
+                spacing: 8
+                Tui.TuiButton {
+                    text: "[connect]"
+                    activeColor: Theme.success
+                    onClicked: {
+                        if (passwordInput.text !== "") {
+                            root.connectWithPassword(root.passwordPromptSsid, passwordInput.text);
+                            passwordInput.text = "";
+                        }
+                    }
+                }
+                Tui.TuiButton {
+                    text: "[cancel]"
+                    activeColor: Theme.error
+                    onClicked: {
+                        root.cancelPassword();
+                        passwordInput.text = "";
+                    }
+                }
+                Item { Layout.fillWidth: true }
+                Tui.TuiText {
+                    text: "enter:connect  esc:cancel"
+                    textColor: Theme.textMuted
+                    font.pixelSize: Theme.fontSizeSmall
+                }
+            }
+        }
+
         // ─── Network list ────────────────────────────────────────────
         Flickable {
             Layout.fillWidth: true
@@ -687,6 +843,9 @@ Item {
                                 onClicked: {
                                     if (modelData.connected) {
                                         root.disconnect();
+                                    } else if (modelData.security !== "" && modelData.security !== "--") {
+                                        // Secured network — show password prompt
+                                        root.requestPassword(modelData.ssid);
                                     } else {
                                         root.connectTo(modelData.ssid);
                                     }

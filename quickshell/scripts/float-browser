@@ -9,7 +9,8 @@ set -euo pipefail
 
 WIDTH=1280
 HEIGHT=720
-TITLE="float-browser"
+CLASS="float-browser"
+PROFILE_DIR="${XDG_RUNTIME_DIR:-/tmp}/float-browser-profile"
 
 if [[ $# -eq 0 ]]; then
     echo "Usage: float-browser <url>" >&2
@@ -18,36 +19,36 @@ fi
 
 URL="$1"
 
-# Hyprland window rules for floating + centered (applied by title match)
-# Add to hyprland.conf: windowrulev2 = float,title:^(float-browser)(.*)$
-# Add to hyprland.conf: windowrulev2 = size 1280 720,title:^(float-browser)(.*)$
-# Add to hyprland.conf: windowrulev2 = center,title:^(float-browser)(.*)$
+# Ensure the temporary profile directory exists
+mkdir -p "$PROFILE_DIR"
 
-# Prefer Zen browser, fall back to Chromium
+# Prefer Zen browser, fall back to Chromium variants.
+# Uses a separate profile (--no-remote + --profile) to prevent opening as a tab
+# in an existing window. Kiosk mode removes all chrome.
 if command -v zen-browser &>/dev/null; then
-    # Zen: use --kiosk for chromeless, or SSB mode
     exec zen-browser \
-        --new-window \
+        --no-remote \
+        --profile "$PROFILE_DIR" \
         --kiosk "$URL" \
-        --class "float-browser"
+        --class "$CLASS"
 elif command -v chromium &>/dev/null; then
     exec chromium \
         --app="$URL" \
+        --user-data-dir="$PROFILE_DIR" \
         --window-size="${WIDTH},${HEIGHT}" \
-        --window-name="$TITLE" \
-        --class="float-browser"
+        --class="$CLASS"
 elif command -v chromium-browser &>/dev/null; then
     exec chromium-browser \
         --app="$URL" \
+        --user-data-dir="$PROFILE_DIR" \
         --window-size="${WIDTH},${HEIGHT}" \
-        --window-name="$TITLE" \
-        --class="float-browser"
+        --class="$CLASS"
 elif command -v google-chrome &>/dev/null; then
     exec google-chrome \
         --app="$URL" \
+        --user-data-dir="$PROFILE_DIR" \
         --window-size="${WIDTH},${HEIGHT}" \
-        --window-name="$TITLE" \
-        --class="float-browser"
+        --class="$CLASS"
 else
     echo "Error: No supported browser found (zen-browser, chromium, google-chrome)" >&2
     exit 1

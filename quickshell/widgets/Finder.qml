@@ -321,7 +321,7 @@ Item {
         for (let i = 0; i < text.length; i++) {
             const isMatch = indexSet[i] === true;
             if (isMatch && !inHighlight) {
-                result += '<span style="color:' + Theme.accent + ';font-weight:bold">';
+                result += '<span style="color:' + Theme.nord13 + ';font-weight:bold">';
                 inHighlight = true;
             } else if (!isMatch && inHighlight) {
                 result += '</span>';
@@ -539,7 +539,16 @@ Item {
                             ? "[" + label + "]"
                             : " " + label + " ";
                     }
-                    textColor: index === root.currentModeIndex ? Theme.accent : Theme.textMuted
+                    textColor: {
+                        if (index !== root.currentModeIndex) return Theme.textMuted;
+                        // Each mode gets its own color
+                        switch (modelData) {
+                            case "apps": return Theme.nord14;       // green
+                            case "screenshot": return Theme.nord12; // orange
+                            case "keybinds": return Theme.nord13;   // yellow
+                            default: return Theme.accent;
+                        }
+                    }
                     font.bold: index === root.currentModeIndex
                     font.pixelSize: Theme.fontSizeSmall
                 }
@@ -550,14 +559,14 @@ Item {
             Tui.TuiText {
                 visible: root.currentMode !== "custom"
                 text: "tab:mode"
-                textColor: Theme.textMuted
+                textColor: Theme.nord7  // teal hint
                 font.pixelSize: Theme.fontSizeSmall
             }
 
             Tui.TuiText {
                 visible: root.currentMode === "custom"
                 text: "esc:cancel"
-                textColor: Theme.textMuted
+                textColor: Theme.nord11  // red for cancel hint
                 font.pixelSize: Theme.fontSizeSmall
             }
         }
@@ -581,7 +590,15 @@ Item {
                 // Prompt character
                 Tui.TuiText {
                     text: ">"
-                    textColor: Theme.accent
+                    textColor: {
+                        switch (root.currentMode) {
+                            case "apps": return Theme.nord14;       // green
+                            case "screenshot": return Theme.nord12; // orange
+                            case "keybinds": return Theme.nord13;   // yellow
+                            case "custom": return Theme.nord15;     // purple
+                            default: return Theme.accent;
+                        }
+                    }
                     font.bold: true
                 }
 
@@ -633,7 +650,7 @@ Item {
 
             Tui.TuiText {
                 text: root.filteredItems.length + "/" + getSourceItems().length
-                textColor: Theme.textMuted
+                textColor: Theme.nord7  // teal for count
                 font.pixelSize: Theme.fontSizeSmall
             }
 
@@ -704,7 +721,7 @@ Item {
                             // Selection indicator
                             Tui.TuiText {
                                 text: resultItem.isSelected ? ">" : " "
-                                textColor: Theme.accent
+                                textColor: Theme.nord7  // teal for selection cursor
                                 font.bold: true
                             }
 
@@ -712,7 +729,7 @@ Item {
                             Text {
                                 text: resultItem.modelData.nameHtml || root.escapeHtml(resultItem.modelData.name)
                                 textFormat: Text.RichText
-                                color: resultItem.isSelected ? Theme.accent : Theme.textPrimary
+                                color: resultItem.isSelected ? Theme.textBright : Theme.textPrimary
                                 font.family: Theme.fontFamily
                                 font.pixelSize: Theme.fontSize
                                 font.bold: resultItem.isSelected

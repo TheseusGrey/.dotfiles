@@ -9,6 +9,7 @@ import qs.widgets as Widgets
 
 // Floating Finder popup — drops down from below the top panel, centered horizontally.
 // Overlay layer, no exclusive zone, click-outside-to-dismiss via HyprlandFocusGrab.
+// Animates: fade-in + slide down from top.
 PanelWindow {
     id: root
 
@@ -16,10 +17,11 @@ PanelWindow {
     anchors.left: true
     anchors.right: true
 
-    margins.top: Theme.topPanelHeight + 4
+    // Gap between top bar and popup
+    margins.top: Theme.topPanelHeight + 12
 
     // Full-width anchored but content is centered with fixed width
-    implicitHeight: root.visible ? finderHeight : 0
+    implicitHeight: finderHeight + 24  // extra space for animation travel
     exclusionMode: ExclusionMode.Ignore
     focusable: true
     visible: PanelState.finderVisible
@@ -42,7 +44,6 @@ PanelWindow {
     Rectangle {
         id: container
         anchors.horizontalCenter: parent.horizontalCenter
-        anchors.top: parent.top
         width: root.finderWidth
         height: root.finderHeight
         color: Theme.bg
@@ -50,10 +51,15 @@ PanelWindow {
         border.width: 1
         radius: 0
 
-        // Drop-in animation
+        // Slide down + fade in animation
+        y: root.visible ? 0 : -16
         opacity: root.visible ? 1 : 0
+
+        Behavior on y {
+            NumberAnimation { duration: 180; easing.type: Easing.OutCubic }
+        }
         Behavior on opacity {
-            NumberAnimation { duration: Theme.animDuration; easing.type: Easing.OutCubic }
+            NumberAnimation { duration: 180; easing.type: Easing.OutCubic }
         }
 
         // ─── TUI border frame ────────────────────────────────────────
@@ -77,11 +83,12 @@ PanelWindow {
                 if (availWidth < 10) return Theme.boxTopLeft + Theme.boxTopRight;
                 const title = " finder ";
                 const titleLen = title.length;
-                const prefix = Theme.boxHorizontal.repeat(2);
-                const spacer = " ".repeat(titleLen);
-                const remaining = Math.max(0, availWidth - 2 - titleLen);
-                const suffix = Theme.boxHorizontal.repeat(remaining);
-                return Theme.boxTopLeft + prefix + spacer + suffix + Theme.boxTopRight;
+                // Center the title in the border
+                const leftPad = Math.floor((availWidth - titleLen) / 2);
+                const rightPad = availWidth - titleLen - leftPad;
+                const prefix = Theme.boxHorizontal.repeat(leftPad);
+                const suffix = Theme.boxHorizontal.repeat(rightPad);
+                return Theme.boxTopLeft + prefix + " ".repeat(titleLen) + suffix + Theme.boxTopRight;
             }
 
             TextMetrics {
@@ -92,12 +99,11 @@ PanelWindow {
             }
         }
 
-        // Title overlay (colored)
+        // Title overlay (colored, centered)
         Text {
             anchors.top: parent.top
-            anchors.left: parent.left
-            anchors.leftMargin: topBorder.charWidth * 4
-            color: Theme.accent
+            anchors.horizontalCenter: parent.horizontalCenter
+            color: Theme.nord15  // purple accent for title
             font.family: Theme.fontFamily
             font.pixelSize: Theme.fontSize
             font.bold: true
