@@ -23,9 +23,11 @@ ColumnLayout {
     readonly property var appIcons: ({
         "firefox": "",
         "firefox-esr": "",
+        "zen": "󰖟",
         "chromium": "",
         "google-chrome": "",
         "brave-browser": "󰖟",
+        "com.github.wwmm.easyeffects": "",
         "code": "󰨞",
         "code-oss": "󰨞",
         "codium": "󰨞",
@@ -60,6 +62,8 @@ ColumnLayout {
         "qbittorrent": "󰇚",
         "org.gnome.Settings": "",
         "gnome-control-center": "",
+        "libreoffice-startcenter": "󰈙",
+        "libreoffice-writer": "󰈙",
         "xdg-desktop-portal": "󰀻"
     })
 
