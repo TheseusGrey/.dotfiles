@@ -7,3 +7,4 @@ BottomBorder 1.0 BottomBorder.qml
 NotificationPopup 1.0 NotificationPopup.qml
 OsdOverlay 1.0 OsdOverlay.qml
 LockScreen 1.0 LockScreen.qml
+FinderPopup 1.0 FinderPopup.qml
