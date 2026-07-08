@@ -43,13 +43,13 @@ RowLayout {
         onTriggered: netCheckProc.running = true
     }
 
-    // Finder / App launcher
+    // Finder / App launcher (opens floating popup)
     Tui.TuiButton {
         text: "󰍉"
         fontSize: Theme.fontSizeIcon
-        active: PanelState.rightPanelContext === "finder"
+        active: PanelState.finderVisible
         activeColor: Theme.accent
-        onClicked: PanelState.openRight("finder")
+        onClicked: PanelState.toggleFinder()
 
         Layout.alignment: Qt.AlignVCenter
     }

@@ -19,6 +19,7 @@ ShellRoot {
     Panels.LeftPanel {}
     Panels.RightPanel {}
     Panels.BottomBorder {}
+    Panels.FinderPopup {}
     Panels.NotificationPopup {}
     Panels.OsdOverlay {}
     Panels.LockScreen {}

@@ -11,12 +11,15 @@ Singleton {
     property string activePanel: ""
 
     // What content the right panel should show when open
-    // Values: "volume", "brightness", "wifi", "bluetooth", "power", "notifications", "finder", "keybinds", ""
+    // Values: "volume", "brightness", "wifi", "bluetooth", "power", "notifications", "keybinds", ""
     property string rightPanelContext: ""
 
     // Requested finder mode (set before opening finder, consumed by Finder on visible)
     // Values: "apps", "screenshot", "keybinds", "" (empty = default/apps)
     property string finderRequestedMode: ""
+
+    // Whether the floating Finder popup is visible
+    property bool finderVisible: false
 
     // Whether left panel is expanded
     property bool leftExpanded: false
@@ -45,6 +48,8 @@ Singleton {
             activePanel = "left";
             // Close right if open
             rightPanelContext = "";
+            // Close finder if open
+            finderVisible = false;
         }
     }
 
@@ -57,6 +62,8 @@ Singleton {
             activePanel = "right";
             // Collapse left if expanded
             leftExpanded = false;
+            // Close finder if open
+            finderVisible = false;
         }
     }
 
@@ -65,9 +72,35 @@ Singleton {
         if (activePanel === "right") activePanel = "";
     }
 
+    function toggleFinder() {
+        if (finderVisible) {
+            closeFinder();
+        } else {
+            finderVisible = true;
+            // Close other panels
+            rightPanelContext = "";
+            leftExpanded = false;
+            activePanel = "";
+        }
+    }
+
+    function openFinder(mode: string) {
+        finderRequestedMode = mode;
+        finderVisible = true;
+        // Close other panels
+        rightPanelContext = "";
+        leftExpanded = false;
+        activePanel = "";
+    }
+
+    function closeFinder() {
+        finderVisible = false;
+    }
+
     function closeAll() {
         activePanel = "";
         rightPanelContext = "";
         leftExpanded = false;
+        finderVisible = false;
     }
 }

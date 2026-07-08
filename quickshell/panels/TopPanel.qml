@@ -43,17 +43,19 @@ PanelWindow {
         color: Theme.border
     }
 
-    RowLayout {
+    // Use independent anchor groups so center is always at true horizontal center
+    // regardless of left/right section widths.
+    Item {
         anchors.fill: parent
         anchors.leftMargin: Theme.panelPadding
         anchors.rightMargin: Theme.panelPadding
         anchors.topMargin: 2
         anchors.bottomMargin: 2
-        spacing: 0
 
         // ─── Left section: Workspaces + Window ─────────────────────
         RowLayout {
-            Layout.fillHeight: true
+            anchors.left: parent.left
+            anchors.verticalCenter: parent.verticalCenter
             spacing: 6
 
             // Section open bracket
@@ -88,12 +90,10 @@ PanelWindow {
             }
         }
 
-        // ─── Flexible spacer ────────────────────────────────────────
-        Item { Layout.fillWidth: true }
-
-        // ─── Center section: Clock + Date ───────────────────────────
+        // ─── Center section: Clock + Date (always truly centered) ───
         RowLayout {
-            Layout.fillHeight: true
+            anchors.horizontalCenter: parent.horizontalCenter
+            anchors.verticalCenter: parent.verticalCenter
             spacing: 6
 
             // Section open bracket
@@ -128,12 +128,10 @@ PanelWindow {
             }
         }
 
-        // ─── Flexible spacer ────────────────────────────────────────
-        Item { Layout.fillWidth: true }
-
         // ─── Right section: System controls ─────────────────────────
         RowLayout {
-            Layout.fillHeight: true
+            anchors.right: parent.right
+            anchors.verticalCenter: parent.verticalCenter
             spacing: 6
 
             // Section open bracket

@@ -41,14 +41,13 @@ Singleton {
         }
 
         function toggleFinder(): void {
-            PanelState.openRight("finder");
+            PanelState.toggleFinder();
         }
 
         // Open finder in a specific mode: "apps", "screenshot", "keybinds"
         // Usage: qs ipc call shell openFinder apps
         function openFinder(mode: string): void {
-            PanelState.finderRequestedMode = mode;
-            PanelState.openRight("finder");
+            PanelState.openFinder(mode);
         }
 
         function toggleKeybinds(): void {

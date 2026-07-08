@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+# float-term — Launch a floating kitty terminal centered at 720p
+# Usage: float-term <command> [args...]
+# Example: float-term htop
+#          float-term nvim /tmp/notes.md
+#          float-term bash -c "curl wttr.in && read"
+
+set -euo pipefail
+
+WIDTH=1280
+HEIGHT=720
+TITLE="float-term"
+
+if [[ $# -eq 0 ]]; then
+    echo "Usage: float-term <command> [args...]" >&2
+    exit 1
+fi
+
+# Hyprland window rules for floating + centered (applied by title match)
+# Add to hyprland.conf: windowrulev2 = float,title:^(float-term)$
+# Add to hyprland.conf: windowrulev2 = size 1280 720,title:^(float-term)$
+# Add to hyprland.conf: windowrulev2 = center,title:^(float-term)$
+
+exec kitty \
+    --title "$TITLE" \
+    --override initial_window_width="${WIDTH}" \
+    --override initial_window_height="${HEIGHT}" \
+    --override remember_window_size=no \
+    --override confirm_os_window_close=0 \
+    "$@"

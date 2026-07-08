@@ -131,7 +131,7 @@ Singleton {
                             root.customItems = [];
                             root.customPrompt = "";
                             root.activeSocket = null;
-                            PanelState.closeRight();
+                            PanelState.closeFinder();
                         }
                     }
                 }
@@ -157,8 +157,9 @@ Singleton {
         root.customPrompt = request.prompt || "";
         root.hasPendingRequest = true;
 
-        // Open the finder in custom mode
-        PanelState.openRight("finder");
+        // Open the finder in custom mode (floating popup)
+        PanelState.finderRequestedMode = "custom";
+        PanelState.finderVisible = true;
         root.customRequestReceived();
     }
 }

@@ -1,0 +1,54 @@
+#!/usr/bin/env bash
+# float-browser — Launch a chromeless floating browser window (PWA-style)
+# Usage: float-browser <url>
+# Example: float-browser https://chat.openai.com
+#          float-browser https://music.youtube.com
+#          float-browser file:///tmp/dashboard.html
+
+set -euo pipefail
+
+WIDTH=1280
+HEIGHT=720
+TITLE="float-browser"
+
+if [[ $# -eq 0 ]]; then
+    echo "Usage: float-browser <url>" >&2
+    exit 1
+fi
+
+URL="$1"
+
+# Hyprland window rules for floating + centered (applied by title match)
+# Add to hyprland.conf: windowrulev2 = float,title:^(float-browser)(.*)$
+# Add to hyprland.conf: windowrulev2 = size 1280 720,title:^(float-browser)(.*)$
+# Add to hyprland.conf: windowrulev2 = center,title:^(float-browser)(.*)$
+
+# Prefer Zen browser, fall back to Chromium
+if command -v zen-browser &>/dev/null; then
+    # Zen: use --kiosk for chromeless, or SSB mode
+    exec zen-browser \
+        --new-window \
+        --kiosk "$URL" \
+        --class "float-browser"
+elif command -v chromium &>/dev/null; then
+    exec chromium \
+        --app="$URL" \
+        --window-size="${WIDTH},${HEIGHT}" \
+        --window-name="$TITLE" \
+        --class="float-browser"
+elif command -v chromium-browser &>/dev/null; then
+    exec chromium-browser \
+        --app="$URL" \
+        --window-size="${WIDTH},${HEIGHT}" \
+        --window-name="$TITLE" \
+        --class="float-browser"
+elif command -v google-chrome &>/dev/null; then
+    exec google-chrome \
+        --app="$URL" \
+        --window-size="${WIDTH},${HEIGHT}" \
+        --window-name="$TITLE" \
+        --class="float-browser"
+else
+    echo "Error: No supported browser found (zen-browser, chromium, google-chrome)" >&2
+    exit 1
+fi

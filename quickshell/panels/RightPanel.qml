@@ -120,13 +120,6 @@ PanelWindow {
             }
 
             Tui.TuiText {
-                text: "󰍉"
-                textColor: Theme.textMuted
-                font.pixelSize: Theme.fontSizeIcon
-                Layout.alignment: Qt.AlignHCenter
-            }
-
-            Tui.TuiText {
                 text: "⌨"
                 textColor: Theme.textMuted
                 font.pixelSize: Theme.fontSizeIcon
@@ -193,7 +186,6 @@ PanelWindow {
                             case "bluetooth": return "bluetooth";
                             case "power": return "power";
                             case "notifications": return "notifications";
-                            case "finder": return "finder";
                             case "keybinds": return "keybinds";
                             default: return "";
                         }
@@ -307,12 +299,6 @@ PanelWindow {
                     Widgets.NotificationList {
                         anchors.fill: parent
                         visible: PanelState.rightPanelContext === "notifications"
-                    }
-
-                    // Finder / App launcher
-                    Widgets.Finder {
-                        anchors.fill: parent
-                        visible: PanelState.rightPanelContext === "finder"
                     }
 
                     // Keybind cheat-sheet
