@@ -11,6 +11,3 @@ If anyone comes and wants to steal this stuff, I have a rough rule of using `env
 - There's a `setup.sh` script that should auto link all the configs
   - It's set to auto install `stow` via `pacman` if it doesn't exist, just change this to the package manager for your system if you want it to work for you.
   - There's a `configs` array, you can edit this to add/remove parts of the configs you do or don't want, it's looking for folders in the root of the project.
-
-## Screenshot
-![Desktop Screenshot](screenshot.png "Sample desktop screenshot :)")
