@@ -1,2 +1,0 @@
-module qs.theme
-singleton ConfigTheme 1.0 ConfigTheme.qml
