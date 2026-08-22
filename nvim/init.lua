@@ -77,12 +77,6 @@ if helpers.is_obsidian_vault() then
       },
     },
 
-    completion = {
-      nvim_cmp = false,
-      blink = true,
-      min_chars = 2,
-    },
-
     daily_notes = {
       enabled = false,
     },
@@ -105,18 +99,13 @@ if helpers.is_obsidian_vault() then
 
     frontmatter = {
       enabled = true,
-      sort = { "id", "key", "aliases", "tags" },
+      sort = { "id", "aliases", "tags" },
       func = function(note)
-        local key = note.key
-        if key == nil then
-          key = helpers.generate_uuid()
-        end
-
         if note.title then
           note:add_alias(note.title)
         end
 
-        local out = { key = key, aliases = note.aliases, tags = note.tags }
+        local out = { id = note.id, aliases = note.aliases, tags = note.tags }
 
         -- `note.metadata` contains any manually added fields in the frontmatter.
         -- So here we just make sure those fields are kept in the frontmatter.

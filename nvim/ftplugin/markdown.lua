@@ -2,6 +2,8 @@ local helpers = require("util.helpers")
 local keymaps = require("util.keymaps")
 local map = vim.keymap.set
 
+vim.cmd("iabbrev -= —")
+
 -- PLUGINS --
 vim.pack.add({
   { src = helpers.gh("OXY2DEV/markview.nvim") },
