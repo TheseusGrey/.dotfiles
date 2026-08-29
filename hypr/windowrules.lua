@@ -7,11 +7,16 @@ hl.window_rule({ name = "Alacritty", match = { class = "^(Alacritty)$" }, worksp
 hl.window_rule({ name = "Kitty", match = { class = "^(kitty)$" }, workspace = "1 silent" })
 hl.window_rule({ name = "Obsidian", match = { class = "^(obsidian)$" }, workspace = "1 silent" })
 hl.window_rule({ name = "Firefox", match = { class = "^(firefox)$" }, workspace = "2 silent" })
+hl.window_rule({ name = "Discord", match = { class = "^(discord)$" }, workspace = "2 silent" })
 hl.window_rule({ name = "Steam", match = { class = "^(steam)$" }, workspace = "3 silent" })
-hl.window_rule({ name = "CurseForge", match = { class = "^(CurseForge)$" }, workspace = "3 silent" })
+hl.window_rule({ name = "Curse Forge", match = { class = "^(CurseForge)$" }, workspace = "3 silent" })
+hl.window_rule({ name = "Prism Launcher", match = { class = "^(org.prismlauncher.PrismLauncher)$" }, workspace = "3 silent" })
+hl.window_rule({ name = "Homestead (minecraft)", match = { class = "^(Homestead)$" }, workspace = "3 silent" })
+
 
 
 -- Floating Windows
+hl.window_rule({ name = "Custom float rule", match = { class = ".*-float$" }, float = true })
 hl.window_rule({ name = "About Mozilla Firefox", match = { title = "^(About Mozilla Firefox)$" }, float = true })
 hl.window_rule({ name = "Copying — Dolphin", match = { class = "^(org.kde.dolphin)$", title = "^(Copying — Dolphin)$" }, float = true })
 hl.window_rule({ name = "Library", match = { class = "^(firefox)$", title = "^(Library)$" }, float = true })
