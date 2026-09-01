@@ -1,20 +1,21 @@
 #!/bin/bash
 
-function join_by {
-  local d=${1-} f=${2-}
-  if shift 2; then
-    printf %s "$f" "${@/#/$d}"
-  fi
-}
+# System actions menu — power/session actions via qsh pick.
+QSH=/home/ashe/.local/bin/qsh
 
-menu_folder=$DOTFILES/rofi/scripts/
-menu_list=$(ls $menu_folder | cut -f 1 -d '.')
+entries=(
+  "Lock"
+  "Suspend"
+  "Restart"
+  "Shutdown"
+)
 
-action_menu() {
-  modes=$(join_by "," $menu_list)
-  echo $modes
+selection=$(printf "%s\n" "${entries[@]}" | $QSH pick --prompt "actions" 2>/dev/null)
+[ -z "$selection" ] && exit 1
 
-  rofi -show combi -combi-modes "$modes"
-}
-
-action_menu
+case "$selection" in
+  "Lock")     hyprlock &>/dev/null ;;
+  "Suspend")  systemctl suspend ;;
+  "Restart")  systemctl reboot ;;
+  "Shutdown") systemctl poweroff ;;
+esac

@@ -144,7 +144,7 @@ while getopts "iop:st" opt; do
         i) device="pamixer"; srce="--default-source"; nsink=$(pamixer --list-sources | awk -F '"' 'END {print $(NF - 1)}') ;;
         o) device="pamixer"; srce=""; nsink=$(pamixer --get-default-sink | awk -F '"' 'END{print $(NF - 1)}') ;;
         p) device="playerctl"; srce="${OPTARG}"; nsink=$(playerctl --list-all | grep -w "$srce") ;;
-        s) select_output "$(select_output | rofi -dmenu -config "${confDir}/rofi/notification.rasi")"; exit ;;
+        s) select_output "$(select_output | /home/ashe/.local/bin/qsh pick --prompt "output" 2>/dev/null)"; exit ;;
         t) toggle_output; exit ;;
         *) print_usage ;;
     esac

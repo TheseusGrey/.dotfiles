@@ -89,4 +89,4 @@ menu_height=$((monitor_height * 40 / 100))
 dynamic_bindings |
   sort -u |
   parse_bindings |
-  rofi -dmenu
+  /home/ashe/.local/bin/qsh pick --prompt "keybinds"
