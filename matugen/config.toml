@@ -1,0 +1,36 @@
+# matugen 4.2 — wallpaper-driven theme
+# ------------------------------------
+# Generates one palette and renders it into three targets (all inside the
+# dotfiles repo; the live configs are symlinked, so this stays in sync):
+#   outputs/quickshell/services/Colors.qml  → shell palette (Colors.qml)
+#   hypr/themes/matugen_colors.lua          → hyprland borders
+#   waybar/colors.css                       → waybar palette
+#
+# Run it with:
+#   matugen image <wallpaper>     or     qsh wallpaper <wallpaper>
+
+[config]
+mode = "dark"
+contrast = 0.0
+# Non-interactive source-color choice (qsh wallpaper runs headless).
+prefer = "closest-to-fallback"
+fallback_color = "#F0C674"
+
+[config.wallpaper]
+set = true
+pre_hook = 'hyprctl hyprpaper preload {{ image }}'
+command = 'hyprctl hyprpaper wallpaper ,{{ image }}'
+
+[templates.quickshell]
+input_path = '~/.config/matugen/templates/colors.qml'
+output_path = '/home/ashe/.dotfiles/quickshell/services/Colors.qml'
+
+[templates.hyprland]
+input_path = '~/.config/matugen/templates/hypr-colors.lua'
+output_path = '/home/ashe/.dotfiles/hypr/themes/matugen_colors.lua'
+post_hook = 'hyprctl reload'
+
+[templates.waybar]
+input_path = '~/.config/matugen/templates/waybar-colors.css'
+output_path = '/home/ashe/.dotfiles/waybar/colors.css'
+post_hook = 'pkill -SIGUSR2 waybar'

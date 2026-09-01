@@ -1,0 +1,20 @@
+# matugen preset mode — renders a fixed palette (json import) through the
+# *raw* templates (no lightness clamping). Used by `qsh theme <preset>`.
+# Outputs go straight into the dotfiles repo; live configs are symlinked.
+
+[config]
+mode = "dark"
+
+[templates.quickshell]
+input_path = '~/.config/matugen/templates-raw/colors.qml'
+output_path = '/home/ashe/.dotfiles/quickshell/services/Colors.qml'
+
+[templates.hyprland]
+input_path = '~/.config/matugen/templates-raw/hypr-colors.lua'
+output_path = '/home/ashe/.dotfiles/hypr/themes/matugen_colors.lua'
+post_hook = 'hyprctl reload'
+
+[templates.waybar]
+input_path = '~/.config/matugen/templates-raw/waybar-colors.css'
+output_path = '/home/ashe/.dotfiles/waybar/colors.css'
+post_hook = 'pkill -SIGUSR2 waybar || true'
