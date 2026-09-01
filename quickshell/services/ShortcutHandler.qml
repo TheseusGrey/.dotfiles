@@ -7,10 +7,10 @@ Singleton {
     id: root
 
     // IPC handler: receives commands from hyprland keybinds via:
-    //   qs ipc call shell <function>
-    // e.g. bind = SUPER, SPACE, exec, qs ipc call shell toggleFinder
+    //   qs ipc call tui.shell <function>
+    // e.g. bind = SUPER, SPACE, exec, qs ipc call tui.shell toggleFinder
     IpcHandler {
-        target: "shell"
+        target: "tui.shell"
 
         function toggleLeft(): void {
             PanelState.toggleLeft();
@@ -45,13 +45,17 @@ Singleton {
         }
 
         // Open finder in a specific mode: "apps", "screenshot", "keybinds"
-        // Usage: qs ipc call shell openFinder apps
+        // Usage: qs ipc call tui.shell openFinder apps
         function openFinder(mode: string): void {
             PanelState.openFinder(mode);
         }
 
         function toggleKeybinds(): void {
             PanelState.openRight("keybinds");
+        }
+
+        function toggleMenu(): void {
+            PanelState.openRight("menu");
         }
 
         function closeAll(): void {
@@ -63,8 +67,8 @@ Singleton {
         }
 
         // OSD triggers — called from keybind scripts after adjusting volume/brightness
-        // Usage: qs ipc call shell osdVolume 0.75 false
-        //        qs ipc call shell osdBrightness 0.50
+        // Usage: qs ipc call tui.shell osdVolume 0.75 false
+        //        qs ipc call tui.shell osdBrightness 0.50
         function osdVolume(level: real, muted: bool): void {
             PanelState.showOsd("volume", level, muted || false);
         }

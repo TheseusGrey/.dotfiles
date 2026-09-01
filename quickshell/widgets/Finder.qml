@@ -304,8 +304,8 @@ Item {
 
     // ─── Highlight rendering ─────────────────────────────────────────
     // Takes a string and array of matched indices, returns RichText HTML
-    // with matched chars in accent color.
-    function highlightMatch(text, indices) {
+    // with matched chars in the given highlight color (accent by default).
+    function highlightMatch(text, indices, hlColor) {
         if (!indices || indices.length === 0) {
             return escapeHtml(text);
         }
@@ -321,7 +321,7 @@ Item {
         for (let i = 0; i < text.length; i++) {
             const isMatch = indexSet[i] === true;
             if (isMatch && !inHighlight) {
-                result += '<span style="color:' + Theme.nord13 + ';font-weight:bold">';
+                result += '<span style="color:' + (hlColor || Theme.accent) + ';font-weight:bold">';
                 inHighlight = true;
             } else if (!isMatch && inHighlight) {
                 result += '</span>';
@@ -349,8 +349,7 @@ Item {
                     name: items[i].name,
                     subtitle: items[i].subtitle || "",
                     data: items[i],
-                    matchIndices: [],
-                    nameHtml: escapeHtml(items[i].name)
+                    matchIndices: []
                 });
             }
             root.filteredItems = result;
@@ -392,13 +391,7 @@ Item {
                         data: item,
                         score: bestScore,
                         matchIndices: matchedField === "name" ? bestIndices : [],
-                        subtitleIndices: matchedField === "subtitle" ? bestIndices : [],
-                        nameHtml: matchedField === "name"
-                            ? highlightMatch(item.name, bestIndices)
-                            : escapeHtml(item.name),
-                        subtitleHtml: matchedField === "subtitle"
-                            ? highlightMatch(item.subtitle, bestIndices)
-                            : undefined
+                        subtitleIndices: matchedField === "subtitle" ? bestIndices : []
                     });
                 }
             }
@@ -521,7 +514,7 @@ Item {
             Tui.TuiText {
                 visible: root.currentMode === "custom"
                 text: "[" + (FinderServer.customPrompt || "select") + "]"
-                textColor: Theme.nord15
+                textColor: Theme.accent
                 font.bold: true
                 font.pixelSize: Theme.fontSizeSmall
             }
@@ -543,9 +536,9 @@ Item {
                         if (index !== root.currentModeIndex) return Theme.textMuted;
                         // Each mode gets its own color
                         switch (modelData) {
-                            case "apps": return Theme.nord14;       // green
-                            case "screenshot": return Theme.nord12; // orange
-                            case "keybinds": return Theme.nord13;   // yellow
+                            case "apps": return Theme.success;       // tertiary
+                            case "screenshot": return Theme.warning; // primary
+                            case "keybinds": return Theme.caution;   // secondary
                             default: return Theme.accent;
                         }
                     }
@@ -559,14 +552,14 @@ Item {
             Tui.TuiText {
                 visible: root.currentMode !== "custom"
                 text: "tab:mode"
-                textColor: Theme.nord7  // teal hint
+                textColor: Theme.utility
                 font.pixelSize: Theme.fontSizeSmall
             }
 
             Tui.TuiText {
                 visible: root.currentMode === "custom"
                 text: "esc:cancel"
-                textColor: Theme.nord11  // red for cancel hint
+                textColor: Theme.error
                 font.pixelSize: Theme.fontSizeSmall
             }
         }
@@ -592,10 +585,10 @@ Item {
                     text: ">"
                     textColor: {
                         switch (root.currentMode) {
-                            case "apps": return Theme.nord14;       // green
-                            case "screenshot": return Theme.nord12; // orange
-                            case "keybinds": return Theme.nord13;   // yellow
-                            case "custom": return Theme.nord15;     // purple
+                            case "apps": return Theme.success;       // tertiary
+                            case "screenshot": return Theme.warning; // primary
+                            case "keybinds": return Theme.caution;   // secondary
+                            case "custom": return Theme.accent;
                             default: return Theme.accent;
                         }
                     }
@@ -612,7 +605,15 @@ Item {
                     selectionColor: Theme.bgHover
                     selectedTextColor: Theme.textBright
                     activeFocusOnTab: false
+                    verticalAlignment: Text.AlignVCenter
                     clip: true
+
+                    // Block caret — matches the shell's TUI input style.
+                    cursorDelegate: Rectangle {
+                        width: Tui.TuiMetrics.cellWidth
+                        radius: 0
+                        color: Theme.accent
+                    }
 
                     onTextChanged: {
                         root.query = text;
@@ -650,7 +651,7 @@ Item {
 
             Tui.TuiText {
                 text: root.filteredItems.length + "/" + getSourceItems().length
-                textColor: Theme.nord7  // teal for count
+                textColor: Theme.utility
                 font.pixelSize: Theme.fontSizeSmall
             }
 
@@ -692,21 +693,19 @@ Item {
 
                         readonly property bool isSelected: index === root.selectedIndex
 
-                        // Selection background
+                        // Selection background — solid inverse-accent block,
+                        // matching the shell's TuiMenuItem.selected style.
                         Rectangle {
                             anchors.fill: parent
                             visible: resultItem.isSelected
-                            gradient: Gradient {
-                                orientation: Gradient.Horizontal
-                                GradientStop { position: 0.0; color: Theme.bgHover }
-                                GradientStop { position: 0.7; color: Theme.bgElevated }
-                                GradientStop { position: 1.0; color: "transparent" }
-                            }
+                            radius: 0
+                            color: Theme.accent
                         }
                         Rectangle {
                             anchors.fill: parent
                             visible: !resultItem.isSelected && resultMouse.containsMouse
-                            color: Theme.bgElevated
+                            radius: 0
+                            color: Theme.bgHover
                         }
 
                         RowLayout {
@@ -721,15 +720,24 @@ Item {
                             // Selection indicator
                             Tui.TuiText {
                                 text: resultItem.isSelected ? ">" : " "
-                                textColor: Theme.nord7  // teal for selection cursor
+                                textColor: resultItem.isSelected ? Theme.onAccent : Theme.accentSecondary
                                 font.bold: true
                             }
 
                             // Name with match highlighting
                             Text {
-                                text: resultItem.modelData.nameHtml || root.escapeHtml(resultItem.modelData.name)
+                                text: {
+                                    // Re-render so highlight pops in either state:
+                                    // accent on dark bg, dark-on-accent when selected.
+                                    const d = resultItem.modelData;
+                                    if (d.matchIndices && d.matchIndices.length > 0) {
+                                        return root.highlightMatch(d.name, d.matchIndices,
+                                            resultItem.isSelected ? Theme.bg : Theme.accent);
+                                    }
+                                    return root.escapeHtml(d.name);
+                                }
                                 textFormat: Text.RichText
-                                color: resultItem.isSelected ? Theme.textBright : Theme.textPrimary
+                                color: resultItem.isSelected ? Theme.onAccent : Theme.textPrimary
                                 font.family: Theme.fontFamily
                                 font.pixelSize: Theme.fontSize
                                 font.bold: resultItem.isSelected
@@ -741,15 +749,18 @@ Item {
                             Text {
                                 visible: resultItem.modelData.subtitle !== ""
                                 text: {
-                                    if (resultItem.modelData.subtitleHtml) {
-                                        return resultItem.modelData.subtitleHtml;
+                                    const d = resultItem.modelData;
+                                    if (d.subtitleIndices && d.subtitleIndices.length > 0) {
+                                        return root.highlightMatch(d.subtitle, d.subtitleIndices,
+                                            resultItem.isSelected ? Theme.bg : Theme.accent);
                                     }
-                                    const s = resultItem.modelData.subtitle || "";
+                                    const s = d.subtitle || "";
                                     const truncated = s.length > 30 ? s.substring(0, 30) + "…" : s;
                                     return root.escapeHtml(truncated);
                                 }
                                 textFormat: Text.RichText
-                                color: Theme.textMuted
+                                color: resultItem.isSelected ? Theme.onAccent : Theme.textMuted
+                                opacity: resultItem.isSelected ? 0.75 : 1.0
                                 font.family: Theme.fontFamily
                                 font.pixelSize: Theme.fontSizeSmall
                                 font.italic: true
@@ -773,20 +784,39 @@ Item {
             }
         }
 
-        // ─── Help bar ────────────────────────────────────────────────
-        Tui.TuiText {
-            text: {
-                switch (root.currentMode) {
-                    case "apps": return "↑↓:navigate  enter:launch  tab:mode  esc:close";
-                    case "screenshot": return "↑↓:navigate  enter:capture  tab:mode  esc:close";
-                    case "keybinds": return "↑↓:navigate  tab:mode  esc:close";
-                    case "custom": return "↑↓:navigate  enter:select  esc:cancel";
+        // ─── Help bar (key-hint chips, matching FooterHints) ────────
+        RowLayout {
+            Layout.fillWidth: true
+            spacing: Tui.TuiMetrics.cellWidth * 0.75
+
+            Repeater {
+                model: root.helpHints[root.currentMode] || []
+                Tui.TuiKeyHint {
+                    required property var modelData
+                    key: modelData[0]
+                    label: modelData[1]
                 }
             }
-            textColor: Theme.textMuted
-            font.pixelSize: Theme.fontSizeSmall
+
+            Item { Layout.fillWidth: true }
         }
     }
+
+    // ─── Per-mode help hints for the chip bar ───────────────────────
+    readonly property var helpHints: ({
+        "apps": [
+            ["↑↓", "navigate"], ["enter", "launch"], ["tab", "mode"], ["esc", "close"]
+        ],
+        "screenshot": [
+            ["↑↓", "navigate"], ["enter", "capture"], ["tab", "mode"], ["esc", "close"]
+        ],
+        "keybinds": [
+            ["↑↓", "navigate"], ["tab", "mode"], ["esc", "close"]
+        ],
+        "custom": [
+            ["↑↓", "navigate"], ["enter", "select"], ["esc", "cancel"]
+        ]
+    })
 
     // ─── Scroll helper ───────────────────────────────────────────────
     function ensureVisible() {

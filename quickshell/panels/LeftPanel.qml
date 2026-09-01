@@ -7,10 +7,10 @@ import qs.services
 import qs.components as Tui
 import qs.widgets as Widgets
 
-// Left panel — hover-to-expand sidebar.
-//
-// Has exclusive zone for collapsed width so windows don't overlap.
-//
+// Left rail — west edge of the TUI frame.
+// Always visible as a collapsed glyph rail; expands on hover.
+// Frame chrome is the blocky rect border (TuiPanel); collapsed state is the
+// glyph rail, expanded state holds the sectioned context content.
 PanelWindow {
     id: root
 
@@ -20,21 +20,17 @@ PanelWindow {
 
     implicitWidth: PanelState.leftExpanded ? Theme.leftPanelExpanded : Theme.leftPanelCollapsed
     exclusiveZone: PanelState.leftExpanded ? Theme.leftPanelExpanded : Theme.leftPanelCollapsed
-    color: Theme.bg
+    color: "transparent"
 
     WlrLayershell.layer: WlrLayer.Top
     WlrLayershell.namespace: "shell-left"
 
-    Behavior on implicitWidth {
-        NumberAnimation {
-            duration: Theme.animDuration
-            easing.type: Easing.OutCubic
-        }
-    }
+    // No width animation: the panel snaps open/closed. A gliding width makes
+    // the footer strip (which shares the bottom corners and stacks above us)
+    // look like it is playing catch-up, with misaligned borders mid-slide.
+    // No Behavior on implicitWidth.
 
     // ─── Hover detection for expand/collapse ───
-    // HoverHandler doesn't get confused by child MouseAreas (unlike MouseArea.containsMouse).
-    // It reports hover for the entire item bounds regardless of overlapping input handlers.
     HoverHandler {
         id: panelHover
         onHoveredChanged: {
@@ -48,14 +44,12 @@ PanelWindow {
         }
     }
 
-    // Small delay to prevent flicker on enter
     Timer {
         id: expandTimer
         interval: 150
         onTriggered: PanelState.leftExpanded = true
     }
 
-    // Longer delay on leave so brief exits (e.g. tooltip) don't collapse
     Timer {
         id: collapseTimer
         interval: 300
@@ -66,221 +60,145 @@ PanelWindow {
         }
     }
 
-    // 1px right border
-    Rectangle {
-        anchors.right: parent.right
-        anchors.top: parent.top
-        anchors.bottom: parent.bottom
-        width: 1
-        color: Theme.border
+    // ─── Rail-driven scroll to a section ─────────────────────────────
+    // Rail glyphs set `target` ("workspaces" | "date" | "system" | "media").
+    // Once the panel is expanded the section y is stable, so we scroll after
+    // the content has had one frame to lay out.
+    Timer {
+        id: scrollTimer
+        interval: Theme.animDuration + 60
+        repeat: false
+        property real targetY: 0
+        onTriggered: expandedFlickable.contentY = targetY
     }
 
-    // ─── Collapsed state ───
-    Item {
-        id: collapsedContent
+    function scrollToSection(target) {
+        const section = target === "workspaces" ? workspacesSection
+            : target === "date" ? dateSection
+            : target === "system" ? systemSection
+            : (target === "media" && mediaPlayer.hasPlayer) ? mediaPlayer
+            : null;
+        if (section === null) return;
+        scrollTimer.targetY = section.y;
+        scrollTimer.start();
+    }
+
+    // ─── Frame chrome (bg + blocky border) ────────────────────────────
+    // Top edge suppressed: the top bar already draws the line at the corner.
+    // Left edge suppressed: display edge (open frame), bottom edge is covered
+    // by the opaque footer strip anyway.
+    Tui.TuiPanel {
         anchors.fill: parent
-        anchors.margins: Theme.panelPadding
+        borderTop: false
+        borderLeft: false
+        borderBottom: false
+    }
+
+    // ─── Collapsed state: glyph rail (overlays chrome, full width) ────
+    Tui.TuiRail {
         visible: !PanelState.leftExpanded
-        opacity: PanelState.leftExpanded ? 0 : 1
-
-        Behavior on opacity {
-            NumberAnimation { duration: Theme.animDuration }
-        }
-
-        // Vertical hint indicators
-        ColumnLayout {
-            anchors.centerIn: parent
-            spacing: 12
-
-            // Expand hint glyph (arrow points right = expand direction)
-            Tui.TuiText {
-                text: "▸"
-                textColor: Theme.textMuted
-                font.pixelSize: Theme.fontSizeLarge
-                Layout.alignment: Qt.AlignHCenter
-            }
-
-            // Small vertical dots for workspace count
-            Repeater {
-                model: Math.min(Hyprland.workspaces.values.length, 8)
-
-                Tui.TuiText {
-                    required property int index
-                    text: Theme.dotSmall
-                    textColor: index === 0 ? Theme.accent : Theme.textMuted
-                    Layout.alignment: Qt.AlignHCenter
-                }
+        anchors.fill: parent
+        anchors.margins: Theme.borderWidth
+        model: collapsedRailModel
+        onActivated: item => {
+            if (typeof item === "object" && item.target !== undefined) {
+                PanelState.leftExpanded = true;
+                root.scrollToSection(item.target);
             }
         }
     }
 
     // ─── Expanded state ───
-    Item {
-        id: expandedContent
-        anchors.fill: parent
-        anchors.margins: Theme.panelPadding
-        anchors.rightMargin: Theme.panelPadding + 1  // account for border
+    Flickable {
+        id: expandedFlickable
         visible: PanelState.leftExpanded
-        opacity: PanelState.leftExpanded ? 1 : 0
+        anchors.fill: parent
+        anchors.leftMargin: Theme.borderWidth + Theme.panelPadding
+        anchors.rightMargin: Theme.borderWidth + Theme.panelPadding
+        anchors.topMargin: Theme.borderWidth + Theme.panelPadding
+        anchors.bottomMargin: Theme.borderWidth + Theme.panelPadding
+        contentHeight: expandedLayout.implicitHeight
         clip: true
+        boundsBehavior: Flickable.StopAtBounds
 
-        Behavior on opacity {
-            NumberAnimation { duration: Theme.animDuration }
-        }
+        ColumnLayout {
+            id: expandedLayout
+            width: expandedFlickable.width
+            spacing: Theme.itemSpacing
 
-        Flickable {
-            id: flickable
-            anchors.fill: parent
-            contentHeight: expandedLayout.implicitHeight
-            clip: true
-            boundsBehavior: Flickable.StopAtBounds
+            // ─── Section: Workspaces ───
+            Tui.TuiSection {
+                id: workspacesSection
+                title: "workspaces"
+                Layout.fillWidth: true
+            }
 
-            ColumnLayout {
-                id: expandedLayout
-                width: flickable.width
-                spacing: Theme.itemSpacing
+            Widgets.WorkspaceList {
+                Layout.fillWidth: true
+                Layout.leftMargin: 4
+            }
 
-                // ─── Section: Workspaces ───
-                RowLayout {
-                    Layout.fillWidth: true
-                    spacing: 0
+            Tui.TuiRule {
+                Layout.fillWidth: true
+                Layout.topMargin: Theme.itemSpacing
+                Layout.bottomMargin: Theme.itemSpacing
+            }
 
-                    Tui.TuiText {
-                        text: "╭─ "
-                        textColor: Theme.border
-                        font.pixelSize: Theme.fontSizeSmall
-                    }
-                    Tui.TuiText {
-                        text: "workspaces"
-                        textColor: Theme.accentSecondary
-                        font.pixelSize: Theme.fontSizeSmall
-                        font.bold: true
-                    }
-                    Tui.TuiText {
-                        Layout.fillWidth: true
-                        property int charWidth: Math.max(0, Math.floor(width / (Theme.fontSizeSmall * 0.6)) - 3)
-                        text: " " + Theme.boxHorizontal.repeat(charWidth) + "─╮"
-                        textColor: Theme.border
-                        font.pixelSize: Theme.fontSizeSmall
-                        clip: true
-                    }
-                }
+            // ─── Section: Calendar ───
+            Tui.TuiSection {
+                id: dateSection
+                title: "date"
+                Layout.fillWidth: true
+            }
 
-                Widgets.WorkspaceList {
-                    Layout.fillWidth: true
-                    Layout.leftMargin: 4
-                }
+            Widgets.Calendar {
+                Layout.fillWidth: true
+                Layout.leftMargin: 4
+            }
 
-                // ─── Separator ───
-                Tui.TuiText {
-                    Layout.fillWidth: true
-                    property int charWidth: Math.max(1, Math.floor(width / (Theme.fontSizeSmall * 0.6)) - 2)
-                    text: "├" + Theme.boxHorizontal.repeat(charWidth) + "┤"
-                    textColor: Theme.border
-                    font.pixelSize: Theme.fontSizeSmall
-                }
+            Tui.TuiRule {
+                Layout.fillWidth: true
+                Layout.topMargin: Theme.itemSpacing
+                Layout.bottomMargin: Theme.itemSpacing
+            }
 
-                // ─── Section: Calendar ───
-                RowLayout {
-                    Layout.fillWidth: true
-                    spacing: 0
+            // ─── Section: System ───
+            Tui.TuiSection {
+                id: systemSection
+                title: "system"
+                Layout.fillWidth: true
+            }
 
-                    Tui.TuiText {
-                        text: "╭─ "
-                        textColor: Theme.border
-                        font.pixelSize: Theme.fontSizeSmall
-                    }
-                    Tui.TuiText {
-                        text: "calendar"
-                        textColor: Theme.accentSecondary
-                        font.pixelSize: Theme.fontSizeSmall
-                        font.bold: true
-                    }
-                    Tui.TuiText {
-                        Layout.fillWidth: true
-                        property int charWidth: Math.max(0, Math.floor(width / (Theme.fontSizeSmall * 0.6)) - 3)
-                        text: " " + Theme.boxHorizontal.repeat(charWidth) + "─╮"
-                        textColor: Theme.border
-                        font.pixelSize: Theme.fontSizeSmall
-                        clip: true
-                    }
-                }
+            Widgets.SystemStats {
+                Layout.fillWidth: true
+                Layout.leftMargin: 4
+            }
 
-                Widgets.Calendar {
-                    Layout.fillWidth: true
-                    Layout.leftMargin: 4
-                }
+            Tui.TuiRule {
+                visible: mediaPlayer.hasPlayer
+                Layout.fillWidth: true
+                Layout.topMargin: Theme.itemSpacing
+                Layout.bottomMargin: Theme.itemSpacing
+            }
 
-                // ─── Separator ───
-                Tui.TuiText {
-                    Layout.fillWidth: true
-                    property int charWidth: Math.max(1, Math.floor(width / (Theme.fontSizeSmall * 0.6)) - 2)
-                    text: "├" + Theme.boxHorizontal.repeat(charWidth) + "┤"
-                    textColor: Theme.border
-                    font.pixelSize: Theme.fontSizeSmall
-                }
+            // ─── Section: Media (only if active) ───
+            Widgets.MediaPlayer {
+                id: mediaPlayer
+                Layout.fillWidth: true
+                Layout.leftMargin: 4
+            }
 
-                // ─── Section: System ───
-                RowLayout {
-                    Layout.fillWidth: true
-                    spacing: 0
-
-                    Tui.TuiText {
-                        text: "╭─ "
-                        textColor: Theme.border
-                        font.pixelSize: Theme.fontSizeSmall
-                    }
-                    Tui.TuiText {
-                        text: "system"
-                        textColor: Theme.accentSecondary
-                        font.pixelSize: Theme.fontSizeSmall
-                        font.bold: true
-                    }
-                    Tui.TuiText {
-                        Layout.fillWidth: true
-                        property int charWidth: Math.max(0, Math.floor(width / (Theme.fontSizeSmall * 0.6)) - 3)
-                        text: " " + Theme.boxHorizontal.repeat(charWidth) + "─╮"
-                        textColor: Theme.border
-                        font.pixelSize: Theme.fontSizeSmall
-                        clip: true
-                    }
-                }
-
-                Widgets.SystemStats {
-                    Layout.fillWidth: true
-                    Layout.leftMargin: 4
-                }
-
-                // ─── Section: Media (only if active) ───
-                Tui.TuiText {
-                    visible: mediaPlayer.hasPlayer
-                    Layout.fillWidth: true
-                    property int charWidth: Math.max(1, Math.floor(width / (Theme.fontSizeSmall * 0.6)) - 2)
-                    text: "├" + Theme.boxHorizontal.repeat(charWidth) + "┤"
-                    textColor: Theme.border
-                    font.pixelSize: Theme.fontSizeSmall
-                }
-
-                Widgets.MediaPlayer {
-                    id: mediaPlayer
-                    Layout.fillWidth: true
-                    Layout.leftMargin: 4
-                }
-
-                // ─── Bottom cap ───
-                Tui.TuiText {
-                    Layout.fillWidth: true
-                    property int charWidth: Math.max(1, Math.floor(width / (Theme.fontSizeSmall * 0.6)) - 2)
-                    text: "╰" + Theme.boxHorizontal.repeat(charWidth) + "╯"
-                    textColor: Theme.border
-                    font.pixelSize: Theme.fontSizeSmall
-                }
-
-                // Spacer at bottom
-                Item {
-                    Layout.preferredHeight: Theme.panelPadding
-                }
+            Item {
+                Layout.preferredHeight: Theme.panelPadding
             }
         }
     }
+
+    // Model for the collapsed rail glyphs (status sections that expand in place).
+    readonly property var collapsedRailModel: [
+        { glyph: "󰪤", active: false, target: "workspaces" },
+        { glyph: "󰃰", active: false, target: "date" },
+        { glyph: "󰓅", active: false, target: "system" },
+        { glyph: "󰝚", active: mediaPlayer.hasPlayer, target: "media" }
+    ]
 }

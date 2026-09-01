@@ -10,7 +10,7 @@ import qs.components as Tui
 // TUI aesthetic: centered box with clock, date, password input.
 // Uses PamContext for authentication.
 //
-// Activated via: qs ipc call shell lock
+// Activated via: qs ipc call tui.shell lock
 //
 // Visual when locked:
 //   ╭──────────────────────────╮

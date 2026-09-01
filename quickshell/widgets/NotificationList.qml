@@ -99,6 +99,7 @@ Item {
                         readonly property string appName: modelData.appName || "unknown"
                         readonly property string body: modelData.body || ""
                         readonly property string summary: modelData.summary || ""
+                        readonly property color levelColor: Theme.urgencyColor(modelData.urgency)
 
                         // Background highlight on hover
                         Rectangle {
@@ -124,14 +125,14 @@ Item {
                                 // Dot indicator
                                 Tui.TuiText {
                                     text: Theme.dotFilled
-                                    textColor: Theme.accent
+                                    textColor: notifItem.levelColor
                                     font.pixelSize: Theme.fontSizeSmall
                                 }
 
                                 // App name
                                 Tui.TuiText {
                                     text: notifItem.appName
-                                    textColor: Theme.accent
+                                    textColor: notifItem.levelColor
                                     font.bold: true
                                     font.pixelSize: Theme.fontSizeSmall
                                 }

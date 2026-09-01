@@ -4,14 +4,45 @@ import Quickshell.Io
 import qs.services
 import qs.components as Tui
 
-// Status buttons row — clickable NerdFont icons that trigger the right panel.
-// Each icon opens a different context in the right panel.
-// Active state: accent color + bold. Inactive: textPrimary. Hover: textBright.
+// Status buttons row — the condensed top-bar right cluster.
+// Confirmed set: volume readout (icon + %), network state icon (WiFi or
+// Ethernet), notification bell, and one context-menu button that opens the
+// right panel's "menu" list of every panel.
+// Clicking any item opens that context in the right panel.
 RowLayout {
     id: root
     spacing: Theme.itemSpacing
 
-    // Detect wired connectivity for network icon
+    // ─── Live default-sink volume ────────────────────────────────────
+    property real volume: 0
+    property bool volumeMuted: false
+
+    Process {
+        id: volProc
+        command: ["wpctl", "get-volume", "@DEFAULT_AUDIO_SINK@"]
+        running: true
+
+        stdout: SplitParser {
+            onRead: data => {
+                root.volumeMuted = data.indexOf("[MUTED]") !== -1;
+                const match = data.match(/Volume:\s+([\d.]+)/);
+                if (match) root.volume = parseFloat(match[1]);
+            }
+        }
+
+        onRunningChanged: {
+            if (!running) volPollTimer.start();
+        }
+    }
+
+    Timer {
+        id: volPollTimer
+        interval: 2000
+        repeat: false
+        onTriggered: volProc.running = true
+    }
+
+    // ─── Wired/wireless detection ────────────────────────────────────
     property bool hasEthernet: false
 
     Process {
@@ -43,26 +74,43 @@ RowLayout {
         onTriggered: netCheckProc.running = true
     }
 
-    // Finder / App launcher (opens floating popup)
+    // ─── Volume readout (click opens the volume panel) ────────────────
     Tui.TuiButton {
-        text: "󰍉"
-        fontSize: Theme.fontSizeIcon
-        active: PanelState.finderVisible
-        activeColor: Theme.accent
-        onClicked: PanelState.toggleFinder()
+        text: {
+            const pct = Math.round(root.volume * 100) + "%";
+            const glyph = root.volumeMuted ? "󰖁"
+                : root.volume > 0.66 ? "󰕾"
+                : root.volume > 0.33 ? "󰖀" : "󰕿";
+            return glyph + " " + pct;
+        }
+        fontSize: Theme.fontSizeSmall
+        active: PanelState.rightPanelContext === "volume"
+        activeColor: Theme.utility
+        onClicked: PanelState.openRight("volume")
 
         Layout.alignment: Qt.AlignVCenter
     }
 
-    // Notifications
+    // ─── Network state (WiFi or Ethernet; click opens network) ────────
+    Tui.TuiButton {
+        text: root.hasEthernet ? "󰈀" : "󰖩"
+        fontSize: Theme.fontSizeIcon
+        active: PanelState.rightPanelContext === "wifi"
+        activeColor: Theme.accent
+        onClicked: PanelState.openRight("wifi")
+
+        Layout.alignment: Qt.AlignVCenter
+    }
+
+    // ─── Notifications ────────────────────────────────────────────────
     Tui.TuiButton {
         text: "󰂚"
         fontSize: Theme.fontSizeIcon
         active: PanelState.rightPanelContext === "notifications"
-        activeColor: Theme.nord13
+        activeColor: Theme.warning
         onClicked: PanelState.openRight("notifications")
 
-        // Show dot indicator when notifications exist
+        // Dot indicator when notifications are pending
         Text {
             visible: NotificationManager.count > 0
             anchors.top: parent.top
@@ -78,69 +126,13 @@ RowLayout {
         Layout.alignment: Qt.AlignVCenter
     }
 
-
-    // Keybind cheat-sheet
+    // ─── Context menu (opens the rail menu list) ──────────────────────
     Tui.TuiButton {
-        text: "⌨"
+        text: "☰"
         fontSize: Theme.fontSizeIcon
-        active: PanelState.rightPanelContext === "keybinds"
-        activeColor: Theme.nord15
-        onClicked: PanelState.openRight("keybinds")
-
-        Layout.alignment: Qt.AlignVCenter
-    }
-
-    // Volume control
-    Tui.TuiButton {
-        text: "󰕾"
-        fontSize: Theme.fontSizeIcon
-        active: PanelState.rightPanelContext === "volume"
-        activeColor: Theme.nord7
-        onClicked: PanelState.openRight("volume")
-
-        Layout.alignment: Qt.AlignVCenter
-    }
-
-    // Brightness
-    Tui.TuiButton {
-        text: "󰃟"
-        fontSize: Theme.fontSizeIcon
-        active: PanelState.rightPanelContext === "brightness"
-        activeColor: Theme.nord13
-        onClicked: PanelState.openRight("brightness")
-
-        Layout.alignment: Qt.AlignVCenter
-    }
-
-    // Bluetooth
-    Tui.TuiButton {
-        text: "󰂯"
-        fontSize: Theme.fontSize
-        active: PanelState.rightPanelContext === "bluetooth"
-        activeColor: Theme.nord9
-        onClicked: PanelState.openRight("bluetooth")
-
-        Layout.alignment: Qt.AlignVCenter
-    }
-
-    // Network (WiFi or Ethernet)
-    Tui.TuiButton {
-        text: root.hasEthernet ? "󰈀" : "󰖩"
-        fontSize: Theme.fontSizeIcon
-        active: PanelState.rightPanelContext === "wifi"
-        activeColor: Theme.nord8
-        onClicked: PanelState.openRight("wifi")
-
-        Layout.alignment: Qt.AlignVCenter
-    }
-
-    // Power menu
-    Tui.TuiButton {
-        text: "⏻"
-        fontSize: Theme.fontSizeIcon
-        active: PanelState.rightPanelContext === "power"
-        activeColor: Theme.error
-        onClicked: PanelState.openRight("power")
+        active: PanelState.rightPanelContext === "menu"
+        activeColor: Theme.accentSecondary
+        onClicked: PanelState.openRight("menu")
 
         Layout.alignment: Qt.AlignVCenter
     }

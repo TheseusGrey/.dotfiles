@@ -7,16 +7,9 @@ import qs.services
 import qs.components as Tui
 import qs.widgets as Widgets
 
-// Top status bar — always visible, exclusive zone.
-// Layout: ╭─ workspaces ─╮ │ window  ···  clock │ date ···  vol ⏻ 🔔 🔍 ─╯
-//
-// The bar uses a flat background with TUI separator characters between
-// logical sections. Color is used for visual distinction:
-//   - Workspace dots: accent (focused), primary (occupied), muted (empty)
-//   - Window title: muted (secondary info)
-//   - Clock: bright + bold (primary time)
-//   - Date: accentSecondary (complement clock)
-//   - Status icons: each has its own active color
+// Top status bar — top edge of the TUI frame.
+// Layout: workspaces + title  ···  clock | date  ···  status buttons
+// Frame chrome: single blocky 4px rect border (TuiPanel), no glyph walls.
 PanelWindow {
     id: root
 
@@ -26,31 +19,27 @@ PanelWindow {
 
     implicitHeight: Theme.topPanelHeight
     exclusiveZone: Theme.topPanelHeight
-    color: Theme.bg
+    color: "transparent"
 
     WlrLayershell.layer: WlrLayer.Top
     WlrLayershell.namespace: "shell-top"
 
-    // ─── Bottom border line (subtle separator from desktop) ────────
-    WrapperRectangle {
-        anchors.bottom: parent.bottom
-        anchors.left: parent.left
-        anchors.right: parent.right
-
-        leftMargin: 20
-
-        height: 1
-        color: Theme.border
+    // ─── Frame chrome ────────────────────────────────────────────────
+    Tui.TuiPanel {
+        anchors.fill: parent
+        // Open frame: the screen-side borders (top + the two outside
+        // corners, drawn over by the side rails) are suppressed so the
+        // shell meets the display edge without an outline.
+        borderTop: false
+        borderLeft: false
+        borderRight: false
     }
 
-    // Use independent anchor groups so center is always at true horizontal center
-    // regardless of left/right section widths.
+    // ─── Content overlay ─────────────────────────────────────────────
     Item {
         anchors.fill: parent
-        anchors.leftMargin: Theme.panelPadding
-        anchors.rightMargin: Theme.panelPadding
-        anchors.topMargin: 2
-        anchors.bottomMargin: 2
+        anchors.leftMargin: Theme.borderWidth + Theme.panelPadding
+        anchors.rightMargin: Theme.borderWidth + Theme.panelPadding
 
         // ─── Left section: Workspaces + Window ─────────────────────
         RowLayout {
@@ -58,34 +47,17 @@ PanelWindow {
             anchors.verticalCenter: parent.verticalCenter
             spacing: 6
 
-            // Section open bracket
-            Tui.TuiText {
-                text: Theme.boxTopLeft + Theme.boxHorizontal
-                textColor: Theme.border
-                Layout.alignment: Qt.AlignVCenter
-            }
-
-            // Workspace dots
             Widgets.WorkspaceIndicator {
                 Layout.alignment: Qt.AlignVCenter
             }
 
-            // Separator between workspaces and window title
             Tui.TuiText {
                 text: Theme.separator
-                textColor: Theme.border
+                textColor: Theme.borderFaint
                 Layout.alignment: Qt.AlignVCenter
             }
 
-            // Active window title
             Widgets.ActiveWindow {
-                Layout.alignment: Qt.AlignVCenter
-            }
-
-            // Section close bracket
-            Tui.TuiText {
-                text: Theme.boxHorizontal + Theme.boxTopRight
-                textColor: Theme.border
                 Layout.alignment: Qt.AlignVCenter
             }
         }
@@ -96,34 +68,17 @@ PanelWindow {
             anchors.verticalCenter: parent.verticalCenter
             spacing: 6
 
-            // Section open bracket
-            Tui.TuiText {
-                text: Theme.boxTopLeft + Theme.boxHorizontal
-                textColor: Theme.border
-                Layout.alignment: Qt.AlignVCenter
-            }
-
-            // Clock (bold, bright)
             Widgets.Clock {
                 Layout.alignment: Qt.AlignVCenter
             }
 
-            // Separator
             Tui.TuiText {
                 text: Theme.separator
-                textColor: Theme.border
+                textColor: Theme.borderFaint
                 Layout.alignment: Qt.AlignVCenter
             }
 
-            // Date (accent secondary)
             Widgets.DateWidget {
-                Layout.alignment: Qt.AlignVCenter
-            }
-
-            // Section close bracket
-            Tui.TuiText {
-                text: Theme.boxHorizontal + Theme.boxTopRight
-                textColor: Theme.border
                 Layout.alignment: Qt.AlignVCenter
             }
         }
@@ -134,22 +89,7 @@ PanelWindow {
             anchors.verticalCenter: parent.verticalCenter
             spacing: 6
 
-            // Section open bracket
-            Tui.TuiText {
-                text: Theme.boxTopLeft + Theme.boxHorizontal
-                textColor: Theme.border
-                Layout.alignment: Qt.AlignVCenter
-            }
-
-            // Status icon buttons
             Widgets.StatusButtons {
-                Layout.alignment: Qt.AlignVCenter
-            }
-
-            // Section close bracket
-            Tui.TuiText {
-                text: Theme.boxHorizontal + Theme.boxTopRight
-                textColor: Theme.border
                 Layout.alignment: Qt.AlignVCenter
             }
         }

@@ -1,17 +1,10 @@
 import QtQuick
 import qs.services
+import qs.components as Tui
 
-// TUI-style progress bar using half-block and shade characters.
-// Renders like: ▌▌▌▌▌░░░░░ (50%)
-//
-// Usage:
-//   TuiProgress {
-//       value: 0.65  // 0.0 to 1.0
-//       width: 100
-//   }
-//
-// When used with Layout.fillWidth: true, barLength is computed dynamically
-// from the actual pixel width. Otherwise uses the fixed barLength property.
+// TUI-style progress bar using full/empty block characters.
+// Cell width comes from TuiMetrics so joints align with other chrome.
+// Renders like: █████░░░░░ (50%)
 
 Item {
     id: root
@@ -21,12 +14,9 @@ Item {
     property color filledColor: Theme.accent
     property color emptyColor: Theme.border
 
-    // Compute effective bar length: auto-derive from pixel width, or use fixed
     readonly property int effectiveBarLength: {
         if (root.barLength > 0) return root.barLength;
-        // Estimate characters that fit in current width
-        const charWidth = Theme.fontSize * 0.6;  // approximate monospace char width
-        return Math.max(4, Math.floor(root.width / charWidth));
+        return Math.max(2, Tui.TuiMetrics.colsFor(root.width));
     }
 
     implicitWidth: barText.implicitWidth
@@ -38,8 +28,8 @@ Item {
         font.family: Theme.fontFamily
         font.pixelSize: Theme.fontSize
         verticalAlignment: Text.AlignVCenter
+        horizontalAlignment: Text.AlignLeft
 
-        // Build the bar as rich text for per-character coloring
         textFormat: Text.RichText
         text: {
             const clamped = Math.max(0, Math.min(1, root.value));
@@ -50,7 +40,7 @@ Item {
             let result = "";
             if (filled > 0) {
                 result += `<span style="color:${root.filledColor}">`;
-                result += Theme.blockHalf.repeat(filled);
+                result += Theme.blockFull.repeat(filled);
                 result += "</span>";
             }
             if (empty > 0) {

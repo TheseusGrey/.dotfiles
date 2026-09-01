@@ -7,7 +7,7 @@ import qs.components as Tui
 
 // OSD Overlay — transient popup for volume/brightness changes.
 // Centered on screen, floats above everything, auto-fades after 1.5s.
-// Triggered via IPC: qs ipc call shell osdVolume 0.75
+// Triggered via IPC: qs ipc call tui.shell osdVolume 0.75
 //
 // Visual:
 //   ╭─ 󰕾 volume ──────────────╮

@@ -15,7 +15,7 @@ Text {
     text: Qt.formatDateTime(clock.date, "HH:mm")
     color: Theme.textBright
     font.family: Theme.fontFamily
-    font.pixelSize: Theme.fontSize
+    font.pixelSize: Theme.fontSizeClock
     font.bold: true
     verticalAlignment: Text.AlignVCenter
 }

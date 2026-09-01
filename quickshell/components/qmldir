@@ -7,3 +7,13 @@ TuiButton 1.0 TuiButton.qml
 TuiProgress 1.0 TuiProgress.qml
 TuiSpinner 1.0 TuiSpinner.qml
 TuiDots 1.0 TuiDots.qml
+singleton TuiMetrics 1.0 TuiMetrics.qml
+TuiRule 1.0 TuiRule.qml
+TuiSection 1.0 TuiSection.qml
+TuiRail 1.0 TuiRail.qml
+TuiList 1.0 TuiList.qml
+TuiMenuItem 1.0 TuiMenuItem.qml
+TuiKeyHint 1.0 TuiKeyHint.qml
+TuiInput 1.0 TuiInput.qml
+TuiSlider 1.0 TuiSlider.qml
+TuiToast 1.0 TuiToast.qml
