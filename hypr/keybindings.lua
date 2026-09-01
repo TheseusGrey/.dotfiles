@@ -18,43 +18,43 @@ hl.bind(mainMod .. " + B", hl.dsp.exec_cmd(browser), { description = "Open Brows
 hl.bind(mainMod .. " + E", hl.dsp.exec_cmd(file), { description = "Open File Explorer" })
 hl.bind(mainMod .. " + R", hl.dsp.exec_cmd("~/.dotfiles/setup.sh"), { description = "Re-link dotfiles" })
 
--- Rofi menus
-hl.bind(mainMod .. " + space", hl.dsp.exec_cmd("qs ipc call shell openFinder apps"), { description = "App Launcher" })
+-- Menus
+hl.bind(mainMod .. " + space", hl.dsp.exec_cmd("/home/ashe/.local/bin/qsh finder apps"), { description = "App Launcher" })
 hl.bind(mainMod .. " + C", hl.dsp.exec_cmd("~/.dotfiles/bin/menu_system.sh"), { description = "Controls menu" })
 hl.bind(
 	mainMod .. " + S",
-	hl.dsp.exec_cmd("qs ipc call shell openFinder screenshot"),
+	hl.dsp.exec_cmd("/home/ashe/.local/bin/qsh finder screenshot"),
 	{ description = "Screen Capture menu" }
 )
-hl.bind(mainMod .. " + X", hl.dsp.exec_cmd("rofi -show capture"), { description = "Screen Capture menu" })
+hl.bind(mainMod .. " + X", hl.dsp.exec_cmd("/home/ashe/.local/bin/qsh finder screenshot"), { description = "Screen Capture menu" })
 hl.bind(mainMod .. " + A", hl.dsp.exec_cmd("~/.dotfiles/bin/menu_actions.sh"), { description = "Actions Menu" })
 
 -- Audio control
-hl.bind("F10", hl.dsp.exec_cmd("volumecontrol.sh -o m"), { locked = true, description = "Mute volume" })
+hl.bind("F10", hl.dsp.exec_cmd("~/.dotfiles/bin/volumecontrol.sh -o m"), { locked = true, description = "Mute volume" })
 hl.bind(
 	"F11",
-	hl.dsp.exec_cmd("volumecontrol.sh -o d"),
+	hl.dsp.exec_cmd("~/.dotfiles/bin/volumecontrol.sh -o d"),
 	{ locked = true, repeating = true, description = "Decrease volume" }
 )
 hl.bind(
 	"F12",
-	hl.dsp.exec_cmd("volumecontrol.sh -o i"),
+	hl.dsp.exec_cmd("~/.dotfiles/bin/volumecontrol.sh -o i"),
 	{ locked = true, repeating = true, description = "Increase volume" }
 )
-hl.bind("XF86AudioMute", hl.dsp.exec_cmd("volumecontrol.sh -o m"), { locked = true, description = "Mute volume" })
+hl.bind("XF86AudioMute", hl.dsp.exec_cmd("~/.dotfiles/bin/volumecontrol.sh -o m"), { locked = true, description = "Mute volume" })
 hl.bind(
 	"XF86AudioMicMute",
-	hl.dsp.exec_cmd("volumecontrol.sh -i m"),
+	hl.dsp.exec_cmd("~/.dotfiles/bin/volumecontrol.sh -i m"),
 	{ locked = true, description = "Mute microphone" }
 )
 hl.bind(
 	"XF86AudioLowerVolume",
-	hl.dsp.exec_cmd("volumecontrol.sh -o d"),
+	hl.dsp.exec_cmd("~/.dotfiles/bin/volumecontrol.sh -o d"),
 	{ locked = true, repeating = true, description = "Decrease volume" }
 )
 hl.bind(
 	"XF86AudioRaiseVolume",
-	hl.dsp.exec_cmd("volumecontrol.sh -o i"),
+	hl.dsp.exec_cmd("~/.dotfiles/bin/volumecontrol.sh -o i"),
 	{ locked = true, repeating = true, description = "Increase volume" }
 )
 

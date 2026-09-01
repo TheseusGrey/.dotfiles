@@ -96,8 +96,6 @@ hl.window_rule({ name = "yad", match = { class = "^(yad)$" }, float = true })
 -- █░░ ▄▀█ █▄█ █▀▀ █▀█   █▀█ █░█ █░░ █▀▀ █▀
 -- █▄▄ █▀█ ░█░ ██▄ █▀▄   █▀▄ █▄█ █▄▄ ██▄ ▄█
 
-hl.layer_rule({ name = "rofi", match = { namespace = "rofi" }, no_anim = true })
-
 hl.layer_rule({ name = "notifications-blur", match = { namespace = "notifications" }, blur = true, ignore_alpha = 0 })
 hl.layer_rule({
 	name = "swaync-notification-blur",

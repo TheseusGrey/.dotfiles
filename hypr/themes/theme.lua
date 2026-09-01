@@ -5,31 +5,36 @@
 --  |____|          \______  /|__|   / ____||   __/|__|
 --                         \/        \/     |__|
 
+local matugen = require("themes/matugen_colors")
+
 hl.exec_cmd("gsettings set org.gnome.desktop.interface icon-theme 'Nordzy'")
 hl.exec_cmd("gsettings set org.gnome.desktop.interface gtk-theme 'Nordic-Blue'")
 hl.exec_cmd("gsettings set org.gnome.desktop.interface color-scheme 'prefer-dark'")
 
 hl.config({
 	general = {
-		gaps_in = 0,
-		gaps_out = 0,
-		border_size = 1,
+		gaps_in = 8,
+		gaps_out = 8,
+		border_size = 8,
 		col = {
-			active_border = { colors = { "rgba(F9CE73ee)" }, angle = 45 },
-			-- inactive_border = { colors = { "rgba(2A142Cbb)" } },
+			active_border = { colors = { matugen.active_border }, angle = 45 },
+			inactive_border = { colors = { matugen.inactive_border }, angle = 45 },
 		},
 		layout = "dwindle",
 		resize_on_border = true,
 	},
 	group = {
 		col = {
-			border_active = { colors = { "rgba(ca9ee6ff)", "rgba(f2d5cfff)" }, angle = 45 },
+			border_active = { colors = { matugen.group_border_1, matugen.group_border_2 }, angle = 45 },
 		},
 	},
 	decoration = {
 		rounding = 0,
 		shadow = {
-			enabled = false,
+			enabled = true,
+			range = 2,
+			sharp = true,
+			offset = { 10, 10 },
 		},
 		dim_inactive = true,
 		dim_strength = 0.25,
