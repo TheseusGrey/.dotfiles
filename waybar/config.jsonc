@@ -20,8 +20,8 @@
     "format": "{}",
     "rotate": 0,
     "exec": "echo ; echo  logout",
-    "on-click": "rofi -show system",
-    "on-click-right": "rofi -show system",
+    "on-click": "/home/ashe/.local/bin/qsh panel open power",
+    "on-click-right": "/home/ashe/.local/bin/qsh panel open power",
     "interval" : 86400, // once every day
     "tooltip": true
   },
