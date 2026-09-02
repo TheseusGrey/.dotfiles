@@ -16,6 +16,7 @@ Item {
         { label: "bluetooth",     context: "bluetooth" },
         { label: "notifications", context: "notifications" },
         { label: "keybinds",      context: "keybinds" },
+        { label: "theme",         context: "theme" },
         { label: "power",         context: "power" }
     ]
 

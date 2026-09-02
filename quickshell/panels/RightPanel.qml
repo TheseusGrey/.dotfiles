@@ -32,6 +32,7 @@ PanelWindow {
             case "notifications": return "notifications";
             case "keybinds": return "keybinds";
             case "menu": return "menu";
+            case "theme": return "theme";
             default: return "";
         }
     }
@@ -49,11 +50,20 @@ PanelWindow {
     // shared bottom corner mid-slide). No Behavior on implicitWidth.
 
     // ─── Focus grab: close on click outside ──────────────────────────
+    // Keep the grab active whenever the panel is expanded (don't toggle it off
+    // during theme work — releasing the grab to "protect" it fires onCleared
+    // and closes the panel). Instead, suppress the close while a theme
+    // operation is running (themeProcessRunning, set synchronously on click and
+    // held through a short grace period). A genuine outside-click while no
+    // theme op is running still closes normally.
     HyprlandFocusGrab {
         id: focusGrab
         active: root.isExpanded
         windows: [root]
-        onCleared: PanelState.closeRight()
+        onCleared: {
+            if (PanelState.themeProcessRunning) return;
+            PanelState.closeRight();
+        }
     }
 
     // ─── Frame chrome (bg + blocky border) ─────────────────────────────
@@ -95,11 +105,27 @@ PanelWindow {
             anchors.topMargin: Theme.borderWidth + Theme.panelPadding
             spacing: Theme.itemSpacing
 
-            // ─── Header text inside the border (mirrors finder popup) ───
-            Tui.TuiText {
-                text: root.contextTitle
-                textColor: Theme.titleColor
-                font.bold: true
+            // ─── Header: title + (back to menu) button ────────────────
+            RowLayout {
+                Layout.fillWidth: true
+                spacing: Theme.itemSpacing
+
+                Tui.TuiText {
+                    text: root.contextTitle
+                    textColor: Theme.titleColor
+                    font.bold: true
+                    Layout.fillWidth: true
+                    horizontalAlignment: Text.AlignLeft
+                }
+
+                Tui.TuiButton {
+                    text: "◀ back"
+                    variant: "body"
+                    width: Tui.TuiMetrics.cellWidth * 8
+                    height: Tui.TuiMetrics.lineHeight + Theme.panelPadding
+                    visible: PanelState.rightPanelCanGoBack
+                    onClicked: PanelState.goBackToMenu()
+                }
             }
 
             // ─── Context content ─────────────────────────────────────
@@ -154,19 +180,25 @@ PanelWindow {
                     anchors.fill: parent
                     visible: PanelState.rightPanelContext === "menu"
                 }
+
+                // Theme switcher
+                Widgets.ThemePanel {
+                    anchors.fill: parent
+                    visible: PanelState.rightPanelContext === "theme"
+                }
             }
         }
     }
 
     // Model for the collapsed strip icons: click opens the matching context.
     readonly property var collapsedIconModel: [
-        { glyph: "☰", active: PanelState.rightPanelContext === "menu", target: "menu" },
         { glyph: "󰕾", active: PanelState.rightPanelContext === "volume", target: "volume" },
         { glyph: "󰃟", active: PanelState.rightPanelContext === "brightness", target: "brightness" },
         { glyph: "󰖩", active: PanelState.rightPanelContext === "wifi", target: "wifi" },
         { glyph: "󰂯", active: PanelState.rightPanelContext === "bluetooth", target: "bluetooth" },
         { glyph: "󰂚", active: PanelState.rightPanelContext === "notifications", target: "notifications" },
         { glyph: "⌨", active: PanelState.rightPanelContext === "keybinds", target: "keybinds" },
+        { glyph: "◐", active: PanelState.rightPanelContext === "theme", target: "theme" },
         { glyph: "⏻", active: PanelState.rightPanelContext === "power", target: "power" }
     ]
 }

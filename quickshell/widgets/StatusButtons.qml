@@ -11,7 +11,7 @@ import qs.components as Tui
 // Clicking any item opens that context in the right panel.
 RowLayout {
     id: root
-    spacing: Theme.itemSpacing
+    spacing: 4
 
     // ─── Live default-sink volume ────────────────────────────────────
     property real volume: 0

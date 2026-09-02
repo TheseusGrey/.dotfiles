@@ -58,6 +58,10 @@ Singleton {
             PanelState.openRight("menu");
         }
 
+        function toggleTheme(): void {
+            PanelState.openRight("theme");
+        }
+
         function closeAll(): void {
             PanelState.closeAll();
         }

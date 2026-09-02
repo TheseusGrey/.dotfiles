@@ -199,21 +199,45 @@ Item {
                 root.currentModeIndex = 0;
                 root.currentMode = modes[0];
             }
-            root.updateFilter();
             // Deferred focus: a freshly-shown layer surface needs a compositor
             // round-trip before it can reliably grab the keyboard (the very
-            // first time the finder is opened in particular). Using a short
-            // timer guarantees the search input is able to type immediately.
-            focusTimer.restart();
-            // Some sources (desktop entries scan, hyprctl binds) can land just
-            // as the window appears; re-render once the immediate pass settles.
-            Qt.callLater(root.updateFilter);
+            // first time the finder is opened in particular). forceActiveFocus
+            // is retried until it actually sticks so the input is always
+            // typeable the moment the surface commits.
+            focusAttempts = 0;
+            focusTimer.start();
+            // Population: the async sources (desktop-entry scan, hyprctl binds)
+            // can still be loading on the very first open and land right as the
+            // window appears. Poll briefly until items appear (their own change
+            // signals back this up if the load takes longer), so the list is
+            // never blank when the finder shows.
+            populateAttempts = 0;
+            populateTimer.start();
         } else {
             // Panel closed — if custom mode was active, cancel the request
             if (root.currentMode === "custom" && FinderServer.hasPendingRequest) {
                 FinderServer.resolveCancelled();
             }
             focusTimer.stop();
+            populateTimer.stop();
+        }
+    }
+
+    property int focusAttempts: 0
+    property int populateAttempts: 0
+
+    // Redraws the list while the current mode's source may still be loading,
+    // stopping as soon as items appear (or after a short cap — the mode's own
+    // change signal re-filters if the load is any slower).
+    Timer {
+        id: populateTimer
+        interval: 40
+        repeat: true
+        onTriggered: {
+            root.updateFilter();
+            if (root.filteredItems.length > 0 || ++root.populateAttempts >= 10) {
+                stop();
+            }
         }
     }
 
@@ -221,9 +245,17 @@ Item {
     // the layer surface is fully committed (fixes first-open focus misses).
     Timer {
         id: focusTimer
-        interval: 30
+        interval: 25
         repeat: false
-        onTriggered: searchInput.forceActiveFocus()
+        onTriggered: {
+            if (searchInput.activeFocus) return;
+            searchInput.forceActiveFocus();
+            // Keep trying for a short window — a freshly mapped layer surface
+            // may not accept the keyboard grab on its first attempt.
+            if (!searchInput.activeFocus && root.focusAttempts++ < 8 && root.visible) {
+                focusTimer.restart();
+            }
+        }
     }
 
     // ─── fzf-equivalent fuzzy matching ───────────────────────────────

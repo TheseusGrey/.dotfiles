@@ -3,7 +3,7 @@
 -- Consumed by hypr/themes/theme.lua via require("themes/matugen_colors").
 
 local colors = {
-	active_border = "rgba({{ colors.primary.default.hex_stripped }}ee)",
+	active_border = "rgba({{ colors.outline.default.hex_stripped }}ee)",
 	inactive_border = "rgba({{ colors.surface_variant.default.hex_stripped }}ee)",
 	group_border_1 = "rgba({{ colors.tertiary.default.hex_stripped }}ee)",
 	group_border_2 = "rgba({{ colors.secondary.default.hex_stripped }}ee)",

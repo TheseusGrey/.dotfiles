@@ -20,7 +20,7 @@ hl.bind(mainMod .. " + R", hl.dsp.exec_cmd("~/.dotfiles/setup.sh"), { descriptio
 
 -- Menus
 hl.bind(mainMod .. " + space", hl.dsp.exec_cmd("/home/ashe/.local/bin/qsh finder apps"), { description = "App Launcher" })
-hl.bind(mainMod .. " + C", hl.dsp.exec_cmd("~/.dotfiles/bin/menu_system.sh"), { description = "Controls menu" })
+hl.bind(mainMod .. " + C", hl.dsp.exec_cmd("/home/ashe/.local/bin/qsh panel open theme"), { description = "Theme switcher" })
 hl.bind(
 	mainMod .. " + S",
 	hl.dsp.exec_cmd("/home/ashe/.local/bin/qsh finder screenshot"),

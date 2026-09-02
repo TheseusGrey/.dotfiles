@@ -19,3 +19,5 @@ SystemStats 1.0 SystemStats.qml
 MediaPlayer 1.0 MediaPlayer.qml
 ContextMenu 1.0 ContextMenu.qml
 FooterHints 1.0 FooterHints.qml
+WallpaperThumb 1.0 WallpaperThumb.qml
+ThemePanel 1.0 ThemePanel.qml

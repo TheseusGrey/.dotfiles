@@ -107,8 +107,17 @@ The available commands are:
 | `qsh notify clear` | Clear all notifications. |
 | `qsh lock` | Show the lock screen. |
 | `qsh pick [--items a,b,c] [--prompt text]` | Start the interactive picker. Make a selection and print it to the standard output. |
-| `qsh wallpaper <image>` | Generate the theme from a wallpaper image and set the wallpaper. |
-| `qsh theme <preset\|json-file>` | Apply a fixed theme preset. The preset choices are `default` and `catppuccin`. You can also give the path of a matugen colors JSON file. |
+| `qsh wallpaper <image> [--index N] [--scheme T]` | Set the wallpaper (via hyprpaper), regenerate the theme from it, and remember it. Accepts a full path or a short name matching a file in `wallpapers/`. `--index N` overrides which source colour matugen uses (0 = most dominant, the default). `--scheme T` overrides the material scheme type. |
+| `qsh colors <image>` | Diagnose theming: print matugen's candidate source colours, then the palette each `--source-color-index` would produce so you can pick one. |
+| `qsh sync on\|off` | Toggle whether colours track the wallpaper. `on` re-derives from the current wallpaper; `off` reverts to the last manual preset (or a black-white fallback). |
+| `qsh scheme <type>` | Persist the matugen material scheme type (`scheme-expressive`, `scheme-fidelity`, ...) and regenerate the theme from the current wallpaper with it. |
+| `qsh wallpapers` | List available wallpapers (basenames, one per line). |
+| `qsh accent <image>` | Print the derived palette (bg, primary, secondary, tertiary) for a wallpaper without applying it. |
+| `qsh theme <preset\|json-file>` | Apply a fixed theme preset. Accepts a preset name from `matugen/presets/` or the path of a matugen colors JSON file. |
+| `qsh themes` | List available theme presets (names, one per line). |
+| `qsh settings get <key>` | Print a persisted setting (blank if unset). |
+| `qsh settings set <key> <value>` | Persist a setting to `settings.json`. |
+| `qsh settings unset <key>` | Remove a persisted setting. |
 | `qsh call <target> <method> [args...]` | Send a raw IPC call. |
 | `qsh help` | Show the command reference. |
 | `qsh version` | Show the version number. |
@@ -155,6 +164,7 @@ The methods of this target are:
 | `toggleNotifications` | Open the notifications panel. |
 | `toggleKeybinds` | Open the keybind panel. |
 | `toggleMenu` | Open the context menu. |
+| `toggleTheme` | Open the theme switcher panel. |
 | `dismissNotifications` | Clear all notifications. |
 | `osdVolume <level> <muted>` | Show the volume OSD. |
 | `osdBrightness <level>` | Show the brightness OSD. |
@@ -198,6 +208,12 @@ The preset choices are:
 
 - `default` — the fallback palette of this config.
 - `catppuccin` — the catppuccin mocha palette.
+- `oxide` — warm dark earthy palette.
+- `nordic` — the nordic.nvim cold blue-dark palette.
+- `monokai` — the Monokai palette.
+- `solarized-dark` — the Solarized dark palette.
+- `blackwhite` — pure monochrome, no colour accents.
+- `blackwhite-accent` — monochrome bases with colour accents for accents like notifications.
 
 You can add more presets.
 Create a JSON file in `matugen/presets/` and use this form:
@@ -208,6 +224,58 @@ qsh theme <file>.json
 
 A preset does not set the wallpaper.
 It only changes the palette and reloads Hyprland and Waybar.
+
+### Theme switcher panel
+
+The right-panel context `theme` is a graphical theme switcher. Reach it from the
+context menu (`☰`), the right rail (`◐` glyph), or directly with the keybind
+`SUPER + C` (which is bound to `qsh panel open theme`).
+
+In the panel you can:
+
+- Pick a **background image**: each available wallpaper in `wallpapers/` is
+  shown as a small 16:9 preview with a bar of the four colours it would derive.
+  Clicking one applies it to **hyprpaper immediately** (it also preloads every
+  wallpaper at startup so switching is instant) and runs `qsh wallpaper <name>`.
+- Toggle **"sync colours to wallpaper"**. When on, colours always track the
+  current wallpaper (`qsh sync on`). When off, the colour scheme stays as you
+  last picked it from the dropdown (`qsh sync off`).
+- When not syncing, pick a **colour scheme** from a dropdown of the presets
+  above (this runs `qsh theme <name>`). That choice is remembered, so turning
+  sync back off reverts to it; until you pick one, a black-white scheme is used
+  as the fallback.
+- **Open folder**: an "open folder" button next to the "background" heading
+  opens `wallpapers/` in your default file manager (`xdg-open`), so you can drop
+  new images in without leaving the panel.
+- **Auto-refresh**: while the panel is open it re-enumerates the folder every
+  ~3s. Dropping a new image in — or deleting one — updates the grid automatically
+  (the model only changes when the file list actually changes, so it never
+  flashes).
+
+The panel stays open after applying so you can see the result; colours
+hot-reload through the existing shell wiring.
+
+When a wallpaper is picked it is set as the live background. `qsh wallpaper`
+owns hyprpaper changes: it rewrites `hypr/hyprpaper.conf` (preloading every
+image so any can be applied via IPC) and, if the chosen image wasn't already
+loaded, restarts hyprpaper to pick up the new preload.
+
+### Persisted settings
+
+`qsh settings` reads and writes a single dedicated settings file at
+`~/.config/quickshell/settings.json`. It is a flat JSON object of key/value
+string pairs. The file is written atomically, so it survives crashes and can be
+read or written by other tools too.
+
+Known keys:
+
+- `theme.syncedToWallpaper` — `"true"` or `"false"`. Controls whether the theme
+  switcher derives colours from the current wallpaper (true) or uses a preset
+  (false). Persisted so the choice survives a shell restart.
+- `theme.wallpaper` — absolute path of the last wallpaper chosen. Used by `qsh
+  sync on` to re-derive colours from it.
+- `theme.preset` — name of the last manually chosen colour scheme, so turning
+  sync off reverts to it.
 
 ## Useful notes
 

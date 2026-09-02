@@ -1,25 +1,40 @@
 # matugen 4.2 — wallpaper-driven theme
 # ------------------------------------
-# Generates one palette and renders it into three targets (all inside the
+# Generates one palette and renders it into several targets (all inside the
 # dotfiles repo; the live configs are symlinked, so this stays in sync):
 #   outputs/quickshell/services/Colors.qml  → shell palette (Colors.qml)
 #   hypr/themes/matugen_colors.lua          → hyprland borders
 #   waybar/colors.css                       → waybar palette
+#   obsidian css snippets                   → Obsidian vault theme
+#   zen userChrome.css                      → Zen browser chrome
+#   steam libraryroot.custom.css            → Steam library UI
+#   prism theme.json + themeStyle.css       → Prism Launcher theme
 #
 # Run it with:
 #   matugen image <wallpaper>     or     qsh wallpaper <wallpaper>
+# (qsh owns hyprpaper changes, so matugen's own wallpaper side-effects are
+#  disabled below to avoid a broken / duplicate preload+set on the IPC.)
 
 [config]
 mode = "dark"
 contrast = 0.0
-# Non-interactive source-color choice (qsh wallpaper runs headless).
-prefer = "closest-to-fallback"
-fallback_color = "#FAFAFA"
+# How the source colour is chosen from the image.
+# source_color_index 0 = most dominant colour — keeps each wallpaper's own
+# identity (a bright teal image stays teal, a deep purple one stays purple).
+# Use `qsh colors <image>` to see the candidates and other options.
+# (Previously this used prefer = "closest-to-fallback" + fallback_color, which
+#  dragged every image toward a near-white source and made unrelated images
+#  produce near-identical schemes.)
+source_color_index = 0
 
 [config.wallpaper]
-set = true
-pre_hook = 'hyprctl hyprpaper preload {{ image }}'
-command = 'hyprctl hyprpaper wallpaper ,{{ image }}'
+# hyprpaper switching is handled by qsh (rewrites hypr/hyprpaper.conf and uses
+# the IPC this build supports). matugen must not touch the wallpaper itself, so
+# set=false disables it; the command field is still required by matugen but is
+# never run because set=false.
+set = false
+pre_hook = ''
+command = 'true'
 
 [templates.quickshell]
 input_path = '~/.config/matugen/templates/colors.qml'
@@ -34,3 +49,32 @@ post_hook = 'hyprctl reload'
 input_path = '~/.config/matugen/templates/waybar-colors.css'
 output_path = '/home/ashe/.dotfiles/waybar/colors.css'
 post_hook = 'pkill -SIGUSR2 waybar'
+
+[templates.obsidian-lore]
+input_path = '~/.config/matugen/templates/obsidian.css'
+output_path = '/home/ashe/Documents/Lore Store/.obsidian/snippets/matugen.css'
+post_hook = '/home/ashe/.dotfiles/bin/matugen-notify.sh obsidian'
+
+[templates.obsidian-lore-backup]
+input_path = '~/.config/matugen/templates/obsidian.css'
+output_path = '/home/ashe/Documents/Lore Store Backup/.obsidian/snippets/matugen.css'
+post_hook = '/home/ashe/.dotfiles/bin/matugen-notify.sh obsidian'
+
+[templates.zen]
+input_path = '~/.config/matugen/templates/zen-userchrome.css'
+output_path = '/home/ashe/.zen/wenh0vy4.Default (release)/chrome/userChrome.css'
+post_hook = '/home/ashe/.dotfiles/bin/matugen-notify.sh zen-browser'
+
+[templates.steam]
+input_path = '~/.config/matugen/templates/steam-custom.css'
+output_path = '/home/ashe/.steam/steam/steamui/libraryroot.custom.css'
+post_hook = '/home/ashe/.dotfiles/bin/matugen-notify.sh steam'
+
+[templates.prism]
+input_path = '~/.config/matugen/templates/prism-theme.json'
+output_path = '/home/ashe/.local/share/PrismLauncher/themes/matugen/theme.json'
+post_hook = '/home/ashe/.dotfiles/bin/matugen-notify.sh prismlauncher'
+
+[templates.prism-style]
+input_path = '~/.config/matugen/templates/prism-style.css'
+output_path = '/home/ashe/.local/share/PrismLauncher/themes/matugen/themeStyle.css'
