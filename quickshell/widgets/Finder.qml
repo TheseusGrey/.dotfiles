@@ -66,9 +66,20 @@ Item {
     // localization, and desktop actions per the freedesktop spec.
     readonly property bool appsLoaded: DesktopEntries.applications.values.length > 0
 
+    // The desktop-entry scan is asynchronous, so a signal can land right as
+    // the finder opens (or before the widget was fully wired up). Re-filter
+    // whenever the application set changes AND after showing, in case the
+    // scan completed between the initial load and the first visible change.
     Connections {
         target: DesktopEntries
         function onApplicationsChanged() {
+            if (root.currentMode === "apps") root.updateFilter();
+        }
+    }
+
+    Connections {
+        target: DesktopEntries.applications
+        function onValuesChanged() {
             if (root.currentMode === "apps") root.updateFilter();
         }
     }
@@ -168,7 +179,7 @@ Item {
             if (root.visible) {
                 searchInput.text = "";
                 root.updateFilter();
-                searchInput.forceActiveFocus();
+                focusTimer.start();
             }
         }
     }
@@ -189,13 +200,30 @@ Item {
                 root.currentMode = modes[0];
             }
             root.updateFilter();
-            searchInput.forceActiveFocus();
+            // Deferred focus: a freshly-shown layer surface needs a compositor
+            // round-trip before it can reliably grab the keyboard (the very
+            // first time the finder is opened in particular). Using a short
+            // timer guarantees the search input is able to type immediately.
+            focusTimer.restart();
+            // Some sources (desktop entries scan, hyprctl binds) can land just
+            // as the window appears; re-render once the immediate pass settles.
+            Qt.callLater(root.updateFilter);
         } else {
             // Panel closed — if custom mode was active, cancel the request
             if (root.currentMode === "custom" && FinderServer.hasPendingRequest) {
                 FinderServer.resolveCancelled();
             }
+            focusTimer.stop();
         }
+    }
+
+    // Deferred keyboard focus so the input is guaranteed typeable the moment
+    // the layer surface is fully committed (fixes first-open focus misses).
+    Timer {
+        id: focusTimer
+        interval: 30
+        repeat: false
+        onTriggered: searchInput.forceActiveFocus()
     }
 
     // ─── fzf-equivalent fuzzy matching ───────────────────────────────

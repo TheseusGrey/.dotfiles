@@ -36,16 +36,19 @@ PanelWindow {
     }
 
     // ─── Content overlay ─────────────────────────────────────────────
+    // Left/right margins match the side rails' own content inset
+    // (Theme.borderWidth) so the top bar's outer sections line up with the
+    // icons inside the collapsed left/right rails, not the rail frame edges.
     Item {
         anchors.fill: parent
         anchors.leftMargin: Theme.borderWidth + Theme.panelPadding
-        anchors.rightMargin: Theme.borderWidth + Theme.panelPadding
+        anchors.rightMargin: Theme.borderWidth
 
         // ─── Left section: Workspaces + Window ─────────────────────
         RowLayout {
             anchors.left: parent.left
             anchors.verticalCenter: parent.verticalCenter
-            spacing: 6
+            spacing: 2
 
             Widgets.WorkspaceIndicator {
                 Layout.alignment: Qt.AlignVCenter
@@ -63,23 +66,40 @@ PanelWindow {
         }
 
         // ─── Center section: Clock + Date (always truly centered) ───
-        RowLayout {
+        Item {
             anchors.horizontalCenter: parent.horizontalCenter
             anchors.verticalCenter: parent.verticalCenter
-            spacing: 6
+            width: centerRow.implicitWidth
+            height: centerRow.implicitHeight
 
-            Widgets.Clock {
-                Layout.alignment: Qt.AlignVCenter
+            // Hovering the date+time opens the popup. Closing is owned by the
+            // popup's own band (gap + popup) so this never races with it.
+            HoverHandler {
+                id: centerHover
+                onHoveredChanged: {
+                    if (hovered)
+                        PanelState.datePopupVisible = true;
+                }
             }
 
-            Tui.TuiText {
-                text: Theme.separator
-                textColor: Theme.borderFaint
-                Layout.alignment: Qt.AlignVCenter
-            }
+            RowLayout {
+                id: centerRow
+                anchors.centerIn: parent
+                spacing: 6
 
-            Widgets.DateWidget {
-                Layout.alignment: Qt.AlignVCenter
+                Widgets.Clock {
+                    Layout.alignment: Qt.AlignVCenter
+                }
+
+                Tui.TuiText {
+                    text: Theme.separator
+                    textColor: Theme.borderFaint
+                    Layout.alignment: Qt.AlignVCenter
+                }
+
+                Widgets.DateWidget {
+                    Layout.alignment: Qt.AlignVCenter
+                }
             }
         }
 

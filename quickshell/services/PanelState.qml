@@ -21,6 +21,9 @@ Singleton {
     // Whether the floating Finder popup is visible
     property bool finderVisible: false
 
+    // Whether the date hover popup is visible
+    property bool datePopupVisible: false
+
     // Whether left panel is expanded
     property bool leftExpanded: false
 
@@ -102,5 +105,10 @@ Singleton {
         rightPanelContext = "";
         leftExpanded = false;
         finderVisible = false;
+        datePopupVisible = false;
+    }
+
+    function closeDatePopup() {
+        datePopupVisible = false;
     }
 }

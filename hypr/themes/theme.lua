@@ -14,7 +14,7 @@ hl.exec_cmd("gsettings set org.gnome.desktop.interface color-scheme 'prefer-dark
 hl.config({
 	general = {
 		gaps_in = 8,
-		gaps_out = 8,
+		gaps_out = 16,
 		border_size = 8,
 		col = {
 			active_border = { colors = { matugen.active_border }, angle = 45 },

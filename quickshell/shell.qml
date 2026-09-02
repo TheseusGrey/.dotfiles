@@ -20,6 +20,7 @@ ShellRoot {
     Panels.RightPanel {}
     Panels.BottomBorder {}
     Panels.FinderPopup {}
+    Panels.DatePopup {}
     Panels.NotificationPopup {}
     Panels.OsdOverlay {}
     Panels.LockScreen {}

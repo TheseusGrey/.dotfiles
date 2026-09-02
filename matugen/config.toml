@@ -14,7 +14,7 @@ mode = "dark"
 contrast = 0.0
 # Non-interactive source-color choice (qsh wallpaper runs headless).
 prefer = "closest-to-fallback"
-fallback_color = "#F0C674"
+fallback_color = "#FAFAFA"
 
 [config.wallpaper]
 set = true

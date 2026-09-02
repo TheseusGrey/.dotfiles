@@ -2,13 +2,14 @@ import QtQuick
 import qs.services
 import qs.components as Tui
 
-// TuiSlider — block progress bar that is click/drag adjustable over 0..1.
-// Uses TuiProgress for rendering and a MouseArea for interaction.
+// TuiSlider — interactive progress bar adjustable via click, drag, or scroll.
+// Wraps TuiProgress for rendering; MouseArea handles interaction.
+// Hover dims the empty track to signal interactivity.
 //
 // Usage:
 //   TuiSlider {
 //       value: 0.65
-//       onValueChanged: ...
+//       onValueCommitted: v => { /* persist */ }
 //   }
 
 Item {
@@ -18,19 +19,20 @@ Item {
     property color filledColor: Theme.accent
     property color emptyColor: Theme.border
     property int barLength: -1
-    property bool liveDrag: true   // update value during drag (else on release)
+    property bool liveDrag: true
 
     signal valueCommitted(real v)
 
+    readonly property bool hovered: mouse.containsMouse
+
     implicitHeight: Tui.TuiMetrics.lineHeight
-    implicitWidth: barText.implicitWidth
+    implicitWidth: 100
 
     Tui.TuiProgress {
-        id: barText
         anchors.fill: parent
         value: root.value
         filledColor: root.filledColor
-        emptyColor: root.emptyColor
+        emptyColor: root.hovered ? Qt.lighter(root.emptyColor, 1.3) : root.emptyColor
         barLength: root.barLength
     }
 
@@ -43,20 +45,13 @@ Item {
         function valueFromX(x) {
             const w = root.width;
             if (w <= 0) return 0;
-            const b = (root.barLength > 0)
-                ? root.barLength * Tui.TuiMetrics.cellWidth
-                : w;
-            const local = Math.max(0, Math.min(x, b));
-            return Math.max(0, Math.min(1, local / w));
+            return Math.max(0, Math.min(1, x / w));
         }
 
         onPressed: event => {
-            if (!root.liveDrag) {
-                root.value = mouse.valueFromX(event.x);
-            } else {
-                root.value = mouse.valueFromX(event.x);
+            root.value = mouse.valueFromX(event.x);
+            if (!root.liveDrag)
                 root.valueCommitted(root.value);
-            }
         }
 
         onPositionChanged: event => {
@@ -66,10 +61,9 @@ Item {
             }
         }
 
-        onReleased: event => {
-            if (!root.liveDrag) {
+        onReleased: {
+            if (!root.liveDrag)
                 root.valueCommitted(root.value);
-            }
         }
 
         onWheel: wheel => {

@@ -34,6 +34,9 @@ PanelWindow {
 
     WlrLayershell.layer: WlrLayer.Overlay
     WlrLayershell.namespace: "shell-finder"
+    // Hold exclusive keyboard focus while visible so the search input keeps
+    // the ability to type for as long as the finder is on screen.
+    WlrLayershell.keyboardFocus: WlrKeyboardFocus.Exclusive
 
     readonly property int finderWidth: 560
     readonly property int finderHeight: 460

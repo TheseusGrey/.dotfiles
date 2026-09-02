@@ -330,27 +330,16 @@ Item {
                 font.pixelSize: Theme.fontSizeLarge
             }
 
-            // Volume progress bar
-            Tui.TuiProgress {
+            Tui.TuiSlider {
                 Layout.fillWidth: true
                 value: root.defaultVolume
                 filledColor: root.defaultMuted ? Theme.textMuted : Theme.nord7
+                onValueCommitted: v => root.setVolume(Math.round(v * 100))
             }
 
             Tui.TuiText {
                 text: Math.round(root.defaultVolume * 100) + "%"
                 textColor: root.defaultMuted ? Theme.textMuted : Theme.textPrimary
-            }
-
-            // Scroll wheel adjustment overlay
-            MouseArea {
-                Layout.fillWidth: true
-                propagateComposedEvents: true
-                onWheel: wheel => {
-                    const delta = wheel.angleDelta.y > 0 ? 5 : -5;
-                    const newVol = Math.max(0, Math.min(100, Math.round(root.defaultVolume * 100) + delta));
-                    root.setVolume(newVol);
-                }
             }
         }
 
@@ -446,27 +435,16 @@ Item {
                 font.pixelSize: Theme.fontSizeLarge
             }
 
-            // Input volume progress bar
-            Tui.TuiProgress {
+            Tui.TuiSlider {
                 Layout.fillWidth: true
                 value: root.defaultInputVolume
                 filledColor: root.defaultInputMuted ? Theme.textMuted : Theme.nord9
+                onValueCommitted: v => root.setInputVolume(Math.round(v * 100))
             }
 
             Tui.TuiText {
                 text: Math.round(root.defaultInputVolume * 100) + "%"
                 textColor: root.defaultInputMuted ? Theme.textMuted : Theme.textPrimary
-            }
-
-            // Scroll wheel adjustment for input
-            MouseArea {
-                Layout.fillWidth: true
-                propagateComposedEvents: true
-                onWheel: wheel => {
-                    const delta = wheel.angleDelta.y > 0 ? 5 : -5;
-                    const newVol = Math.max(0, Math.min(100, Math.round(root.defaultInputVolume * 100) + delta));
-                    root.setInputVolume(newVol);
-                }
             }
         }
 

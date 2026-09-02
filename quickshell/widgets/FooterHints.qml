@@ -79,58 +79,46 @@ Item {
     readonly property bool showingSuperGroup: root.activeHints.length === 0
 
     RowLayout {
-        anchors.fill: parent
+        id: topRow
+        anchors.left: parent.left
+        anchors.verticalCenter: parent.verticalCenter
         spacing: Tui.TuiMetrics.cellWidth * 0.75
         clip: true
 
-        // ─── SUPER group: shared [SUPER] label + inline entries ───────
-        RowLayout {
+        // ─── SUPER group: shared [SUPER] chip + inline key·label ─────
+        Tui.TuiKeyHint {
             visible: root.showingSuperGroup
-            spacing: Tui.TuiMetrics.cellWidth * 0.75
-
-            Tui.TuiKeyHint {
-                key: "SUPER"
-                label: ""
-            }
-
-            Repeater {
-                model: root.superGroup
-
-                RowLayout {
-                    required property var modelData
-                    spacing: Tui.TuiMetrics.cellWidth * 0.4
-
-                    Tui.TuiText {
-                        text: modelData.key
-                        textColor: Theme.accent
-                        variant: "small"
-                        font.bold: true
-                    }
-
-                    Tui.TuiText {
-                        text: "·"
-                        textColor: Theme.border
-                        variant: "small"
-                    }
-
-                    Tui.TuiText {
-                        text: modelData.label
-                        textColor: Theme.textMuted
-                        variant: "small"
-                    }
-                }
-            }
+            key: "SUPER"
+            label: ""
         }
 
-        // ─── Active context: plain chip row ────────────────────────────
+        // ─── Entries (both idle SUPER group and context states render
+        //      through the same chip style: accent key · muted label).
         Repeater {
-            visible: !root.showingSuperGroup
-            model: root.activeHints
+            model: root.showingSuperGroup ? root.superGroup : root.activeHints
 
-            Tui.TuiKeyHint {
+            RowLayout {
                 required property var modelData
-                key: modelData.key
-                label: modelData.label
+                spacing: Tui.TuiMetrics.cellWidth * 0.4
+
+                Tui.TuiText {
+                    text: modelData.key
+                    textColor: Theme.accent
+                    variant: "small"
+                    font.bold: true
+                }
+
+                Tui.TuiText {
+                    text: "·"
+                    textColor: Theme.border
+                    variant: "small"
+                }
+
+                Tui.TuiText {
+                    text: modelData.label
+                    textColor: Theme.textMuted
+                    variant: "small"
+                }
             }
         }
     }

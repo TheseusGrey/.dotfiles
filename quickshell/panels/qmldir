@@ -8,3 +8,4 @@ NotificationPopup 1.0 NotificationPopup.qml
 OsdOverlay 1.0 OsdOverlay.qml
 LockScreen 1.0 LockScreen.qml
 FinderPopup 1.0 FinderPopup.qml
+DatePopup 1.0 DatePopup.qml

@@ -2,53 +2,35 @@ import QtQuick
 import qs.services
 import qs.components as Tui
 
-// TUI-style progress bar using full/empty block characters.
-// Cell width comes from TuiMetrics so joints align with other chrome.
-// Renders like: █████░░░░░ (50%)
+// TUI-style progress bar — sharp-cornered rect bar, cell-height aligned.
+// Filled portion is a foreground Rectangle over a background Rectangle.
+// barLength is kept for API compat but ignored (bar fills available width).
 
 Item {
     id: root
 
     property real value: 0.0  // 0.0 to 1.0
-    property int barLength: -1  // -1 = auto from width, >0 = fixed character count
+    property int barLength: -1  // kept for API compat, unused
     property color filledColor: Theme.accent
     property color emptyColor: Theme.border
 
-    readonly property int effectiveBarLength: {
-        if (root.barLength > 0) return root.barLength;
-        return Math.max(2, Tui.TuiMetrics.colsFor(root.width));
+    implicitWidth: 100
+    implicitHeight: Tui.TuiMetrics.lineHeight
+
+    // Background track
+    Rectangle {
+        anchors.fill: parent
+        radius: 0
+        color: root.emptyColor
     }
 
-    implicitWidth: barText.implicitWidth
-    implicitHeight: barText.implicitHeight
-
-    Text {
-        id: barText
-        anchors.fill: parent
-        font.family: Theme.fontFamily
-        font.pixelSize: Theme.fontSize
-        verticalAlignment: Text.AlignVCenter
-        horizontalAlignment: Text.AlignLeft
-
-        textFormat: Text.RichText
-        text: {
-            const clamped = Math.max(0, Math.min(1, root.value));
-            const len = root.effectiveBarLength;
-            const filled = Math.round(clamped * len);
-            const empty = len - filled;
-
-            let result = "";
-            if (filled > 0) {
-                result += `<span style="color:${root.filledColor}">`;
-                result += Theme.blockFull.repeat(filled);
-                result += "</span>";
-            }
-            if (empty > 0) {
-                result += `<span style="color:${root.emptyColor}">`;
-                result += Theme.blockEmpty.repeat(empty);
-                result += "</span>";
-            }
-            return result;
-        }
+    // Filled portion
+    Rectangle {
+        anchors.top: parent.top
+        anchors.bottom: parent.bottom
+        anchors.left: parent.left
+        width: parent.width * Math.max(0, Math.min(1, root.value))
+        radius: 0
+        color: root.filledColor
     }
 }

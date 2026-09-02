@@ -171,31 +171,16 @@ Item {
                 font.pixelSize: Theme.fontSizeLarge
             }
 
-            // Brightness progress bar
-            Tui.TuiProgress {
+            Tui.TuiSlider {
                 Layout.fillWidth: true
                 value: root.currentBrightness
                 filledColor: Theme.nord13
+                onValueCommitted: v => root.setBrightness(Math.round(v * 100))
             }
 
             Tui.TuiText {
                 text: root.currentPercent + "%"
                 textColor: Theme.textPrimary
-            }
-        }
-
-        // Scroll wheel overlay for the entire brightness row
-        MouseArea {
-            Layout.fillWidth: true
-            Layout.preferredHeight: brightnessRow.implicitHeight
-            Layout.topMargin: -brightnessRow.implicitHeight - Theme.itemSpacing
-            z: 10
-            propagateComposedEvents: true
-            acceptedButtons: Qt.NoButton  // don't eat clicks
-            onWheel: wheel => {
-                const delta = wheel.angleDelta.y > 0 ? 5 : -5;
-                const newBright = Math.max(1, Math.min(100, root.currentPercent + delta));
-                root.setBrightness(newBright);
             }
         }
 
