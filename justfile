@@ -25,3 +25,5 @@ nvim-test-file file:
 build-qsh:
   go build -trimpath -ldflags="-s -w" -o {{ home_directory() }}/.local/bin/qsh quickshell/scripts/qsh.go
 
+system-setup:
+  xdg-mime default yazi.desktop inode/directory
