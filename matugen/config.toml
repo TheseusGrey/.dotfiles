@@ -39,41 +39,37 @@ command = 'true'
 [templates.quickshell]
 input_path = '~/.config/matugen/templates/colors.qml'
 output_path = '/home/ashe/.dotfiles/quickshell/services/Colors.qml'
+post_hook = '~/.dotfiles/bin/matugen-notify.sh'
 
 [templates.hyprland]
 input_path = '~/.config/matugen/templates/hypr-colors.lua'
 output_path = '/home/ashe/.dotfiles/hypr/themes/matugen_colors.lua'
 post_hook = 'hyprctl reload'
 
-[templates.waybar]
-input_path = '~/.config/matugen/templates/waybar-colors.css'
-output_path = '/home/ashe/.dotfiles/waybar/colors.css'
-post_hook = 'pkill -SIGUSR2 waybar'
+# [templates.waybar]
+# input_path = '~/.config/matugen/templates/waybar-colors.css'
+# output_path = '/home/ashe/.dotfiles/waybar/colors.css'
+# post_hook = 'pkill -SIGUSR2 waybar'
 
 [templates.obsidian-lore]
 input_path = '~/.config/matugen/templates/obsidian.css'
 output_path = '/home/ashe/Documents/Lore Store/.obsidian/snippets/matugen.css'
-post_hook = '/home/ashe/.dotfiles/bin/matugen-notify.sh obsidian'
 
 [templates.obsidian-lore-backup]
 input_path = '~/.config/matugen/templates/obsidian.css'
 output_path = '/home/ashe/Documents/Lore Store Backup/.obsidian/snippets/matugen.css'
-post_hook = '/home/ashe/.dotfiles/bin/matugen-notify.sh obsidian'
 
 [templates.zen]
 input_path = '~/.config/matugen/templates/zen-userchrome.css'
 output_path = '/home/ashe/.zen/wenh0vy4.Default (release)/chrome/userChrome.css'
-post_hook = '/home/ashe/.dotfiles/bin/matugen-notify.sh zen-browser'
 
 [templates.steam]
 input_path = '~/.config/matugen/templates/steam-custom.css'
 output_path = '/home/ashe/.steam/steam/steamui/libraryroot.custom.css'
-post_hook = '/home/ashe/.dotfiles/bin/matugen-notify.sh steam'
 
 [templates.prism]
 input_path = '~/.config/matugen/templates/prism-theme.json'
 output_path = '/home/ashe/.local/share/PrismLauncher/themes/matugen/theme.json'
-post_hook = '/home/ashe/.dotfiles/bin/matugen-notify.sh prismlauncher'
 
 [templates.prism-style]
 input_path = '~/.config/matugen/templates/prism-style.css'
