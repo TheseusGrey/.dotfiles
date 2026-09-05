@@ -217,6 +217,19 @@ wk.setup({
   },
 })
 
+vim.keymap.set("n", "<C-h>", function()
+  require("kitty-navigator").navigateLeft()
+end, { desc = "Move left a split" })
+vim.keymap.set("n", "<C-j>", function()
+  require("kitty-navigator").navigateDown()
+end, { desc = "Move down a split" })
+vim.keymap.set("n", "<C-k>", function()
+  require("kitty-navigator").navigateUp()
+end, { desc = "Move up a split" })
+vim.keymap.set("n", "<C-l>", function()
+  require("kitty-navigator").navigateRight()
+end, { desc = "Move right a split" })
+
 wk.add({
   { "<leader>b", group = "+buffer", desc = "" },
   { "<leader>d", group = "+debug", icon = "", desc = "" },
