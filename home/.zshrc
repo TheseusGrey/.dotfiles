@@ -6,7 +6,7 @@ source_if_exists() {
 
 fpath+=${ZDOTDIR:-~}/.zsh_functions
 
-PATH="$PATH:$HOME/.dotfiles/bin"
+PATH="$PATH:$HOME/.dotfiles/bin:$HOME/.local/bin"
 
 source_if_exists ~/.config/zsh/config.zsh
 source_if_exists ~/.config/zsh/git.zsh
@@ -14,10 +14,9 @@ source_if_exists ~/.config/zsh/aliases.sh
 source_if_exists ~/.env.sh
 source_if_exists ~/.config/zsh/tools.sh
 
-
-# opencode
-export PATH=/home/parisgoldmansmith/.opencode/bin:$PATH
-
 # sdkman
 export SDKMAN_DIR="$HOME/.sdkman"
 [[ -s "$SDKMAN_DIR/bin/sdkman-init.sh" ]] && source "$SDKMAN_DIR/bin/sdkman-init.sh"
+
+# opencode
+export PATH=$HOME/.opencode/bin:$PATH
