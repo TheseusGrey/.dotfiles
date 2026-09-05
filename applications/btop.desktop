@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=btop
+Icon=btop
+Comment=Resource monitor showing CPU, memory, disks, network, and processes
+Terminal=false
+Exec=kitty --class btop-float -e btop
+Type=Application
+Categories=System;Monitor;Utility;

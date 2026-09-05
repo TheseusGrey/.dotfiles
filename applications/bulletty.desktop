@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=bulletty
+Icon=bulletty
+Comment=Terminal RSS/Atom feed reader
+Terminal=false
+Exec=kitty --class bulletty-float -e bulletty
+Type=Application
+Categories=System;Monitor;Utility;

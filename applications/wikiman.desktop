@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Wikiman
+Comment=Search and browse man pages, tldr, and docs
+Terminal=false
+Exec=kitty --class wikiman-float -e wikiman
+Type=Application
+Categories=System;Documentation;Utility;
