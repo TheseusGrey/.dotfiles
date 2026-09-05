@@ -6,10 +6,10 @@ local colors = {
 	-- active_border matches the shell's own border colour (Colors.border =
 	-- colors.outline clamped to 58% lightness), so the window frame and the
 	-- shell chrome read as one consistent theme.
-	active_border = "rgba(8f9799ee)",
-	inactive_border = "rgba(4d585bee)",
-	group_border_1 = "rgba(b9c6eaee)",
-	group_border_2 = "rgba(b1cbcfee)",
+	active_border = "rgba(8f9099ee)",
+	inactive_border = "rgba(4e505aee)",
+	group_border_1 = "rgba(e0bbddee)",
+	group_border_2 = "rgba(c0c6dcee)",
 }
 
 return colors

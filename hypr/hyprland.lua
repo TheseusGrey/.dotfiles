@@ -84,8 +84,11 @@ hl.config({
 -- █░▀░█ █ ▄█ █▄▄
 
 hl.config({
+	render = {
+		direct_scanout = false,
+	},
 	misc = {
-		vrr = 0,
+		vrr = 2,
 		disable_hyprland_logo = true,
 		disable_splash_rendering = true,
 		force_default_wallpaper = 0,
@@ -99,9 +102,9 @@ hl.config({
 -- █▀ █▀█ █░█ █▀█ █▀▀ █▀▀
 -- ▄█ █▄█ █▄█ █▀▄ █▄▄ ██▄
 
+require("graphics")
 require("animations")
 require("keybindings")
 require("windowrules")
 require("themes/common")
 require("themes/theme")
-require("nvidia")
