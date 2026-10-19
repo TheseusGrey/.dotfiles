@@ -22,6 +22,7 @@ hl.window_rule({ name = "Open Tablet Driver", match = { class = "^(OpenTabletDri
 -- Floating Windows
 hl.window_rule({ name = "Custom float rule", match = { class = ".*-float$" }, float = true })
 hl.window_rule({ name = "About Mozilla Firefox", match = { title = "^(About Mozilla Firefox)$" }, float = true })
+hl.window_rule({ name = "Picture-in-Picture", match = { title = "^(Picture-in-Picture)$" }, float = true })
 hl.window_rule({
 	name = "Copying — Dolphin",
 	match = { class = "^(org.kde.dolphin)$", title = "^(Copying — Dolphin)$" },

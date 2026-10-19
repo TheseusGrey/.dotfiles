@@ -8,8 +8,6 @@ hl.monitor({ output = "", mode = "preferred", position = "auto", scale = "auto" 
 
 -- Apps to run on startup
 hl.on("hyprland.start", function()
-	-- hl.exec_cmd("~/.dotfiles/bin/center_window.sh")
-
 	-- Set prefer-dark as default
 	hl.exec_cmd("gsettings set org.gnome.desktop.interface gtk-theme 'YOUR_DARK_GTK3_THEME'")
 	hl.exec_cmd("gsettings set org.gnome.desktop.interface color-scheme 'prefer-dark'")
@@ -32,7 +30,8 @@ hl.on("hyprland.start", function()
 	hl.exec_cmd("wl-paste --type text --watch cliphist store")
 	hl.exec_cmd("wl-paste --type image --watch cliphist store")
 
-	hl.exec_cmd("obsidian & zen-browser")
+	-- Apps to run on startup
+	hl.exec_cmd("obsidian & zen-browser & easyeffects")
 end)
 
 -- █▀▀ █▄░█ █░█
