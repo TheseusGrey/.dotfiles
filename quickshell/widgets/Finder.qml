@@ -86,7 +86,7 @@ Item {
 
     // ─── Screenshot data ─────────────────────────────────────────────
     readonly property var screenshotActions: [
-        { name: "Screenshot Region",  icon: "", cmd: "hyprshot -m region" },
+        { name: "Screenshot Region",  icon: "", cmd: "hyprshot -m region --clipboard-only" },
         { name: "Screenshot Screen",  icon: "", cmd: "hyprshot -m output" },
         { name: "Screenshot Window",  icon: "", cmd: "hyprshot -m window" },
         { name: "Color Picker",       icon: "󰃉", cmd: "hyprpicker | wl-copy -n" },
