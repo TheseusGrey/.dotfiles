@@ -38,7 +38,9 @@ configs=(
 
 echo ""
 echo "Stowing ~ configs."
-link home ~ # Special case that won't go into the loop below
+# Special cases that won't go into the loop below
+link home ~
+link chrome ~/.config/librewolf/librewolf/*.default-release/chrome
 
 echo ""
 echo "Stowing configs."
