@@ -9,7 +9,7 @@ vim.pack.add({
   { src = helpers.gh("OXY2DEV/markview.nvim") },
 })
 
-local local_plugin = vim.fn.expand("~/projects/present.nvim")
+local local_plugin = vim.fn.expand("~/Projects/present.nvim")
 if vim.fn.isdirectory(local_plugin) == 1 then
   vim.opt.runtimepath:prepend(local_plugin)
 else
@@ -52,7 +52,7 @@ map("n", keymaps.present("r"), "<CMD>PresentResume<CR>", { desc = "Presentation 
 --       { name = name, path = cwd },
 --       {
 --         name = "personal",
---         path = "~/projects/LoreStore", -- Ensure this points exactly to your vault
+--         path = "~/Projects/LoreStore", -- Ensure this points exactly to your vault
 --       },
 --     },
 --
@@ -136,3 +136,4 @@ vim.opt_local.linebreak = true
 vim.opt_local.textwidth = 0
 vim.opt_local.wrapmargin = 0
 vim.opt_local.colorcolumn = "85"
+vim.opt.conceallevel = 1

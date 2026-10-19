@@ -74,7 +74,7 @@ if helpers.is_obsidian_vault() then
       { name = name, path = cwd },
       {
         name = "personal",
-        path = "~/projects/LoreStore", -- Ensure this points exactly to your vault
+        path = "~/Projects/LoreStore", -- Ensure this points exactly to your vault
       },
     },
 
@@ -121,7 +121,7 @@ if helpers.is_obsidian_vault() then
     },
 
     picker = {
-      name = "snacks.pick",
+      name = "snacks.picker",
     },
   })
 
