@@ -7,14 +7,6 @@ import qs.services
 // Shell entry point.
 // Loads all panels and ensures singletons are initialized.
 ShellRoot {
-    // Kill dunst on startup so quickshell's NotificationServer can own the D-Bus name.
-    // Only one notification daemon can hold org.freedesktop.Notifications at a time.
-    Process {
-        id: killDunst
-        command: ["pkill", "-x", "dunst"]
-        running: true
-    }
-
     Panels.TopPanel {}
     Panels.LeftPanel {}
     Panels.RightPanel {}
