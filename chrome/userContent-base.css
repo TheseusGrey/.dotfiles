@@ -1,6 +1,17 @@
-/* Hand-written overrides for about: pages.
+/* Hand-written overrides for about: pages and all web content.
  * Theme colours live in the generated matugen-content.css, which
  * userContent.css imports after this file. */
+
+/* Match the Quickshell UI font on every page, including extension pages. */
+:root {
+  --qsh-font: "DepartureMono Nerd Font", monospace;
+}
+
+*,
+*::before,
+*::after {
+  font-family: var(--qsh-font) !important;
+}
 
 @-moz-document url-prefix("about:") {
   * {

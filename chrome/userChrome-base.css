@@ -1,3 +1,8 @@
+/* Keep browser chrome in sync with the Quickshell UI font. */
+:root {
+  --qsh-font: "DepartureMono Nerd Font", monospace;
+}
+
 #TabsToolbar {
   display: none !important;
 }
@@ -10,4 +15,5 @@
 
 * {
   border-radius: 0px !important;
+  font-family: var(--qsh-font) !important;
 }

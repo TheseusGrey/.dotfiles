@@ -1,38 +1,68 @@
-#root.root {
-  --tabs-height: 36px;
-}
-#root.root {
-  --tabs-inner-gap: 8px;
-}
-#root.root {
-  --tabs-margin: 4px;
-}
-#root.root {
-  --tabs-font: 16px sans-serif;
-}
-#root.root {
-  --tabs-count-font: 16px sans-serif;
-}
-#root.root {
-  --general-margin: 4px;
-}
-#root.root {
-  --general-border-radius: 0px;
-}
+/* Sidebery does not read userChrome.css for its sidebar document, but Firefox
+ * does load userContent.css into the extension's moz-extension:// pages.
+ * userContent.css imports this file, so the Sidebery palette follows matugen
+ * automatically instead of needing to be pasted into Sidebery's style editor.
+ *
+ * The UUID is per-profile, hence the regexp match on the page path. */
+@-moz-document regexp("moz-extension://.*/(sidebar/sidebar|group/group).html.*") {
+  html,
+  body,
+  #root {
+    background-color: var(--matugen-bg) !important;
+    color: var(--matugen-fg) !important;
+  }
 
-.Tab[data-active="true"] .body {
-  border: 2px solid #ef944dff !important;
-  border-radius: 0px;
-}
+  #root.root {
+    /* Layout */
+    --tabs-height: 36px;
+    --tabs-inner-gap: 8px;
+    --tabs-margin: 4px;
+    --general-margin: 4px;
+    --general-border-radius: 0px;
 
-.NavigationBar .main-items .nav-item[data-class="panel"] .name-box {
-  border-width: 2px !important;
-}
+    /* Font: keep Sidebery on the Quickshell UI font. */
+    --general-font-family: "DepartureMono Nerd Font", monospace !important;
+    --tabs-font: 16px "DepartureMono Nerd Font", monospace !important;
+    --tabs-count-font: 16px "DepartureMono Nerd Font", monospace !important;
+    --tabs-badge-value-font: 12px "DepartureMono Nerd Font", monospace !important;
+    --bookmarks-bookmark-font: 16px "DepartureMono Nerd Font", monospace !important;
+    --bookmarks-folder-font: 16px "DepartureMono Nerd Font", monospace !important;
 
-#root[data-act-el-color-scheme="dark"] {
-  --active-el-shadow: none;
-}
+    /* Palette */
+    --frame-bg: var(--matugen-bg) !important;
+    --frame-fg: var(--matugen-fg) !important;
+    --toolbar-bg: var(--matugen-bg-elevated) !important;
+    --toolbar-fg: var(--matugen-fg) !important;
+    --border: var(--matugen-border) !important;
+    --accent: var(--matugen-accent) !important;
+    --nav-btn-fg: var(--matugen-fg-muted) !important;
+    --nav-btn-accent: var(--matugen-accent) !important;
+    --tabs-normal-bg: transparent !important;
+    --tabs-normal-fg: var(--matugen-fg-muted) !important;
+    --tabs-activated-bg: var(--matugen-bg-hover) !important;
+    --tabs-activated-fg: var(--matugen-fg) !important;
+    --tabs-activated-shadow: none !important;
+    --active-el-bg: var(--matugen-bg-hover) !important;
+    --active-el-fg: var(--matugen-fg) !important;
+    --active-el-shadow: none !important;
+    --frame-el-overlay-selected-border: var(--matugen-accent) !important;
+    --toolbar-el-overlay-selected-border: var(--matugen-accent) !important;
+  }
 
-.NavigationBar .nav-item[data-active="true"] {
-  border: 1px solid #ef944dff !important;
+  .Tab[data-active="true"] .body {
+    border: 2px solid var(--matugen-accent) !important;
+    border-radius: 0px !important;
+  }
+
+  .NavigationBar .main-items .nav-item[data-class="panel"] .name-box {
+    border-width: 2px !important;
+  }
+
+  .NavigationBar .nav-item[data-active="true"] {
+    border: 1px solid var(--matugen-accent) !important;
+  }
+
+  #root[data-act-el-color-scheme="dark"] {
+    --active-el-shadow: none !important;
+  }
 }

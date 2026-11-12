@@ -27,16 +27,58 @@
 	box-shadow: none !important;
 }
 
-#urlbar-background,
+/* Toolbar-field tokens are what the address bar and search widgets actually
+ * paint with. Overriding them keeps focus rings and popups on-palette even
+ * when Firefox changes the internal widget markup. */
+:root {
+	--toolbar-field-background-color: var(--matugen-bg-elevated) !important;
+	--toolbar-field-background-color-focus: var(--matugen-bg-elevated) !important;
+	--toolbar-field-text-color: var(--matugen-fg) !important;
+	--toolbar-field-text-color-focus: var(--matugen-fg) !important;
+	--toolbar-field-border-color: var(--matugen-border) !important;
+	--toolbar-field-border-color-focus: var(--matugen-accent) !important;
+	--focus-outline-color: var(--matugen-accent) !important;
+	--urlbar-background-color: var(--matugen-bg-elevated) !important;
+	--urlbar-background-color-focus: var(--matugen-bg-elevated) !important;
+	--urlbarview-background-color-hover: var(--matugen-bg-hover) !important;
+	--urlbarview-background-color-selected: var(--matugen-bg-hover) !important;
+	--urlbarview-text-color-selected: var(--matugen-fg) !important;
+	--urlbarview-separator-color: var(--matugen-border) !important;
+}
+
+/* Firefox 158 renders both bars through the moz-urlbar custom element
+ * (.urlbar-background); #searchbar is the legacy XUL widget. */
+.urlbar,
 #searchbar {
-	background-color: var(--matugen-bg-elevated) !important;
-	border: 1px solid var(--matugen-border) !important;
 	color: var(--matugen-fg) !important;
 }
 
-#urlbar[focused] > #urlbar-background {
+.urlbar-background,
+#searchbar {
+	background-color: var(--matugen-bg-elevated) !important;
+	border-color: var(--matugen-border) !important;
+}
+
+#searchbar {
+	border: 1px solid var(--matugen-border) !important;
+}
+
+.urlbar[focused] > .urlbar-background,
+#searchbar:focus-within {
 	border-color: var(--matugen-accent) !important;
+	outline-color: var(--matugen-accent) !important;
 	box-shadow: 0 0 0 1px var(--matugen-accent) !important;
+}
+
+.urlbar-input,
+.searchbar-textbox {
+	color: var(--matugen-fg) !important;
+	caret-color: var(--matugen-accent) !important;
+}
+
+.urlbar-input::placeholder,
+.searchbar-textbox::placeholder {
+	color: var(--matugen-fg-muted) !important;
 }
 
 toolbarbutton:hover,
