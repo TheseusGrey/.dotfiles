@@ -8,6 +8,7 @@ local term = "kitty"
 local editor = "nvim"
 local file = "dolphin"
 local browser = "zen"
+local qsh = os.getenv("HOME") .. "/.local/bin/qsh"
 
 -- Window/Session actions
 hl.bind(mainMod .. " + W", hl.dsp.window.close(), { description = "Close Window" })
@@ -19,14 +20,14 @@ hl.bind(mainMod .. " + E", hl.dsp.exec_cmd(file), { description = "Open File Exp
 hl.bind(mainMod .. " + R", hl.dsp.exec_cmd("~/.dotfiles/setup.sh"), { description = "Re-link dotfiles" })
 
 -- Menus
-hl.bind(mainMod .. " + space", hl.dsp.exec_cmd("/home/ashe/.local/bin/qsh finder apps"), { description = "App Launcher" })
-hl.bind(mainMod .. " + C", hl.dsp.exec_cmd("/home/ashe/.local/bin/qsh panel open theme"), { description = "Theme switcher" })
+hl.bind(mainMod .. " + space", hl.dsp.exec_cmd(qsh .. " finder apps"), { description = "App Launcher" })
+hl.bind(mainMod .. " + C", hl.dsp.exec_cmd(qsh .. " panel open theme"), { description = "Theme switcher" })
 hl.bind(
 	mainMod .. " + S",
-	hl.dsp.exec_cmd("/home/ashe/.local/bin/qsh finder screenshot"),
+	hl.dsp.exec_cmd(qsh .. " finder screenshot"),
 	{ description = "Screen Capture menu" }
 )
-hl.bind(mainMod .. " + X", hl.dsp.exec_cmd("/home/ashe/.local/bin/qsh finder screenshot"), { description = "Screen Capture menu" })
+hl.bind(mainMod .. " + X", hl.dsp.exec_cmd(qsh .. " finder screenshot"), { description = "Screen Capture menu" })
 hl.bind(mainMod .. " + A", hl.dsp.exec_cmd("~/.dotfiles/bin/menu_actions.sh"), { description = "Actions Menu" })
 
 -- Audio control

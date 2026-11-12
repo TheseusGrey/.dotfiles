@@ -18,15 +18,35 @@ import (
 
 const socketPath = "/tmp/qs-finder.sock"
 
-// settingsPath is the dedicated, shareable settings file. Flat JSON object:
-// key -> string value. Written atomically on every change so it survives
-// crashes and can be read/written by other tools.
-const settingsPath = "/home/ashe/.config/quickshell/settings.json"
+// Paths are derived from the environment so the dotfiles work outside
+// /home/ashe. DOTFILES overrides the repository location; XDG_CONFIG_HOME
+// overrides ~/.config.
+func userHome() string {
+	if h, err := os.UserHomeDir(); err == nil && h != "" {
+		return h
+	}
+	return os.Getenv("HOME")
+}
 
-const (
-	dotfilesRoot = "/home/ashe/.dotfiles"
-	wallpaperDir  = dotfilesRoot + "/wallpapers"
-	hyprPaperConf = dotfilesRoot + "/hypr/hyprpaper.conf"
+func configHome() string {
+	if x := os.Getenv("XDG_CONFIG_HOME"); x != "" {
+		return x
+	}
+	return filepath.Join(userHome(), ".config")
+}
+
+func repoRoot() string {
+	if d := os.Getenv("DOTFILES"); d != "" {
+		return d
+	}
+	return filepath.Join(userHome(), ".dotfiles")
+}
+
+var (
+	dotfilesRoot  = repoRoot()
+	wallpaperDir  = filepath.Join(dotfilesRoot, "wallpapers")
+	settingsPath  = filepath.Join(configHome(), "quickshell", "settings.json")
+	hyprPaperConf = filepath.Join(dotfilesRoot, "hypr", "hyprpaper.conf")
 )
 
 // fallbackPreset is used when "sync colours to wallpaper" is turned OFF but no
@@ -72,6 +92,8 @@ func main() {
 		syncCmd(args)
 	case "scheme":
 		schemeCmd(args)
+	case "bootstrap":
+		bootstrapCmd(args)
 	case "call":
 		if len(args) < 2 {
 			fatal("usage: qsh call <target> <method> [args...]")
@@ -241,42 +263,56 @@ func pickCmd(args []string) {
 	fmt.Println(selection)
 }
 
-// qsh wallpaper <image> [--index N] [--scheme T] — regenerate the theme from
-// an image. Runs matugen (sets the wallpaper via hyprpaper and regenerates
-// Colors.qml / hypr / waybar from the config.toml templates).
-// --index  N overrides which source colour is used (0 = most dominant).
-// --scheme T overrides the material scheme type (e.g. scheme-expressive).
-// Both are persisted for future wallpaper changes and sync-on.
+// qsh wallpaper <image> [--index N] [--scheme T] [--no-theme] — regenerate the
+// theme from an image and apply it. Generation is staged and validated before
+// anything is published or the wallpaper changes.
+//
+//	--no-theme  only change the wallpaper; keep the current preset colours.
 func wallpaperCmd(args []string) {
-	name, index, scheme := firstPlusFlags(args)
+	name, index, scheme, noTheme := parseWallpaperFlags(args)
 	file := resolveExisting(name, wallpaperDir, "wallpaper")
+
+	if noTheme {
+		if err := applyHyprpaper(file); err != nil {
+			fatal("apply wallpaper %s: %v", filepath.Base(file), err)
+		}
+		saveSetting("theme.wallpaper", file)
+		saveSetting("theme.syncedToWallpaper", "false")
+		fmt.Printf("wallpaper: %s (preset colours kept)\n", filepath.Base(file))
+		return
+	}
+
+	staged, err := generateImage(file, scheme, index)
+	if err != nil {
+		fatal("%v", err)
+	}
+	published, err := staged.publish()
+	staged.discard()
+	if err != nil {
+		fatal("publish theme: %v", err)
+	}
+	reloadHyprland()
+
+	if err := applyHyprpaper(file); err != nil {
+		published.rollback()
+		reloadHyprland()
+		fatal("apply wallpaper %s: %v", filepath.Base(file), err)
+	}
+
 	if index != "" {
 		saveSetting("theme.sourceColorIndex", index)
 	}
 	if scheme != "" {
 		saveSetting("theme.scheme", scheme)
 	}
-	applyHyprpaper(file)
-	// matugen's own wallpaper side-effects are disabled (set = false) so qsh
-	// is the single owner of hyprpaper changes.
-	cmdArgs := []string{"image", "--type", matugenScheme()}
-	cmdArgs = append(cmdArgs, matugenSourceFlag()...)
-	cmdArgs = append(cmdArgs, file)
-	out, err := exec.Command("matugen", cmdArgs...).CombinedOutput()
-	if err != nil {
-		fatal("matugen image %s: %v\n%s", file, err, strings.TrimSpace(string(out)))
-	}
-	if len(out) > 0 {
-		fmt.Print(string(out))
-	}
-	// Persist so the sync-on path knows which wallpaper to re-derive from.
 	saveSetting("theme.wallpaper", file)
+	saveSetting("theme.syncedToWallpaper", "true")
+	fmt.Printf("theme: %s → %s\n", filepath.Base(file), matugenSchemeValue(scheme))
 }
 
-// parseFlags extracts optional trailing `--index N` and `--scheme T` flags.
-// It returns the remaining positional args, the index ("" if absent) and the
-// scheme ("" if absent). Unknown flags are fatal.
-func parseFlags(args []string) (pos []string, index, scheme string) {
+// parseWallpaperFlags accepts the wallpaper command's optional flags.
+func parseWallpaperFlags(args []string) (name, index, scheme string, noTheme bool) {
+	var pos []string
 	for i := 0; i < len(args); i++ {
 		switch args[i] {
 		case "--index":
@@ -291,21 +327,16 @@ func parseFlags(args []string) (pos []string, index, scheme string) {
 			}
 			scheme = args[i+1]
 			i++
+		case "--no-theme":
+			noTheme = true
 		default:
 			pos = append(pos, args[i])
 		}
 	}
-	return pos, index, scheme
-}
-
-// firstPlusFlags is a convenience for commands that take exactly one positional
-// argument plus optional --index / --scheme flags.
-func firstPlusFlags(args []string) (name, index, scheme string) {
-	pos, idx, sc := parseFlags(args)
 	if len(pos) != 1 {
-		fatal("expected <image|name> [--index N] [--scheme T]")
+		fatal("expected <image|name> [--index N] [--scheme T] [--no-theme]")
 	}
-	return pos[0], idx, sc
+	return pos[0], index, scheme, noTheme
 }
 
 // matugenSourceFlag returns the --source-color-index flag for the persisted
@@ -316,6 +347,14 @@ func matugenSourceFlag() []string {
 		idx = "0"
 	}
 	return []string{"--source-color-index", idx}
+}
+
+// matugenSchemeValue resolves a scheme override or the persisted scheme type.
+func matugenSchemeValue(override string) string {
+	if override != "" && containsString(schemeTypes, override) {
+		return override
+	}
+	return matugenScheme()
 }
 
 // matugenScheme returns the persisted material scheme type (default
@@ -347,45 +386,62 @@ func containsString(list []string, s string) bool {
 }
 
 // qsh sync on|off — toggle whether colours track the wallpaper.
-//   on:  re-derive colours from the current wallpaper.
-//   off: apply the last manually picked preset (falls back to black-white).
+//
+//	on:  re-derive colours from the current (or last recorded) wallpaper.
+//	off: apply the last manually picked preset (falls back to black-white).
 func syncCmd(args []string) {
 	if len(args) != 1 {
 		fatal("usage: qsh sync on|off")
 	}
 	p := loadSettings()
-	state := args[0]
-	if state != "on" && state != "off" {
-		fatal("usage: qsh sync on|off (got %q)", state)
-	}
-	switch state {
+	switch args[0] {
 	case "on":
-		saveSetting("theme.syncedToWallpaper", "true")
-		if w := p["theme.wallpaper"]; w != "" {
-			cmdArgs := []string{"image", "--type", matugenScheme()}
-			cmdArgs = append(cmdArgs, matugenSourceFlag()...)
-			cmdArgs = append(cmdArgs, w)
-			out, err := exec.Command("matugen", cmdArgs...).CombinedOutput()
-			if err != nil {
-				fatal("matugen sync %s: %v\n%s", w, err, strings.TrimSpace(string(out)))
-			}
-			if len(out) > 0 {
-				fmt.Print(string(out))
-			}
+		w := p["theme.wallpaper"]
+		if w == "" {
+			w = activeWallpaper()
 		}
+		if w == "" {
+			fatal("no wallpaper recorded; run `qsh wallpaper <name>` first")
+		}
+		staged, err := generateImage(w, p["theme.scheme"], p["theme.sourceColorIndex"])
+		if err != nil {
+			fatal("%v", err)
+		}
+		if _, err := staged.publish(); err != nil {
+			staged.discard()
+			fatal("publish theme: %v", err)
+		}
+		staged.discard()
+		reloadHyprland()
+		saveSetting("theme.wallpaper", w)
+		saveSetting("theme.syncedToWallpaper", "true")
+		fmt.Printf("sync: on (%s)\n", filepath.Base(w))
 	case "off":
-		saveSetting("theme.syncedToWallpaper", "false")
 		preset := p["theme.preset"]
-		if preset == "" {
+		if preset == "" || !fileExists(preset) {
 			preset = fallbackPreset
 		}
-		applyPreset(resolvePreset(preset))
+		path := resolvePreset(preset)
+		staged, err := generatePreset(path, "")
+		if err != nil {
+			fatal("%v", err)
+		}
+		if _, err := staged.publish(); err != nil {
+			staged.discard()
+			fatal("publish theme: %v", err)
+		}
+		staged.discard()
+		reloadHyprland()
+		saveSetting("theme.preset", path)
+		saveSetting("theme.syncedToWallpaper", "false")
+		fmt.Printf("sync: off (%s)\n", filepath.Base(path))
+	default:
+		fatal("usage: qsh sync on|off (got %q)", args[0])
 	}
 }
 
-// qsh scheme <type> — persist the matugen material scheme type and regenerate
-// the theme from the current wallpaper with it. If no wallpaper is set, it only
-// stores the choice.
+// qsh scheme <type> — persist the matugen material scheme type. Regenerates
+// immediately only while colours are synced to the wallpaper.
 func schemeCmd(args []string) {
 	if len(args) != 1 {
 		fatal("usage: qsh scheme <scheme-type>")
@@ -394,19 +450,340 @@ func schemeCmd(args []string) {
 	if !containsString(schemeTypes, scheme) {
 		fatal("unknown scheme %q; expected one of: %s", scheme, strings.Join(schemeTypes, ", "))
 	}
-	saveSetting("theme.scheme", scheme)
 	p := loadSettings()
-	if w := p["theme.wallpaper"]; w != "" {
-		cmdArgs := []string{"image", "--type", scheme}
-		cmdArgs = append(cmdArgs, matugenSourceFlag()...)
-		cmdArgs = append(cmdArgs, w)
-		out, err := exec.Command("matugen", cmdArgs...).CombinedOutput()
+	synced := p["theme.syncedToWallpaper"] != "false"
+	w := p["theme.wallpaper"]
+	if !synced || w == "" {
+		saveSetting("theme.scheme", scheme)
+		fmt.Printf("scheme: %s stored (applies when sync is on)\n", scheme)
+		return
+	}
+	staged, err := generateImage(w, scheme, p["theme.sourceColorIndex"])
+	if err != nil {
+		fatal("%v", err)
+	}
+	if _, err := staged.publish(); err != nil {
+		staged.discard()
+		fatal("publish theme: %v", err)
+	}
+	staged.discard()
+	reloadHyprland()
+	saveSetting("theme.scheme", scheme)
+	fmt.Printf("scheme: %s\n", scheme)
+}
+
+// qsh bootstrap — create a working default theme and hyprpaper config on a
+// fresh checkout without requiring external apps or a live Hyprland session.
+func bootstrapCmd(args []string) {
+	if len(args) != 0 {
+		fatal("usage: qsh bootstrap")
+	}
+	colors := filepath.Join(dotfilesRoot, "quickshell", "services", "Colors.qml")
+	kitty := filepath.Join(dotfilesRoot, "kitty", "matugen.conf")
+	chrome := filepath.Join(dotfilesRoot, "chrome", "matugen-chrome.css")
+	content := filepath.Join(dotfilesRoot, "chrome", "matugen-content.css")
+	hyprColors := filepath.Join(dotfilesRoot, "hypr", "themes", "matugen_colors.lua")
+
+	needsTheme := !hasGeneratedMarker(colors) ||
+		isEmptyFile(kitty) || isEmptyFile(chrome) ||
+		isEmptyFile(content) || isEmptyFile(hyprColors)
+
+	if needsTheme {
+		preset := filepath.Join(configHome(), "matugen", "presets", "default.json")
+		cfg := filepath.Join(dotfilesRoot, "matugen", "bootstrap.toml")
+		staged, err := generatePreset(preset, cfg)
 		if err != nil {
-			fatal("matugen scheme %s: %v\n%s", w, err, strings.TrimSpace(string(out)))
+			fatal("bootstrap theme: %v", err)
 		}
-		if len(out) > 0 {
-			fmt.Print(string(out))
+		if _, err := staged.publish(); err != nil {
+			staged.discard()
+			fatal("bootstrap theme: %v", err)
 		}
+		staged.discard()
+		reloadHyprland()
+	}
+
+	if isEmptyFile(hyprPaperConf) {
+		names := listImages(wallpaperDir)
+		if len(names) > 0 {
+			if err := writeHyprpaperConf(filepath.Join(wallpaperDir, names[0])); err != nil {
+				fatal("bootstrap wallpaper: %v", err)
+			}
+		}
+	}
+
+	fmt.Println("bootstrap: ok")
+}
+
+// ─── Staged theme generation ─────────────────────────────────────────
+
+type themeTarget struct {
+	dest   string
+	staged string
+}
+
+type stagedTheme struct {
+	dir     string
+	targets []themeTarget
+}
+
+type savedFile struct {
+	existed bool
+	data    []byte
+	mode    os.FileMode
+}
+
+type publishedTheme struct {
+	saved map[string]savedFile
+}
+
+// generateImage stages a palette derived from an image using config.toml.
+func generateImage(file, schemeOverride, indexOverride string) (*stagedTheme, error) {
+	scheme := matugenSchemeValue(schemeOverride)
+	index := indexOverride
+	if index == "" {
+		index = loadSettings()["theme.sourceColorIndex"]
+	}
+	if index == "" {
+		index = "0"
+	}
+	cfg := filepath.Join(configHome(), "matugen", "config.toml")
+	return runMatugen(cfg, "image", file, scheme, index)
+}
+
+// generatePreset stages a fixed preset. An empty cfg uses presets/config.toml.
+func generatePreset(preset, cfgOverride string) (*stagedTheme, error) {
+	cfg := cfgOverride
+	if cfg == "" {
+		cfg = filepath.Join(configHome(), "matugen", "presets", "config.toml")
+	}
+	return runMatugen(cfg, "json", preset, "", "")
+}
+
+// runMatugen rewrites output paths into a temp directory, runs matugen, then
+// validates every staged output before anything is published.
+func runMatugen(cfgPath, mode, input, scheme, index string) (*stagedTheme, error) {
+	stageDir, err := os.MkdirTemp("", "qsh-theme-")
+	if err != nil {
+		return nil, fmt.Errorf("create staging dir: %w", err)
+	}
+	stageCfg, targets, err := stageConfig(cfgPath, stageDir)
+	if err != nil {
+		os.RemoveAll(stageDir)
+		return nil, err
+	}
+
+	var args []string
+	if mode == "image" {
+		args = []string{"image", "--type", scheme, "--source-color-index", index, "-c", stageCfg, input}
+	} else {
+		args = []string{"json", input, "-c", stageCfg}
+	}
+	out, err := exec.Command("matugen", args...).CombinedOutput()
+	if err != nil {
+		os.RemoveAll(stageDir)
+		return nil, fmt.Errorf("matugen %s %s: %v\n%s", mode, input, err, strings.TrimSpace(string(out)))
+	}
+
+	for _, t := range targets {
+		if err := validateStaged(t.staged); err != nil {
+			os.RemoveAll(stageDir)
+			return nil, fmt.Errorf("validate %s: %v", t.dest, err)
+		}
+	}
+	return &stagedTheme{dir: stageDir, targets: targets}, nil
+}
+
+// stageConfig copies a matugen config and rewrites each output_path to a file
+// inside stageDir. The returned targets preserve the real destinations.
+func stageConfig(src, stageDir string) (string, []themeTarget, error) {
+	data, err := os.ReadFile(expandHome(src))
+	if err != nil {
+		return "", nil, fmt.Errorf("read matugen config %s: %w", src, err)
+	}
+	lines := strings.Split(string(data), "\n")
+	var targets []themeTarget
+	for i, line := range lines {
+		trimmed := strings.TrimSpace(line)
+		if !strings.HasPrefix(trimmed, "output_path") {
+			continue
+		}
+		eq := strings.Index(line, "=")
+		if eq < 0 {
+			continue
+		}
+		raw := strings.TrimSpace(line[eq+1:])
+		raw = strings.Trim(raw, `"'`)
+		if raw == "" {
+			continue
+		}
+		staged := filepath.Join(stageDir, fmt.Sprintf("out-%d", len(targets)))
+		targets = append(targets, themeTarget{dest: expandHome(raw), staged: staged})
+		lines[i] = line[:eq+1] + " '" + staged + "'"
+	}
+	if len(targets) == 0 {
+		return "", nil, fmt.Errorf("no output_path entries in %s", src)
+	}
+	stageCfg := filepath.Join(stageDir, "config.toml")
+	if err := os.WriteFile(stageCfg, []byte(strings.Join(lines, "\n")), 0o600); err != nil {
+		return "", nil, fmt.Errorf("write staging config: %w", err)
+	}
+	return stageCfg, targets, nil
+}
+
+func validateStaged(path string) error {
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return err
+	}
+	text := strings.TrimSpace(string(data))
+	if text == "" {
+		return errors.New("empty output")
+	}
+	switch strings.ToLower(filepath.Ext(path)) {
+	case ".qml":
+		if !strings.Contains(text, "readonly property color bg") {
+			return errors.New("missing shell palette properties")
+		}
+	case ".lua":
+		if !strings.Contains(text, "return colors") {
+			return errors.New("missing Lua colour table")
+		}
+	case ".json":
+		if !json.Valid(data) {
+			return errors.New("invalid JSON")
+		}
+	}
+	return nil
+}
+
+// publish atomically replaces each destination and remembers the previous
+// contents. If any target fails, the targets already written are restored so a
+// failed apply never leaves a half-themed system.
+func (s *stagedTheme) publish() (*publishedTheme, error) {
+	pub := &publishedTheme{saved: map[string]savedFile{}}
+	fail := func(err error) (*publishedTheme, error) {
+		pub.rollback()
+		return nil, err
+	}
+	for _, t := range s.targets {
+		saved, err := snapshotFile(t.dest)
+		if err != nil {
+			return fail(fmt.Errorf("snapshot %s: %w", t.dest, err))
+		}
+		pub.saved[t.dest] = saved
+		if err := os.MkdirAll(filepath.Dir(t.dest), 0o755); err != nil {
+			return fail(fmt.Errorf("create %s: %w", filepath.Dir(t.dest), err))
+		}
+		tmp := t.dest + ".qsh-tmp"
+		if err := copyFile(t.staged, tmp, 0o644); err != nil {
+			return fail(fmt.Errorf("write %s: %w", t.dest, err))
+		}
+		if err := os.Rename(tmp, t.dest); err != nil {
+			os.Remove(tmp)
+			return fail(fmt.Errorf("publish %s: %w", t.dest, err))
+		}
+	}
+	return pub, nil
+}
+
+func (s *stagedTheme) discard() {
+	if s != nil && s.dir != "" {
+		_ = os.RemoveAll(s.dir)
+	}
+}
+
+// rollback restores every published file to its previous contents.
+func (p *publishedTheme) rollback() {
+	if p == nil {
+		return
+	}
+	for dest, saved := range p.saved {
+		if saved.existed {
+			_ = os.WriteFile(dest, saved.data, saved.mode)
+		} else {
+			_ = os.Remove(dest)
+		}
+	}
+}
+
+func snapshotFile(path string) (savedFile, error) {
+	info, err := os.Stat(path)
+	if errors.Is(err, os.ErrNotExist) {
+		return savedFile{}, nil
+	}
+	if err != nil {
+		return savedFile{}, err
+	}
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return savedFile{}, err
+	}
+	return savedFile{existed: true, data: data, mode: info.Mode()}, nil
+}
+
+func copyFile(src, dst string, mode os.FileMode) error {
+	data, err := os.ReadFile(src)
+	if err != nil {
+		return err
+	}
+	return os.WriteFile(dst, data, mode)
+}
+
+func expandHome(path string) string {
+	if path == "~" {
+		return userHome()
+	}
+	if strings.HasPrefix(path, "~/") {
+		return filepath.Join(userHome(), path[2:])
+	}
+	return path
+}
+
+func fileExists(path string) bool {
+	info, err := os.Stat(expandHome(path))
+	return err == nil && !info.IsDir()
+}
+
+func isEmptyFile(path string) bool {
+	info, err := os.Stat(path)
+	return errors.Is(err, os.ErrNotExist) || (err == nil && info.Size() == 0)
+}
+
+func hasGeneratedMarker(path string) bool {
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return false
+	}
+	return strings.Contains(strings.ToLower(string(data)), "generated by matugen")
+}
+
+// activeWallpaper reads the active wallpaper from hyprpaper.conf.
+func activeWallpaper() string {
+	data, err := os.ReadFile(hyprPaperConf)
+	if err != nil {
+		return ""
+	}
+	for _, line := range strings.Split(string(data), "\n") {
+		l := strings.TrimSpace(line)
+		if strings.HasPrefix(l, "preload = ") {
+			return expandHome(strings.TrimSpace(strings.TrimPrefix(l, "preload = ")))
+		}
+	}
+	for _, line := range strings.Split(string(data), "\n") {
+		l := strings.TrimSpace(line)
+		if strings.HasPrefix(l, "path = ") {
+			return expandHome(strings.TrimSpace(strings.TrimPrefix(l, "path = ")))
+		}
+	}
+	return ""
+}
+
+// reloadHyprland applies generated border colours. It is best-effort: a missing
+// Hyprland session must not fail a theme apply.
+func reloadHyprland() {
+	if out, err := exec.Command("hyprctl", "reload").CombinedOutput(); err != nil {
+		fmt.Fprintf(os.Stderr, "qsh: warning: hyprctl reload: %v\n%s", err, strings.TrimSpace(string(out)))
 	}
 }
 
@@ -414,20 +791,46 @@ func schemeCmd(args []string) {
 // to (pre)load every wallpaper plus mark `file` active, then applies it via the
 // IPC that this hyprpaper build actually supports. Newly added wallpapers that
 // weren't loaded at hyprpaper boot need a restart to take effect; that's done
-// automatically here.
-func applyHyprpaper(file string) {
-	old := ""
-	if data, err := os.ReadFile(hyprPaperConf); err == nil {
-		old = string(data)
+// automatically here. On failure the previous config is restored.
+func applyHyprpaper(file string) error {
+	old, err := os.ReadFile(hyprPaperConf)
+	if err != nil && !errors.Is(err, os.ErrNotExist) {
+		return fmt.Errorf("read %s: %w", hyprPaperConf, err)
 	}
-	writeHyprpaperConf(file)
+	restore := func() {
+		if old != nil {
+			_ = os.WriteFile(hyprPaperConf, old, 0o644)
+		} else {
+			_ = os.Remove(hyprPaperConf)
+		}
+	}
+	if err := writeHyprpaperConf(file); err != nil {
+		return err
+	}
 	// If the chosen wallpaper wasn't already preloaded in the config hyprpaper
 	// started with, the running daemon can't display it yet — bounce it so the
 	// regen'd preload list takes effect. Otherwise a live IPC switch suffices.
-	if !wasPreloaded(old, file) {
-		restartHyprpaper()
+	if !wasPreloaded(string(old), file) {
+		if err := restartHyprpaper(); err != nil {
+			restore()
+			return err
+		}
 	}
-	sh("hyprctl hyprpaper wallpaper ," + shellQuote(file))
+	// The empty-monitor form (",path") is silently ignored by some hyprpaper
+	// builds, so target each active monitor explicitly. Only fall back to the
+	// empty-monitor form when no monitors can be enumerated.
+	monitors := listMonitors()
+	if len(monitors) == 0 {
+		monitors = []string{""}
+	}
+	for _, m := range monitors {
+		out, err := exec.Command("hyprctl", "hyprpaper", "wallpaper", m+","+file).CombinedOutput()
+		if err != nil {
+			restore()
+			return fmt.Errorf("hyprctl hyprpaper wallpaper %s: %v\n%s", m, err, strings.TrimSpace(string(out)))
+		}
+	}
+	return nil
 }
 
 // wasPreloaded reports whether hyprpaper's previous config already loaded file.
@@ -447,7 +850,7 @@ func wasPreloaded(cfg, file string) bool {
 // writeHyprpaperConf generates hypr/hyprpaper.conf with every wallpaper
 // preloaded and `active` marked as the wallpaper on every monitor. Paths are
 // written raw (hyprpaper's hyprlang parser does NOT strip surrounding quotes).
-func writeHyprpaperConf(active string) {
+func writeHyprpaperConf(active string) error {
 	var b strings.Builder
 	b.WriteString("preload = " + active + "\n")
 	for _, n := range listImages(wallpaperDir) {
@@ -469,8 +872,9 @@ func writeHyprpaperConf(active string) {
 	}
 	b.WriteString("splash = false\n")
 	if err := os.WriteFile(hyprPaperConf, []byte(b.String()), 0o644); err != nil {
-		fatal("write %s: %v", hyprPaperConf, err)
+		return fmt.Errorf("write %s: %w", hyprPaperConf, err)
 	}
+	return nil
 }
 
 // listMonitors returns the names of the active Hyprland monitors.
@@ -494,14 +898,17 @@ func listMonitors() []string {
 	return nil
 }
 
-// restartHyprpaper bounces the daemon so it reloads hypr/hyprpaper.conf. The
-// relaunch is fully detached (setsid + redirects) so Wait() doesn't block on the
-// backgrounded daemon's inherited descriptors.
-func restartHyprpaper() {
-	sh("pkill -x hyprpaper")
-	_ = exec.Command("setsid", "hyprpaper").Start()
+// restartHyprpaper bounces the daemon so it reloads hypr/hyprpaper.conf. A
+// missing process is not an error: `pkill` exits 1 when there is nothing to
+// kill. The relaunch is detached with setsid so it survives qsh exiting.
+func restartHyprpaper() error {
+	_, _ = exec.Command("pkill", "-x", "hyprpaper").CombinedOutput()
+	if err := exec.Command("setsid", "hyprpaper").Start(); err != nil {
+		return fmt.Errorf("start hyprpaper: %w", err)
+	}
 	// give it a moment to connect to Hyprland
 	time.Sleep(500 * time.Millisecond)
+	return nil
 }
 
 // shellQuote wraps s in double quotes for use inside hyprpaper.conf keywords
@@ -510,17 +917,9 @@ func shellQuote(s string) string {
 	return `"` + strings.ReplaceAll(s, `"`, `\"`) + `"`
 }
 
-// sh runs a command via the shell; fatal on error.
-func sh(cmd string) {
-	out, err := exec.Command("sh", "-c", cmd).CombinedOutput()
-	if err != nil {
-		fatal("`%s`: %v\n%s", cmd, err, strings.TrimSpace(string(out)))
-	}
-}
-
 // qsh wallpapers — list available wallpapers (image files only, one per line).
 func listWallpapersCmd() {
-	for _, n := range listImages(os.Getenv("HOME") + "/.dotfiles/wallpapers") {
+	for _, n := range listImages(wallpaperDir) {
 		fmt.Println(n)
 	}
 }
@@ -569,8 +968,7 @@ func accentCmd(args []string) {
 	if len(args) != 1 {
 		fatal("usage: qsh accent <image|name>")
 	}
-	file := resolveExisting(args[0],
-		os.Getenv("HOME")+"/.dotfiles/wallpapers", "wallpaper")
+	file := resolveExisting(args[0], wallpaperDir, "wallpaper")
 	cmdArgs := []string{"image", "--type", matugenScheme(),
 		"--dry-run", "--json", "hex"}
 	cmdArgs = append(cmdArgs, matugenSourceFlag()...)
@@ -634,7 +1032,9 @@ func colorsCmd(args []string) {
 			continue
 		}
 		var doc struct {
-			Colors map[string]struct{ Default struct{ Color string } `json:"default"` } `json:"colors"`
+			Colors map[string]struct {
+				Default struct{ Color string } `json:"default"`
+			} `json:"colors"`
 		}
 		if json.Unmarshal(o, &doc) != nil {
 			fmt.Printf("  [%d] parse error\n", i)
@@ -653,7 +1053,7 @@ func colorsCmd(args []string) {
 
 // qsh themes — list available theme presets (names, one per line).
 func listThemesCmd() {
-	names := listDir(os.Getenv("HOME") + "/.config/matugen/presets")
+	names := listDir(filepath.Join(configHome(), "matugen", "presets"))
 	for _, n := range names {
 		if strings.HasSuffix(n, ".json") {
 			fmt.Println(strings.TrimSuffix(n, ".json"))
@@ -715,38 +1115,36 @@ func themeCmd(args []string) {
 		fatal("usage: qsh theme <preset|json-file> (presets: default, catppuccin)")
 	}
 	preset := resolvePreset(args[0])
-	applyPreset(preset)
-	// Remember it so turning sync OFF reverts to this scheme.
-	saveSetting("theme.preset", filepath.Base(preset))
+	staged, err := generatePreset(preset, "")
+	if err != nil {
+		fatal("%v", err)
+	}
+	if _, err := staged.publish(); err != nil {
+		staged.discard()
+		fatal("publish theme: %v", err)
+	}
+	staged.discard()
+	reloadHyprland()
+	// Store the resolved path so custom presets outside the presets directory
+	// can be restored later.
+	saveSetting("theme.preset", preset)
+	saveSetting("theme.syncedToWallpaper", "false")
+	fmt.Printf("theme: %s (preset; wallpaper unchanged)\n", filepath.Base(preset))
 }
 
 // resolvePreset returns the full path to a theme preset: either a direct file
-// path or a preset name resolved from ~/.config/matugen/presets.
+// path or a preset name resolved from the matugen presets directory.
 func resolvePreset(name string) string {
+	name = expandHome(name)
 	if _, err := os.Stat(name); err == nil {
 		return name
 	}
-	home, herr := os.UserHomeDir()
-	if herr != nil {
-		fatal("couldn't resolve home: %v", herr)
-	}
-	candidate := home + "/.config/matugen/presets/" + name + ".json"
+	dir := filepath.Join(configHome(), "matugen", "presets")
+	candidate := filepath.Join(dir, name+".json")
 	if _, err := os.Stat(candidate); err == nil {
 		return candidate
 	}
-	return resolveExisting(name, home+"/.config/matugen/presets", "theme")
-}
-
-// applyPreset renders a matugen preset through the presets templates.
-func applyPreset(file string) {
-	cfg := os.Getenv("HOME") + "/.config/matugen/presets/config.toml"
-	out, err := exec.Command("matugen", "json", file, "-c", cfg).CombinedOutput()
-	if err != nil {
-		fatal("matugen json %s: %v\n%s", file, err, strings.TrimSpace(string(out)))
-	}
-	if len(out) > 0 {
-		fmt.Print(string(out))
-	}
+	return resolveExisting(name, dir, "theme")
 }
 
 // ─── Settings ────────────────────────────────────────────────────────
@@ -912,15 +1310,18 @@ Usage:
                                           unless --items is given); prints selection
   qsh wallpapers                          list available wallpapers (basenames)
   qsh wallpaper <image|name> [--index N]  apply background + regenerate theme
-         [--scheme T]                     --index 0 = most dominant colour;
-                                          --scheme e.g. scheme-expressive
+         [--scheme T] [--no-theme]        --index 0 = most dominant colour;
+                                          --scheme e.g. scheme-expressive;
+                                          --no-theme changes only the wallpaper
   qsh colors <image|name>                 diagnose: candidate source colours +
                                           resulting palette for each index
                                           (and current scheme)
   qsh sync on|off                         sync colours to wallpaper (or revert preset)
   qsh scheme <type>                       persist matugen scheme type + re-derive
+                                          only while sync is on
   qsh themes                              list available theme presets
   qsh theme <preset|json-file>            apply a fixed theme preset
+  qsh bootstrap                           generate a default theme (setup only)
   qsh settings get <key>                  print a persisted setting
   qsh settings set <key> <value>          persist a setting (shareable file)
   qsh settings unset <key>                remove a persisted setting

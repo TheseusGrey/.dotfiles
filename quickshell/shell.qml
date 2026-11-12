@@ -15,6 +15,7 @@ ShellRoot {
     Panels.DatePopup {}
     Panels.NotificationPopup {}
     Panels.OsdOverlay {}
+    Panels.ToastOverlay {}
     Panels.LockScreen {}
 
     // Force singleton initialization (they have no visual component)
@@ -23,5 +24,6 @@ ShellRoot {
         void(ShortcutHandler);
         void(NotificationManager);
         void(FinderServer);
+        void(PreviewQueue);
     }
 }

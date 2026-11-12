@@ -5,7 +5,23 @@
 --  |____|          \______  /|__|   / ____||   __/|__|
 --                         \/        \/     |__|
 
-local matugen = require("themes/matugen_colors")
+-- `dofile` rather than `require`: Lua caches required modules, so after
+-- `hyprctl reload` the freshly generated matugen_colors.lua would otherwise be
+-- ignored. The hardcoded table is only a fallback for a missing/broken file.
+local ok, matugen = pcall(dofile,
+	os.getenv("HOME") .. "/.config/hypr/themes/matugen_colors.lua")
+
+if not ok or type(matugen) ~= "table" then
+	matugen = {
+		-- active_border matches the shell's own border colour (Colors.border =
+		-- colors.outline clamped to 58% lightness), so the window frame and the
+		-- shell chrome read as one consistent theme.
+		active_border = "rgba(8f9099ee)",
+		inactive_border = "rgba(4e505aee)",
+		group_border_1 = "rgba(e0bbddee)",
+		group_border_2 = "rgba(c0c6dcee)",
+	}
+end
 
 hl.exec_cmd("gsettings set org.gnome.desktop.interface icon-theme 'Nordzy'")
 hl.exec_cmd("gsettings set org.gnome.desktop.interface gtk-theme 'Nordic-Blue'")

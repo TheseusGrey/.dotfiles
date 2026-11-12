@@ -1,14 +1,16 @@
 # matugen 4.2 — wallpaper-driven theme
 # ------------------------------------
-# Generates one palette and renders it into several targets (all inside the
-# dotfiles repo; the live configs are symlinked, so this stays in sync):
-#   outputs/quickshell/services/Colors.qml  → shell palette (Colors.qml)
-#   hypr/themes/matugen_colors.lua          → hyprland borders
-#   waybar/colors.css                       → waybar palette
-#   obsidian css snippets                   → Obsidian vault theme
-#   zen userChrome.css                      → Zen browser chrome
-#   steam libraryroot.custom.css            → Steam library UI
-#   prism theme.json + themeStyle.css       → Prism Launcher theme
+# Generates one palette and renders it into several targets. Repo-local
+# outputs are gitignored; the live configs are symlinked, so matugen writes
+# through the stow links:
+#   quickshell/services/Colors.qml          → shell palette
+#   hypr/themes/matugen_colors.lua          → Hyprland borders
+#   chrome/matugen-chrome.css               → Librewolf browser chrome
+#   chrome/matugen-content.css              → Librewolf about: pages
+#   kitty/matugen.conf                      → Kitty palette
+#   Obsidian snippet                        → Obsidian vault theme
+#   Steam libraryroot.custom.css            → Steam library UI
+#   Prism theme.json + themeStyle.css       → Prism Launcher theme
 #
 # Run it with:
 #   matugen image <wallpaper>     or     qsh wallpaper <wallpaper>
@@ -22,9 +24,6 @@ contrast = 0.0
 # source_color_index 0 = most dominant colour — keeps each wallpaper's own
 # identity (a bright teal image stays teal, a deep purple one stays purple).
 # Use `qsh colors <image>` to see the candidates and other options.
-# (Previously this used prefer = "closest-to-fallback" + fallback_color, which
-#  dragged every image toward a near-white source and made unrelated images
-#  produce near-identical schemes.)
 source_color_index = 0
 
 [config.wallpaper]
@@ -38,39 +37,36 @@ command = 'true'
 
 [templates.quickshell]
 input_path = '~/.config/matugen/templates/colors.qml'
-output_path = '/home/ashe/.dotfiles/quickshell/services/Colors.qml'
-post_hook = '~/.dotfiles/bin/matugen-notify.sh'
+output_path = '~/.dotfiles/quickshell/services/Colors.qml'
 
 [templates.hyprland]
 input_path = '~/.config/matugen/templates/hypr-colors.lua'
-output_path = '/home/ashe/.dotfiles/hypr/themes/matugen_colors.lua'
-post_hook = 'hyprctl reload'
+output_path = '~/.dotfiles/hypr/themes/matugen_colors.lua'
 
-# [templates.waybar]
-# input_path = '~/.config/matugen/templates/waybar-colors.css'
-# output_path = '/home/ashe/.dotfiles/waybar/colors.css'
-# post_hook = 'pkill -SIGUSR2 waybar'
+[templates.librewolf-chrome]
+input_path = '~/.config/matugen/templates/librewolf-chrome.css'
+output_path = '~/.dotfiles/chrome/matugen-chrome.css'
+
+[templates.librewolf-content]
+input_path = '~/.config/matugen/templates/librewolf-content.css'
+output_path = '~/.dotfiles/chrome/matugen-content.css'
+
+[templates.kitty]
+input_path = '~/.config/matugen/templates/kitty.conf'
+output_path = '~/.dotfiles/kitty/matugen.conf'
 
 [templates.obsidian-lore]
 input_path = '~/.config/matugen/templates/obsidian.css'
-output_path = '/home/ashe/Documents/Lore Store/.obsidian/snippets/matugen.css'
-
-[templates.obsidian-lore-backup]
-input_path = '~/.config/matugen/templates/obsidian.css'
-output_path = '/home/ashe/Documents/Lore Store Backup/.obsidian/snippets/matugen.css'
-
-[templates.zen]
-input_path = '~/.config/matugen/templates/zen-userchrome.css'
-output_path = '/home/ashe/.zen/wenh0vy4.Default (release)/chrome/userChrome.css'
+output_path = '~/Documents/LoreStore/.obsidian/snippets/matugen.css'
 
 [templates.steam]
 input_path = '~/.config/matugen/templates/steam-custom.css'
-output_path = '/home/ashe/.steam/steam/steamui/libraryroot.custom.css'
+output_path = '~/.steam/steam/steamui/libraryroot.custom.css'
 
 [templates.prism]
 input_path = '~/.config/matugen/templates/prism-theme.json'
-output_path = '/home/ashe/.local/share/PrismLauncher/themes/matugen/theme.json'
+output_path = '~/.local/share/PrismLauncher/themes/matugen/theme.json'
 
 [templates.prism-style]
 input_path = '~/.config/matugen/templates/prism-style.css'
-output_path = '/home/ashe/.local/share/PrismLauncher/themes/matugen/themeStyle.css'
+output_path = '~/.local/share/PrismLauncher/themes/matugen/themeStyle.css'

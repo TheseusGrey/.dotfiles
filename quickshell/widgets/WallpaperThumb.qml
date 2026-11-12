@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Layouts
+import Quickshell
 import Quickshell.Io
 import qs.services
 import qs.components as Tui
@@ -15,9 +16,10 @@ Item {
 
     property string fileName: ""
     property real barHeight: 5
+    property bool active: false
     signal applied()
 
-    readonly property string src: "file:///home/ashe/.dotfiles/wallpapers/" + fileName
+    readonly property string src: "file://" + Quickshell.env("HOME") + "/.dotfiles/wallpapers/" + fileName
 
     // ─── Derived accent colours (populated async) ─────────────────────
     property string colBg: Theme.bgElevated
@@ -90,30 +92,37 @@ Item {
 
     readonly property bool hovered: mouse.containsMouse
 
-    // ─── Async accent derivation ────────────────────────────────────
-    Process {
-        id: accentProc
-        property string buffer: ""
+    // ─── Lazy accent derivation (only while the theme panel is open) ─────
+    function applyAccents(colors) {
+        if (!colors || colors.length < 4) return;
+        root.colBg = colors[0];
+        root.colPrimary = colors[1];
+        root.colSecondary = colors[2];
+        root.colTertiary = colors[3];
+    }
 
-        stdout: SplitParser {
-            onRead: data => { accentProc.buffer += data + "\n"; }
+    function loadPreview() {
+        if (!root.active || root.fileName === "") return;
+        const cached = PreviewQueue.cached(root.fileName);
+        if (cached !== undefined) {
+            root.applyAccents(cached);
+            return;
         }
+        PreviewQueue.request(root.fileName);
+    }
 
-        onRunningChanged: {
-            if (!running) {
-                const parts = accentProc.buffer.trim().split(/\s+/);
-                if (parts.length >= 4) {
-                    root.colBg = parts[0];
-                    root.colPrimary = parts[1];
-                    root.colSecondary = parts[2];
-                    root.colTertiary = parts[3];
-                }
-            }
-        }
+    onActiveChanged: {
+        if (root.active) root.loadPreview();
     }
 
     Component.onCompleted: {
-        accentProc.command = ["/home/ashe/.local/bin/qsh", "accent", root.fileName];
-        accentProc.running = true;
+        if (root.active) root.loadPreview();
+    }
+
+    Connections {
+        target: PreviewQueue
+        function onPreviewReady(file, colors) {
+            if (file === root.fileName) root.applyAccents(colors);
+        }
     }
 }

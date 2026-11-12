@@ -1,0 +1,26 @@
+# matugen bootstrap mode — only repo-local outputs, used by setup.sh when a
+# fresh checkout has no generated palette yet. Keeps setup working even when
+# external apps/vaults are not installed.
+
+[config]
+mode = "dark"
+
+[templates.quickshell]
+input_path = '~/.config/matugen/templates-raw/colors.qml'
+output_path = '~/.dotfiles/quickshell/services/Colors.qml'
+
+[templates.hyprland]
+input_path = '~/.config/matugen/templates-raw/hypr-colors.lua'
+output_path = '~/.dotfiles/hypr/themes/matugen_colors.lua'
+
+[templates.librewolf-chrome]
+input_path = '~/.config/matugen/templates-raw/librewolf-chrome.css'
+output_path = '~/.dotfiles/chrome/matugen-chrome.css'
+
+[templates.librewolf-content]
+input_path = '~/.config/matugen/templates-raw/librewolf-content.css'
+output_path = '~/.dotfiles/chrome/matugen-content.css'
+
+[templates.kitty]
+input_path = '~/.config/matugen/templates-raw/kitty.conf'
+output_path = '~/.dotfiles/kitty/matugen.conf'

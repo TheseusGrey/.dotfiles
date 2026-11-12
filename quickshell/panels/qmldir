@@ -6,6 +6,7 @@ RightPanel 1.0 RightPanel.qml
 BottomBorder 1.0 BottomBorder.qml
 NotificationPopup 1.0 NotificationPopup.qml
 OsdOverlay 1.0 OsdOverlay.qml
+ToastOverlay 1.0 ToastOverlay.qml
 LockScreen 1.0 LockScreen.qml
 FinderPopup 1.0 FinderPopup.qml
 DatePopup 1.0 DatePopup.qml

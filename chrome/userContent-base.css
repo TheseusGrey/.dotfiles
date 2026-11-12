@@ -1,0 +1,9 @@
+/* Hand-written overrides for about: pages.
+ * Theme colours live in the generated matugen-content.css, which
+ * userContent.css imports after this file. */
+
+@-moz-document url-prefix("about:") {
+  * {
+    border-radius: 0px !important;
+  }
+}

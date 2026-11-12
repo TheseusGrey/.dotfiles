@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Layouts
+import Quickshell
 import Quickshell.Io
 import qs.services
 import qs.components as Tui
@@ -15,7 +16,7 @@ import qs.components as Tui
 Item {
     id: root
 
-    readonly property string qsh: "/home/ashe/.local/bin/qsh"
+    readonly property string qsh: Quickshell.env("HOME") + "/.local/bin/qsh"
     readonly property var imageExts: [".png", ".jpg", ".jpeg", ".webp", ".gif", ".bmp"]
 
     // Image-extension filter so a bad enumeration line can never leak into the
@@ -78,7 +79,7 @@ Item {
         { label: "caution", color: Colors.caution }
     ]
 
-    readonly property string wallpaperDir: "/home/ashe/.dotfiles/wallpapers"
+    readonly property string wallpaperDir: Quickshell.env("HOME") + "/.dotfiles/wallpapers"
 
     // Re-enumerate the wallpaper folder. Only updates the model when the actual
     // list changes, so a filewatch-triggered refresh never causes the grid to
@@ -135,40 +136,81 @@ Item {
     }
 
     // ─── Apply commands ─────────────────────────────────────────────
+    // Keep the focus-grab guard alive for a short grace period after the
+    // process returns: hyprpaper/hyprctl churn can clear the grab a moment
+    // later and collapse the panel mid-action.
+    Timer {
+        id: rearmTimer
+        interval: 800
+        onTriggered: {
+            PanelState.themeProcessRunning = false;
+        }
+    }
+
+    // Return the most useful line from a failed command's stderr.
+    function lastError(text) {
+        const lines = text.trim().split("\n").map(l => l.trim()).filter(l => l !== "");
+        if (lines.length === 0) return "unknown error";
+        for (let i = lines.length - 1; i >= 0; i--) {
+            if (!lines[i].startsWith("matugen")) return lines[i];
+        }
+        return lines[lines.length - 1];
+    }
+
     Process {
         id: applyProc
-        property string buffer: ""
+        property string errBuffer: ""
+        property string actionLabel: "theme"
+        property string successBody: ""
         running: false
+
+        stderr: SplitParser {
+            onRead: data => { applyProc.errBuffer += data + "\n"; }
+        }
+
         onRunningChanged: {
             if (running) {
                 PanelState.themeProcessRunning = true;
-            } else {
+            } else if (root.rearmTimer) {
                 root.rearmTimer.restart();
+            }
+        }
+
+        onExited: {
+            if (exitCode === 0) {
+                PanelState.showToast(applyProc.actionLabel + " applied", applyProc.successBody, false);
+                PanelState.reloadSettings();
+            } else {
+                PanelState.showToast(applyProc.actionLabel + " failed", root.lastError(applyProc.errBuffer), true);
             }
         }
     }
 
     Process {
         id: syncProc
+        property string errBuffer: ""
+        property string actionLabel: "sync"
         running: false
+
+        stderr: SplitParser {
+            onRead: data => { syncProc.errBuffer += data + "\n"; }
+        }
+
         onRunningChanged: {
             if (running) {
                 PanelState.themeProcessRunning = true;
-            } else {
+            } else if (root.rearmTimer) {
                 root.rearmTimer.restart();
             }
         }
-    }
 
-    // Because matugen/hyprpaper churn can clear the focus grab a moment AFTER
-    // the process returns (hyprctl reload etc), keep the grab disabled for a
-    // short grace period after the work finishes — otherwise the panel
-    // collapses mid-action.
-    Timer {
-        id: rearmTimer
-        interval: 800
-        onTriggered: {
-            PanelState.themeProcessRunning = false;
+        onExited: {
+            if (exitCode === 0) {
+                PanelState.showToast(syncProc.actionLabel, "colours updated", false);
+                PanelState.reloadSettings();
+            } else {
+                PanelState.showToast(syncProc.actionLabel + " failed", root.lastError(syncProc.errBuffer), true);
+            }
         }
     }
 
@@ -181,30 +223,41 @@ Item {
     }
 
     function applyWallpaper(name) {
+        const args = [root.qsh, "wallpaper", name];
+        if (!PanelState.themeSyncedToWallpaper) args.push("--no-theme");
+        applyProc.actionLabel = PanelState.themeSyncedToWallpaper ? "wallpaper + theme" : "wallpaper";
+        applyProc.successBody = name;
+        applyProc.errBuffer = "";
         root.beginThemeAction();
-        applyProc.command = [root.qsh, "wallpaper", name];
+        applyProc.command = args;
         applyProc.running = true;
     }
 
     function applyPreset(name) {
         root.presetsOpen = false;
+        applyProc.actionLabel = "preset";
+        applyProc.successBody = name;
+        applyProc.errBuffer = "";
         root.beginThemeAction();
         applyProc.command = [root.qsh, "theme", name];
         applyProc.running = true;
     }
 
     function toggleSync(on) {
-        PanelState.setSyncedToWallpaper(on);
+        syncProc.actionLabel = on ? "sync on" : "sync off";
+        syncProc.errBuffer = "";
         root.beginThemeAction();
         syncProc.command = [root.qsh, "sync", on ? "on" : "off"];
         syncProc.running = true;
     }
 
     // Persist the chosen matugen scheme and regenerate from the current
-    // wallpaper so the new colour generation is applied immediately.
+    // wallpaper. qsh only writes the new scheme after generation succeeds.
     function applyScheme(value) {
         root.schemesOpen = false;
-        PanelState.themeScheme = value;
+        applyProc.actionLabel = "generation scheme";
+        applyProc.successBody = value;
+        applyProc.errBuffer = "";
         root.beginThemeAction();
         applyProc.command = [root.qsh, "scheme", value];
         applyProc.running = true;
@@ -232,6 +285,8 @@ Item {
         if (root.visible) {
             root.refreshWallpapers();
             wallWatch.restart();
+        } else {
+            PreviewQueue.cancelAll();
         }
     }
 
@@ -495,6 +550,7 @@ Item {
                         Layout.fillWidth: true
                         Layout.preferredWidth: wallGrid.width / 2 - Theme.itemSpacing / 2
                         fileName: modelData
+                        active: root.visible
                         onApplied: root.applyWallpaper(modelData)
                     }
                 }

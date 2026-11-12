@@ -9,3 +9,11 @@ data
 
 result
 env.nix
+
+# Generated theme outputs (created by qsh/matugen, see setup.sh)
+/quickshell/services/Colors.qml
+/hypr/themes/matugen_colors.lua
+/hypr/hyprpaper.conf
+/chrome/matugen-chrome.css
+/chrome/matugen-content.css
+/kitty/matugen.conf

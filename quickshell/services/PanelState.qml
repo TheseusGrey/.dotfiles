@@ -7,7 +7,7 @@ import QtQuick
 Singleton {
     id: root
 
-    readonly property string qsh: "/home/ashe/.local/bin/qsh"
+    readonly property string qsh: Quickshell.env("HOME") + "/.local/bin/qsh"
 
     // Which panel is currently active (empty = none)
     // Values: "left", "right", ""
@@ -45,6 +45,24 @@ Singleton {
     // Decoupled from themeSyncedToWallpaper; applies to image theming.
     property string themeScheme: "scheme-expressive"
 
+    // ─── Theme result toasts ─────────────────────────────────────────
+    // Consumed by ToastOverlay. `error` selects the toast's border colour.
+    signal toastRequested(string title, string body, bool error)
+
+    function showToast(title: string, body: string, error: bool) {
+        toastRequested(title, body, !!error);
+    }
+
+    // Re-read theme settings after a successful qsh apply. The panel must not
+    // optimistically flip toggles: qsh only persists state after generation
+    // succeeds.
+    function reloadSettings() {
+        getProc.command = [root.qsh, "settings", "get", "theme.syncedToWallpaper"];
+        getProc.running = true;
+        schemeProc.command = [root.qsh, "settings", "get", "theme.scheme"];
+        schemeProc.running = true;
+    }
+
     // Set the sync pref and persist it for future sessions.
     function setSyncedToWallpaper(value: bool) {
         themeSyncedToWallpaper = !!value;
@@ -52,13 +70,8 @@ Singleton {
         setProc.running = true;
     }
 
-    // Loads the persisted value on startup (before any UX reads it).
-    Component.onCompleted: {
-        getProc.command = [root.qsh, "settings", "get", "theme.syncedToWallpaper"];
-        getProc.running = true;
-        schemeProc.command = [root.qsh, "settings", "get", "theme.scheme"];
-        schemeProc.running = true;
-    }
+    // Loads the persisted values on startup (before any UX reads them).
+    Component.onCompleted: reloadSettings()
 
     Process {
         id: getProc
@@ -66,9 +79,8 @@ Singleton {
         stdout: SplitParser {
             onRead: data => {
                 const v = data.trim();
-                // Only flip off when explicitly stored "false"; anything else
-                // (missing, "true") keeps the default synced-on.
-                if (v === "false") root.themeSyncedToWallpaper = false;
+                // Missing/empty means "keep the default synced-on state".
+                if (v !== "") root.themeSyncedToWallpaper = (v !== "false");
             }
         }
     }
