@@ -20,15 +20,20 @@ hl.bind(mainMod .. " + E", hl.dsp.exec_cmd(file), { description = "Open File Exp
 hl.bind(mainMod .. " + R", hl.dsp.exec_cmd("~/.dotfiles/setup.sh"), { description = "Re-link dotfiles" })
 
 -- Menus
-hl.bind(mainMod .. " + space", hl.dsp.exec_cmd(qsh .. " finder apps"), { description = "App Launcher" })
+-- `release = true` fires the launcher after the key is released instead of
+-- while SUPER is still held. Launching on press puts a keyboard-grabbing layer
+-- surface on screen mid-chord, which is how modifier state / initial focus got
+-- lost. Release-time launching keeps the chord atomic.
+hl.bind(mainMod .. " + space", hl.dsp.exec_cmd(qsh .. " finder apps"), { release = true, description = "App Launcher" })
+hl.bind(mainMod .. " + O", hl.dsp.exec_cmd(qsh .. " panel toggle"), { release = true, description = "Toggle right panel" })
 hl.bind(mainMod .. " + C", hl.dsp.exec_cmd(qsh .. " panel open theme"), { description = "Theme switcher" })
 hl.bind(
 	mainMod .. " + S",
 	hl.dsp.exec_cmd(qsh .. " finder screenshot"),
-	{ description = "Screen Capture menu" }
+	{ release = true, description = "Screen Capture menu" }
 )
-hl.bind(mainMod .. " + X", hl.dsp.exec_cmd(qsh .. " finder screenshot"), { description = "Screen Capture menu" })
-hl.bind(mainMod .. " + A", hl.dsp.exec_cmd("~/.dotfiles/bin/menu_actions.sh"), { description = "Actions Menu" })
+hl.bind(mainMod .. " + X", hl.dsp.exec_cmd(qsh .. " finder screenshot"), { release = true, description = "Screen Capture menu" })
+hl.bind(mainMod .. " + A", hl.dsp.exec_cmd("~/.dotfiles/bin/menu_actions.sh"), { release = true, description = "Actions Menu" })
 
 -- Audio control
 hl.bind("F10", hl.dsp.exec_cmd("~/.dotfiles/bin/volumecontrol.sh -o m"), { locked = true, description = "Mute volume" })
