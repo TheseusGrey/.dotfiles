@@ -7,6 +7,7 @@ hl.window_rule({ name = "Alacritty", match = { class = "^(Alacritty)$" }, worksp
 hl.window_rule({ name = "Kitty", match = { class = "^(kitty)$" }, workspace = "1 silent" })
 hl.window_rule({ name = "Obsidian", match = { class = "^(obsidian)$" }, workspace = "1 silent" })
 hl.window_rule({ name = "Firefox", match = { class = "^(firefox)$" }, workspace = "2 silent" })
+hl.window_rule({ name = "Librewolf", match = { class = "^(librewolf)$" }, workspace = "2 silent" })
 hl.window_rule({ name = "Discord", match = { class = "^(discord)$" }, workspace = "2 silent" })
 hl.window_rule({ name = "Steam", match = { class = "^(steam)$" }, workspace = "3 silent" })
 hl.window_rule({ name = "Curse Forge", match = { class = "^(CurseForge)$" }, workspace = "3 silent" })

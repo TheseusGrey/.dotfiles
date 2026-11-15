@@ -31,7 +31,7 @@ hl.on("hyprland.start", function()
 	hl.exec_cmd("wl-paste --type image --watch cliphist store")
 
 	-- Apps to run on startup
-	hl.exec_cmd("obsidian & zen-browser & easyeffects")
+	hl.exec_cmd("obsidian & librewolf & easyeffects")
 end)
 
 -- █▀▀ █▄░█ █░█
