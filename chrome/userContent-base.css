@@ -36,8 +36,13 @@
     line-height: 1 !important;
   }
 
+  .logo-and-wordmark {
+    align-items: center !important;
+  }
+
   .logo-and-wordmark .logo::before {
     content: "\f002";
+    font-size: 0.75em;
   }
 
   .logo-and-wordmark .wordmark {
@@ -46,7 +51,7 @@
     width: auto !important;
     height: auto !important;
     align-items: center;
-    margin-inline-start: var(--space-large, 24px) !important;
+    margin-inline-start: calc(2 * var(--space-large, 24px)) !important;
     color: var(--matugen-fg, currentColor) !important;
     fill: currentColor !important;
     font-family: var(--qsh-font) !important;
