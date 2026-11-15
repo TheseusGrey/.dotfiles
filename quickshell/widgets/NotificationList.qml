@@ -14,7 +14,70 @@ Item {
     id: root
 
     readonly property var notifications: NotificationManager.notifications
+    readonly property var items: notifications.values
     readonly property bool hasNotifications: NotificationManager.count > 0
+    property int selectedIndex: 0
+
+    function clampSelection() {
+        if (root.items.length === 0) {
+            root.selectedIndex = 0;
+        } else if (root.selectedIndex >= root.items.length) {
+            root.selectedIndex = root.items.length - 1;
+        } else if (root.selectedIndex < 0) {
+            root.selectedIndex = 0;
+        }
+    }
+
+    function moveSelection(delta) {
+        if (root.items.length === 0) return;
+        root.selectedIndex = (root.selectedIndex + delta + root.items.length) % root.items.length;
+    }
+
+    function activateSelected() {
+        if (root.selectedIndex < 0 || root.selectedIndex >= root.items.length) return;
+        const notification = root.items[root.selectedIndex];
+        if (notification.actions && notification.actions.length > 0) {
+            notification.actions[0].invoke();
+        }
+    }
+
+    function dismissSelected() {
+        if (root.selectedIndex < 0 || root.selectedIndex >= root.items.length) return;
+        NotificationManager.dismiss(root.items[root.selectedIndex]);
+        root.clampSelection();
+    }
+
+    function handlePanelAction(action, arg) {
+        switch (action) {
+            case "next":     root.moveSelection(1); return true;
+            case "prev":     root.moveSelection(-1); return true;
+            case "activate": root.activateSelected(); return true;
+            case "dismiss":  root.dismissSelected(); return true;
+            case "clearAll":
+                NotificationManager.clearAll();
+                root.selectedIndex = 0;
+                return true;
+        }
+        return false;
+    }
+
+    onItemsChanged: {
+        root.clampSelection();
+        root.ensureVisible();
+    }
+    onSelectedIndexChanged: root.ensureVisible()
+
+    function ensureVisible() {
+        const item = notifColumn.children[root.selectedIndex];
+        if (!item) return;
+        const top = item.y;
+        const bottom = top + item.height;
+        if (top < notifFlickable.contentY) {
+            notifFlickable.contentY = top;
+        } else if (bottom > notifFlickable.contentY + notifFlickable.height) {
+            notifFlickable.contentY = bottom - notifFlickable.height;
+        }
+    }
 
     ColumnLayout {
         anchors.fill: parent
@@ -73,6 +136,7 @@ Item {
         // ─── Notification list ───────────────────────────────────────
         // Use a Flickable for scrolling when list is long
         Flickable {
+            id: notifFlickable
             visible: root.hasNotifications
             Layout.fillWidth: true
             Layout.fillHeight: true
@@ -86,26 +150,37 @@ Item {
                 spacing: 4
 
                 Repeater {
-                    model: root.notifications.values
+                    model: root.items
 
                     // ─── Single notification item ─────────────────────
                     Item {
                         id: notifItem
                         required property var modelData
+                        required property int index
 
                         Layout.fillWidth: true
                         Layout.preferredHeight: notifContent.implicitHeight + 12
 
+                        readonly property bool isSelected: index === root.selectedIndex
                         readonly property string appName: modelData.appName || "unknown"
                         readonly property string body: modelData.body || ""
                         readonly property string summary: modelData.summary || ""
                         readonly property color levelColor: Theme.urgencyColor(modelData.urgency)
 
-                        // Background highlight on hover
+                        // Keyboard cursor / hover highlight.
                         Rectangle {
                             anchors.fill: parent
-                            color: notifMouse.containsMouse ? Theme.bgHover : "transparent"
+                            color: (notifItem.isSelected || notifMouse.containsMouse) ? Theme.bgHover : "transparent"
                             radius: 0
+                        }
+
+                        // Left cursor notch.
+                        Rectangle {
+                            anchors.left: parent.left
+                            anchors.top: parent.top
+                            anchors.bottom: parent.bottom
+                            width: 2
+                            color: notifItem.isSelected ? Theme.accent : "transparent"
                         }
 
                         ColumnLayout {
@@ -190,8 +265,8 @@ Item {
                             hoverEnabled: true
                             cursorShape: Qt.PointingHandCursor
                             onClicked: {
-                                // Try to focus the app that sent the notification
-                                // Invoke default action if available
+                                root.selectedIndex = notifItem.index;
+                                // Invoke the notification's default action if available.
                                 if (notifItem.modelData.actions && notifItem.modelData.actions.length > 0) {
                                     notifItem.modelData.actions[0].invoke();
                                 }
@@ -207,10 +282,14 @@ Item {
 
         // ─── Help bar ────────────────────────────────────────────────
         Tui.TuiText {
-            text: root.hasNotifications ? "click:action  ×:dismiss" : "notifications will appear here"
+            Layout.fillWidth: true
+            text: root.hasNotifications
+                ? "j/k select  enter action  x dismiss  c clear"
+                : "notifications will appear here"
             textColor: Theme.textMuted
             font.pixelSize: Theme.fontSizeSmall
             Layout.topMargin: Theme.itemSpacing
+            elide: Text.ElideRight
         }
     }
 }

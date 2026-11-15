@@ -154,6 +154,36 @@ Item {
         brightProc.running = true;
     }
 
+    // ─── Keyboard actions ────────────────────────────────────────────
+    function adjust(delta) {
+        root.setBrightness(Math.max(1, Math.min(100, root.currentPercent + delta)));
+    }
+
+    function cycleDevice(delta) {
+        if (root.devices.length === 0) return;
+        let index = 0;
+        for (let i = 0; i < root.devices.length; i++) {
+            if (root.devices[i].name === root.activeDevice) {
+                index = i;
+                break;
+            }
+        }
+        index = (index + delta + root.devices.length) % root.devices.length;
+        root.setDevice(root.devices[index].name);
+    }
+
+    function handlePanelAction(action, arg) {
+        switch (action) {
+            case "brightnessDown": root.adjust(-5); return true;
+            case "brightnessUp":   root.adjust(5); return true;
+            case "brightnessMin":  root.setBrightness(1); return true;
+            case "brightnessMax":  root.setBrightness(100); return true;
+            case "deviceNext":     root.cycleDevice(1); return true;
+            case "devicePrev":     root.cycleDevice(-1); return true;
+        }
+        return false;
+    }
+
     // ─── Layout ──────────────────────────────────────────────────────
     ColumnLayout {
         anchors.fill: parent
@@ -268,9 +298,11 @@ Item {
 
         // ─── Help bar ────────────────────────────────────────────────
         Tui.TuiText {
-            text: "scroll:adjust  click:switch device"
+            Layout.fillWidth: true
+            text: "-/+ adjust  0 min  9 max  [/] device"
             textColor: Theme.textMuted
             font.pixelSize: Theme.fontSizeSmall
+            elide: Text.ElideRight
         }
     }
 }

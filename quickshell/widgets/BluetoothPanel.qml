@@ -25,6 +25,7 @@ Item {
     property var connectedMacs: ({})
     property bool powered: false
     property bool scanning: false
+    property int selectedIndex: 0
 
     // ─── Adapter state check ─────────────────────────────────────────
     Process {
@@ -198,6 +199,54 @@ Item {
         }
     }
 
+    // ─── Keyboard selection ──────────────────────────────────────────
+    function clampSelection() {
+        if (root.devices.length === 0) {
+            root.selectedIndex = 0;
+        } else if (root.selectedIndex >= root.devices.length) {
+            root.selectedIndex = root.devices.length - 1;
+        } else if (root.selectedIndex < 0) {
+            root.selectedIndex = 0;
+        }
+    }
+
+    function moveSelection(delta) {
+        if (root.devices.length === 0) return;
+        root.selectedIndex = (root.selectedIndex + delta + root.devices.length) % root.devices.length;
+    }
+
+    function activateSelected() {
+        if (root.selectedIndex < 0 || root.selectedIndex >= root.devices.length) return;
+        const device = root.devices[root.selectedIndex];
+        if (device.connected) root.disconnectDevice(device.mac);
+        else root.connectDevice(device.mac);
+    }
+
+    function handlePanelAction(action, arg) {
+        switch (action) {
+            case "next":     root.moveSelection(1); return true;
+            case "prev":     root.moveSelection(-1); return true;
+            case "activate": root.activateSelected(); return true;
+            case "power":    root.togglePower(); return true;
+            case "scan":     root.toggleScan(); return true;
+        }
+        return false;
+    }
+
+    onDevicesChanged: root.clampSelection()
+    onSelectedIndexChanged: root.ensureVisible()
+
+    function ensureVisible() {
+        if (root.devices.length === 0) return;
+        const rowHeight = Tui.TuiMetrics.lineHeight;
+        const targetY = root.selectedIndex * rowHeight;
+        if (targetY < deviceFlickable.contentY) {
+            deviceFlickable.contentY = targetY;
+        } else if (targetY + rowHeight > deviceFlickable.contentY + deviceFlickable.height) {
+            deviceFlickable.contentY = targetY + rowHeight - deviceFlickable.height;
+        }
+    }
+
     // ─── Device type icon mapping ────────────────────────────────────
     function deviceIcon(name) {
         const lower = name.toLowerCase();
@@ -292,6 +341,7 @@ Item {
 
         // ─── Device list ─────────────────────────────────────────────
         Flickable {
+            id: deviceFlickable
             Layout.fillWidth: true
             Layout.fillHeight: true
             contentHeight: deviceList.implicitHeight
@@ -310,8 +360,16 @@ Item {
                         required property var modelData
                         required property int index
 
+                        readonly property bool isSelected: index === root.selectedIndex
+
                         Layout.fillWidth: true
                         implicitHeight: deviceRow.implicitHeight
+
+                        // Keyboard cursor row.
+                        Rectangle {
+                            anchors.fill: parent
+                            color: parent.isSelected ? Theme.bgHover : "transparent"
+                        }
 
                         RowLayout {
                             id: deviceRow
@@ -369,9 +427,11 @@ Item {
 
         // ─── Help bar ────────────────────────────────────────────────
         Tui.TuiText {
-            text: "click:connect/disconnect  ●:connected"
+            Layout.fillWidth: true
+            text: "j/k select  enter connect  p power  s scan"
             textColor: Theme.textMuted
             font.pixelSize: Theme.fontSizeSmall
+            elide: Text.ElideRight
         }
     }
 }

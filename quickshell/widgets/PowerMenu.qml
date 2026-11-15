@@ -16,10 +16,10 @@ Item {
 
     // ─── Actions model ───────────────────────────────────────────────
     readonly property var actions: [
-        { icon: "", label: "lock", cmd: "loginctl lock-session", color: Theme.accent },
-        { icon: "󰗽", label: "logout", cmd: "hyprctl dispatch exit", color: Theme.caution },
-        { icon: "󰜉", label: "reboot", cmd: "systemctl reboot", color: Theme.warning },
-        { icon: "⏻", label: "shutdown", cmd: "systemctl poweroff", color: Theme.error }
+        { icon: "", label: "lock", shortcut: "l", cmd: "loginctl lock-session", color: Theme.accent },
+        { icon: "󰗽", label: "logout", shortcut: "o", cmd: "hyprctl dispatch exit", color: Theme.caution },
+        { icon: "󰜉", label: "reboot", shortcut: "r", cmd: "systemctl reboot", color: Theme.warning },
+        { icon: "⏻", label: "shutdown", shortcut: "s", cmd: "systemctl poweroff", color: Theme.error }
     ]
 
     // ─── Command executor ────────────────────────────────────────────
@@ -34,13 +34,62 @@ Item {
         PanelState.closeAll();
     }
 
+    function isDestructive(cmd) {
+        return cmd.indexOf("reboot") !== -1 || cmd.indexOf("poweroff") !== -1;
+    }
+
     // ─── Armed/confirm state ─────────────────────────────────────────
     property int confirmIndex: -1
     property int confirmRemaining: 0
+    property int selectedIndex: 0
 
     function arm(index) {
         root.confirmIndex = index;
         root.confirmRemaining = 3;
+    }
+
+    function triggerAction(index) {
+        if (index < 0 || index >= root.actions.length) return;
+        const action = root.actions[index];
+        if (root.isDestructive(action.cmd)) {
+            // First press arms, second press within 3s executes.
+            if (root.confirmIndex === index) root.execute(action.cmd);
+            else root.arm(index);
+        } else {
+            root.execute(action.cmd);
+        }
+    }
+
+    function moveSelection(delta) {
+        root.selectedIndex = (root.selectedIndex + delta + root.actions.length) % root.actions.length;
+    }
+
+    function activateSelected() {
+        root.triggerAction(root.selectedIndex);
+    }
+
+    function triggerByLabel(label) {
+        for (let i = 0; i < root.actions.length; i++) {
+            if (root.actions[i].label === label) {
+                root.selectedIndex = i;
+                root.triggerAction(i);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    function handlePanelAction(action, arg) {
+        switch (action) {
+            case "next":     root.moveSelection(1); return true;
+            case "prev":     root.moveSelection(-1); return true;
+            case "activate": root.activateSelected(); return true;
+            case "lock":     return root.triggerByLabel("lock");
+            case "logout":   return root.triggerByLabel("logout");
+            case "reboot":   return root.triggerByLabel("reboot");
+            case "shutdown": return root.triggerByLabel("shutdown");
+        }
+        return false;
     }
 
     // 1s countdown while an action is armed; clears when it expires.
@@ -84,21 +133,27 @@ Item {
                 Layout.preferredHeight: actionRow.implicitHeight + 8
 
                 readonly property bool isConfirming: root.confirmIndex === index
+                readonly property bool isSelected: root.selectedIndex === index
                 readonly property bool isDestructive: modelData.cmd.indexOf("reboot") !== -1 ||
                                                       modelData.cmd.indexOf("poweroff") !== -1
 
-                // Armed background: soft error wash from the left edge.
+                // Row background: armed wash wins, then the keyboard cursor,
+                // then hover.
                 Rectangle {
                     anchors.fill: parent
-                    visible: actionItem.isConfirming
-                    color: Qt.rgba(Theme.error.r, Theme.error.g, Theme.error.b, 0.16)
+                    visible: actionItem.isConfirming || actionItem.isSelected || actionMouse.containsMouse
+                    color: actionItem.isConfirming
+                        ? Qt.rgba(Theme.error.r, Theme.error.g, Theme.error.b, 0.16)
+                        : actionItem.isSelected ? Theme.bgHover : Theme.bgElevated
                 }
 
-                // Hover background (plain, not a glyph wall).
+                // Left cursor notch.
                 Rectangle {
-                    anchors.fill: parent
-                    visible: !actionItem.isConfirming && actionMouse.containsMouse
-                    color: Theme.bgElevated
+                    anchors.left: parent.left
+                    anchors.top: parent.top
+                    anchors.bottom: parent.bottom
+                    width: 2
+                    color: actionItem.isSelected ? Theme.accent : "transparent"
                 }
 
                 RowLayout {
@@ -110,10 +165,12 @@ Item {
                     anchors.rightMargin: 6
                     spacing: 8
 
+                    readonly property bool isActive: actionItem.isSelected || actionMouse.containsMouse
+
                     // Icon
                     Tui.TuiText {
                         text: actionItem.modelData.icon
-                        textColor: actionMouse.containsMouse ? actionItem.modelData.color : Theme.textPrimary
+                        textColor: actionRow.isActive ? actionItem.modelData.color : Theme.textPrimary
                         font.pixelSize: Theme.fontSizeLarge
                     }
 
@@ -124,10 +181,10 @@ Item {
                             : actionItem.modelData.label
                         textColor: {
                             if (actionItem.isConfirming) return actionItem.modelData.color;
-                            if (actionMouse.containsMouse) return actionItem.modelData.color;
+                            if (actionRow.isActive) return actionItem.modelData.color;
                             return Theme.textPrimary;
                         }
-                        font.bold: actionMouse.containsMouse || actionItem.isConfirming
+                        font.bold: actionRow.isActive || actionItem.isConfirming
                         Layout.fillWidth: true
                     }
 
@@ -139,6 +196,15 @@ Item {
                         font.pixelSize: Theme.fontSizeSmall
                         font.bold: true
                     }
+
+                    // Key hint chip.
+                    Tui.TuiText {
+                        visible: !actionItem.isConfirming
+                        text: "[" + actionItem.modelData.shortcut + "]"
+                        textColor: actionRow.isActive ? actionItem.modelData.color : Theme.accent
+                        font.pixelSize: Theme.fontSizeSmall
+                        font.bold: true
+                    }
                 }
 
                 MouseArea {
@@ -147,16 +213,8 @@ Item {
                     hoverEnabled: true
                     cursorShape: Qt.PointingHandCursor
                     onClicked: {
-                        if (actionItem.isDestructive) {
-                            // First click arms, second click (within 3s) executes.
-                            if (root.confirmIndex === actionItem.index) {
-                                root.execute(actionItem.modelData.cmd);
-                            } else {
-                                root.arm(actionItem.index);
-                            }
-                        } else {
-                            root.execute(actionItem.modelData.cmd);
-                        }
+                        root.selectedIndex = actionItem.index;
+                        root.triggerAction(actionItem.index);
                     }
                 }
             }
@@ -218,9 +276,13 @@ Item {
 
         // ─── Help bar ────────────────────────────────────────────────
         Tui.TuiText {
-            text: "click:run  reboot/shutdown:click again within 3s"
-            textColor: Theme.textMuted
+            Layout.fillWidth: true
+            text: root.confirmIndex >= 0
+                ? "press again to confirm  esc cancel"
+                : "j/k select  enter run  l/o/r/s direct"
+            textColor: root.confirmIndex >= 0 ? Theme.error : Theme.textMuted
             font.pixelSize: Theme.fontSizeSmall
+            elide: Text.ElideRight
         }
     }
 }

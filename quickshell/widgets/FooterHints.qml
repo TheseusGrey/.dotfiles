@@ -18,6 +18,7 @@ Item {
         { key: "t",     label: "terminal" },
         { key: "b",     label: "browser" },
         { key: "e",     label: "files" },
+        { key: "o",     label: "panel" },
         { key: "w",     label: "close" },
         { key: "s",     label: "screenshot" },
         { key: "c",     label: "controls" },
@@ -25,41 +26,8 @@ Item {
     ]
 
     // ─── Per-context hint sets (right panel / finder) ────────────────
-    readonly property var contextHints: ({
-        "volume": [
-            { key: "scroll",  label: "adjust" },
-            { key: "click",   label: "switch device" },
-            { key: "esc",     label: "close" }
-        ],
-        "brightness": [
-            { key: "scroll",  label: "adjust" },
-            { key: "esc",     label: "close" }
-        ],
-        "wifi": [
-            { key: "click",   label: "connect" },
-            { key: "esc",     label: "close" }
-        ],
-        "bluetooth": [
-            { key: "click",   label: "pair" },
-            { key: "esc",     label: "close" }
-        ],
-        "power": [
-            { key: "click",   label: "action" },
-            { key: "esc",     label: "close" }
-        ],
-        "notifications": [
-            { key: "click",   label: "dismiss" },
-            { key: "esc",     label: "close" }
-        ],
-        "keybinds": [
-            { key: "scroll",  label: "navigate" },
-            { key: "esc",     label: "close" }
-        ],
-        "menu": [
-            { key: "click",   label: "open" },
-            { key: "esc",     label: "close" }
-        ]
-    })
+    // Panel hints come from PanelKeys, the same map the dispatcher uses, so
+    // the footer always describes keys that actually work.
 
     // Which hint set is showing: empty → SUPER group.
     readonly property var activeHints: {
@@ -71,7 +39,10 @@ Item {
             ];
         }
         if (PanelState.rightPanelContext !== "") {
-            return root.contextHints[PanelState.rightPanelContext] || [];
+            return PanelKeys.hintsFor(
+                PanelState.rightPanelContext,
+                PanelState.rightPanelCanGoBack
+            );
         }
         return [];
     }

@@ -122,6 +122,7 @@ The available commands are:
 | `qsh finder keybinds` | Open the keybind finder. |
 | `qsh finder toggle` | Open or close the finder. |
 | `qsh panel open <context>` | Open the right panel. The context choices are `volume`, `brightness`, `wifi`, `bluetooth`, `power`, `notifications`, `keybinds`, `menu`. |
+| `qsh panel toggle` | Toggle the right panel. It reopens the last context you were in, or the menu on first use. |
 | `qsh panel left` | Expand or collapse the left rail. |
 | `qsh panel close` | Close all panels. |
 | `qsh osd volume <0-1> [muted]` | Show the volume OSD. The level is a number from `0` to `1`. The `muted` value is `true` or `false`. |
@@ -176,6 +177,7 @@ The methods of this target are:
 |---|---|
 | `lock` | Show the lock screen. |
 | `toggleLeft` | Expand or collapse the left rail. |
+| `toggleRight` | Toggle the right panel, reopening the last context (or the menu). |
 | `closeAll` | Close all panels. |
 | `toggleFinder` | Open or close the finder. |
 | `openFinder <mode>` | Open the finder in the given mode. |
@@ -197,6 +199,102 @@ To call a method directly, use this form:
 ```sh
 qsh call tui.shell <method> [args...]
 ```
+
+## Keyboard navigation
+
+The whole right panel is operable without a mouse.
+
+Press `SUPER + O` (or run `qsh panel toggle`) to open it. It reopens the
+context you used last, so the same shortcut gets you back to volume, power,
+notifications, and so on.
+
+The panel owns the keyboard only while it is open, so its keys are bare keys
+(no modifier). The footer strip and each panel's help line show the keys for
+the current context.
+
+**Everywhere**
+
+| Key | Action |
+|---|---|
+| `esc` | Close the panel. In the power menu, cancel an armed reboot/shutdown first. |
+| `backspace` | Back to the section menu (or close from the menu). |
+| `tab` / `shift+tab` | Next / previous section. |
+
+**Menu**
+
+| Key | Action |
+|---|---|
+| `v d w b n ? t p` | Jump straight to volume, brightness, network, bluetooth, notifications, keybinds, theme, power. |
+| `j` / `k` (or arrows) | Move the cursor. |
+| `enter` | Open the selected section. |
+
+**Volume**
+
+| Key | Action |
+|---|---|
+| `-` / `+` | Output volume down / up. |
+| `[` / `]` | Microphone volume down / up. |
+| `m` / `M` | Mute output / microphone. |
+| `o` / `i` | Cycle output / input device. |
+
+**Brightness**
+
+| Key | Action |
+|---|---|
+| `-` / `+` | Dim / brighten. |
+| `0` / `9` | Minimum / maximum. |
+| `[` / `]` | Previous / next device. |
+
+**Network**
+
+The network panel is mouse-driven: click a network to connect, click the
+toggle to enable or disable wifi, and use the password field when prompted.
+
+**Bluetooth**
+
+| Key | Action |
+|---|---|
+| `j` / `k` (or arrows) | Move the cursor. |
+| `enter` | Connect / disconnect the selected device. |
+| `p` | Toggle the bluetooth adapter. |
+| `s` | Scan for devices. |
+
+**Notifications**
+
+| Key | Action |
+|---|---|
+| `j` / `k` (or arrows) | Move the cursor. |
+| `enter` | Invoke the selected notification's default action. |
+| `x` | Dismiss the selected notification. |
+| `c` | Clear all notifications. |
+
+**Power**
+
+| Key | Action |
+|---|---|
+| `j` / `k` (or arrows) | Move the cursor. |
+| `enter` | Run the selected action. |
+| `l` / `o` / `r` / `s` | Lock, log out, reboot, shut down. |
+
+`reboot` and `shutdown` need confirmation: the first press arms the action and
+starts a 3-second countdown, and a second press within that window runs it.
+`esc` cancels the countdown.
+
+**Theme**
+
+The theme panel is mouse-driven: pick a wallpaper or a colour preset.
+
+### Key collisions
+
+Hyprland keybinds are compositor-level and run before the panel, so a global
+bind always wins over a bare panel key. All bundled binds use a modifier or a
+non-character key, which keeps the bare panel keys safe. If you add a global
+bind that uses a single character with no modifier, the shell logs a
+`[PanelKeys] global bare bind conflicts with panel key` warning on startup.
+
+The panel keymap and its hints come from one file,
+`quickshell/services/PanelKeys.qml`, so the footer cannot drift from the keys
+that actually work.
 
 ## Theme
 

@@ -17,6 +17,10 @@ Singleton {
     // Values: "volume", "brightness", "wifi", "bluetooth", "power", "notifications", "keybinds", ""
     property string rightPanelContext: ""
 
+    // Last expanded context, used by toggleRight() so the panel reopens where
+    // it was left instead of always resetting to the menu.
+    property string lastRightContext: "menu"
+
     // Requested finder mode (set before opening finder, consumed by Finder on visible)
     // Values: "apps", "screenshot", "keybinds", "" (empty = default/apps)
     property string finderRequestedMode: ""
@@ -130,17 +134,34 @@ Singleton {
         }
     }
 
+    // Show a context unconditionally (used by panel keyboard navigation and
+    // the section menu). Unlike openRight(), selecting the already-visible
+    // context does not close the panel.
+    function showRight(context: string) {
+        if (context === "") return;
+        rightPanelContext = context;
+        activePanel = "right";
+        lastRightContext = context;
+        // Collapse left if expanded
+        leftExpanded = false;
+        // Close finder if open
+        finderVisible = false;
+    }
+
     function openRight(context: string) {
         if (activePanel === "right" && rightPanelContext === context) {
             // Toggle off if same context clicked again
             closeRight();
         } else {
-            rightPanelContext = context;
-            activePanel = "right";
-            // Collapse left if expanded
-            leftExpanded = false;
-            // Close finder if open
-            finderVisible = false;
+            showRight(context);
+        }
+    }
+
+    function toggleRight() {
+        if (rightPanelContext !== "") {
+            closeRight();
+        } else {
+            showRight(lastRightContext || "menu");
         }
     }
 
@@ -156,6 +177,7 @@ Singleton {
             leftExpanded = false;
         }
         rightPanelContext = "menu";
+        lastRightContext = "menu";
     }
 
     // True while the right panel is showing an actual sub-content (not the
@@ -167,20 +189,22 @@ Singleton {
             closeFinder();
         } else {
             finderVisible = true;
-            // Close other panels
+            // Close other panels / overlays
             rightPanelContext = "";
             leftExpanded = false;
             activePanel = "";
+            datePopupVisible = false;
         }
     }
 
     function openFinder(mode: string) {
         finderRequestedMode = mode;
         finderVisible = true;
-        // Close other panels
+        // Close other panels / overlays
         rightPanelContext = "";
         leftExpanded = false;
         activePanel = "";
+        datePopupVisible = false;
     }
 
     function closeFinder() {

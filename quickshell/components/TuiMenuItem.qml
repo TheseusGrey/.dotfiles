@@ -1,4 +1,5 @@
 import QtQuick
+import QtQuick.Layouts
 import qs.services
 import qs.components as Tui
 
@@ -24,6 +25,7 @@ Item {
 
     property string text: ""
     property string marker: ""     // ">" group, "-" child, "" none
+    property string shortcut: ""   // single-key hint rendered on the right
     property int indent: 0         // cells of extra left padding
     property bool bold: false
     property bool selected: false
@@ -43,7 +45,7 @@ Item {
         color: root.selected ? Theme.accent : (mouse.containsMouse ? Theme.bgHover : "transparent")
     }
 
-    Row {
+    RowLayout {
         anchors.left: parent.left
         anchors.right: parent.right
         anchors.verticalCenter: parent.verticalCenter
@@ -65,6 +67,15 @@ Item {
                 : root.enabled ? root.normalColor : Theme.textMuted
             font.bold: root.bold
             elide: Text.ElideRight
+            Layout.fillWidth: true
+        }
+
+        Tui.TuiText {
+            visible: root.shortcut !== ""
+            text: "[" + root.shortcut + "]"
+            textColor: root.selected ? root.selectedFg : Theme.accent
+            font.bold: true
+            font.pixelSize: Theme.fontSizeSmall
         }
     }
 

@@ -137,6 +137,7 @@ func finderCmd(args []string) {
 }
 
 // qsh panel open <context>  — open a right-panel context
+// qsh panel toggle          — toggle the right panel (reopens last context)
 // qsh panel close           — close all panels
 // qsh panel left            — expand/collapse the left rail
 func panelCmd(args []string) {
@@ -146,7 +147,7 @@ func panelCmd(args []string) {
 	}
 
 	if len(args) == 0 {
-		fatal("usage: qsh panel open <context> | close | left")
+		fatal("usage: qsh panel open <context> | toggle | close | left")
 	}
 
 	switch args[0] {
@@ -169,12 +170,14 @@ func panelCmd(args []string) {
 			"theme":         "toggleTheme",
 		}
 		mustIPC([]string{target, dispatch[args[1]]})
+	case "toggle":
+		mustIPC([]string{target, "toggleRight"})
 	case "close":
 		mustIPC([]string{target, "closeAll"})
 	case "left":
 		mustIPC([]string{target, "toggleLeft"})
 	default:
-		fatal("unknown panel subcommand %q (want open|close|left)", args[0])
+		fatal("unknown panel subcommand %q (want open|toggle|close|left)", args[0])
 	}
 }
 
@@ -1300,6 +1303,7 @@ Usage:
   qsh finder toggle                       toggle the finder
   qsh panel open <context>                open right panel (volume|brightness|wifi|
                                           bluetooth|power|notifications|keybinds|menu|theme)
+  qsh panel toggle                        toggle the right panel (reopens last context)
   qsh panel left                          expand/collapse the left rail
   qsh panel close                         close all panels
   qsh osd volume <0-1> [muted]            show volume OSD

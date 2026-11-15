@@ -314,6 +314,57 @@ Item {
         sourceRefreshTimer.start();
     }
 
+    // ─── Keyboard actions ────────────────────────────────────────────
+    function adjustOutput(delta) {
+        const current = Math.round(root.defaultVolume * 100);
+        root.setVolume(Math.max(0, Math.min(100, current + delta)));
+    }
+
+    function adjustInput(delta) {
+        const current = Math.round(root.defaultInputVolume * 100);
+        root.setInputVolume(Math.max(0, Math.min(100, current + delta)));
+    }
+
+    function cycleSink() {
+        if (root.sinks.length === 0) return;
+        let index = 0;
+        for (let i = 0; i < root.sinks.length; i++) {
+            if (root.sinks[i].id === root.defaultSinkId) {
+                index = i;
+                break;
+            }
+        }
+        index = (index + 1) % root.sinks.length;
+        root.setSink(root.sinks[index].id);
+    }
+
+    function cycleSource() {
+        if (root.sources.length === 0) return;
+        let index = 0;
+        for (let i = 0; i < root.sources.length; i++) {
+            if (root.sources[i].id === root.defaultSourceId) {
+                index = i;
+                break;
+            }
+        }
+        index = (index + 1) % root.sources.length;
+        root.setSource(root.sources[index].id);
+    }
+
+    function handlePanelAction(action, arg) {
+        switch (action) {
+            case "outputDown":  root.adjustOutput(-5); return true;
+            case "outputUp":    root.adjustOutput(5); return true;
+            case "inputDown":   root.adjustInput(-5); return true;
+            case "inputUp":     root.adjustInput(5); return true;
+            case "outputMute":  root.toggleMute(); return true;
+            case "inputMute":   root.toggleInputMute(); return true;
+            case "outputNext":  root.cycleSink(); return true;
+            case "inputNext":   root.cycleSource(); return true;
+        }
+        return false;
+    }
+
     // ─── Layout ──────────────────────────────────────────────────────
     ColumnLayout {
         anchors.fill: parent
@@ -521,9 +572,11 @@ Item {
 
         // ─── Help bar ────────────────────────────────────────────────
         Tui.TuiText {
-            text: "scroll:adjust  click:switch device"
+            Layout.fillWidth: true
+            text: "-/+ out  [/] mic  m/M mute  o/i device"
             textColor: Theme.textMuted
             font.pixelSize: Theme.fontSizeSmall
+            elide: Text.ElideRight
         }
     }
 }

@@ -166,6 +166,9 @@ Item {
     // ─── Initialization ──────────────────────────────────────────────
     Component.onCompleted: {
         keybindLoader.running = true;
+        // QML reload while the popup is already open: no visibility edge will
+        // fire, so start the session explicitly.
+        if (root.panelOpen) root.beginSession();
     }
 
     // ─── FinderServer integration (custom mode) ──────────────────────
@@ -176,51 +179,66 @@ Item {
             root.currentMode = "custom";
             root.query = "";
             root.selectedIndex = 0;
-            if (root.visible) {
+            if (PanelState.finderVisible) {
                 searchInput.text = "";
                 root.updateFilter();
-                focusTimer.start();
+                root.beginFocus();
             }
         }
     }
 
-    onVisibleChanged: {
-        if (visible) {
-            searchInput.text = "";
-            root.query = "";
-            root.selectedIndex = 0;
-            // If there's a pending custom request, stay in custom mode
-            if (FinderServer.hasPendingRequest) {
-                root.currentMode = "custom";
-            } else if (PanelState.finderRequestedMode !== "") {
-                root.setMode(PanelState.finderRequestedMode);
-                PanelState.finderRequestedMode = "";
-            } else {
-                root.currentModeIndex = 0;
-                root.currentMode = modes[0];
-            }
-            // Deferred focus: a freshly-shown layer surface needs a compositor
-            // round-trip before it can reliably grab the keyboard (the very
-            // first time the finder is opened in particular). forceActiveFocus
-            // is retried until it actually sticks so the input is always
-            // typeable the moment the surface commits.
-            focusAttempts = 0;
-            focusTimer.start();
-            // Population: the async sources (desktop-entry scan, hyprctl binds)
-            // can still be loading on the very first open and land right as the
-            // window appears. Poll briefly until items appear (their own change
-            // signals back this up if the load takes longer), so the list is
-            // never blank when the finder shows.
-            populateAttempts = 0;
-            populateTimer.start();
+    // FinderPopup deletes and recreates its backing window on hide/show, but
+    // this widget is never destroyed, so its Item.visible does NOT track the
+    // popup. Driving the session from the shell state is the actual open/close
+    // edge and always fires exactly once per open.
+    readonly property bool panelOpen: PanelState.finderVisible
+
+    onPanelOpenChanged: {
+        if (panelOpen) root.beginSession();
+        else root.endSession();
+    }
+
+    function beginSession() {
+        searchInput.text = "";
+        root.query = "";
+        root.selectedIndex = 0;
+        // If there's a pending custom request, stay in custom mode
+        if (FinderServer.hasPendingRequest) {
+            root.currentMode = "custom";
+        } else if (PanelState.finderRequestedMode !== "") {
+            root.setMode(PanelState.finderRequestedMode);
+            PanelState.finderRequestedMode = "";
         } else {
-            // Panel closed — if custom mode was active, cancel the request
-            if (root.currentMode === "custom" && FinderServer.hasPendingRequest) {
-                FinderServer.resolveCancelled();
-            }
-            focusTimer.stop();
-            populateTimer.stop();
+            root.currentModeIndex = 0;
+            root.currentMode = modes[0];
         }
+        // Population: the async sources (desktop-entry scan, hyprctl binds)
+        // can still be loading on an early open and land right as the window
+        // appears. Poll briefly until items appear (their own change signals
+        // back this up if the load takes longer), so the list is never blank.
+        populateAttempts = 0;
+        populateTimer.start();
+        root.beginFocus();
+    }
+
+    function endSession() {
+        // Panel closed — if custom mode was active, cancel the request
+        if (root.currentMode === "custom" && FinderServer.hasPendingRequest) {
+            FinderServer.resolveCancelled();
+        }
+        focusTimer.stop();
+        populateTimer.stop();
+    }
+
+    function beginFocus() {
+        // Deferred focus: a freshly-shown layer surface needs a compositor
+        // round-trip before it can reliably accept keyboard focus (especially
+        // the very first open). Keep calling forceActiveFocus through the
+        // whole map/activation window rather than trusting activeFocus, which
+        // can be true inside Qt before the compositor has granted the seat.
+        // The call is idempotent, so extra attempts after focus lands are fine.
+        focusAttempts = 0;
+        focusTimer.start();
     }
 
     property int focusAttempts: 0
@@ -243,18 +261,18 @@ Item {
 
     // Deferred keyboard focus so the input is guaranteed typeable the moment
     // the layer surface is fully committed (fixes first-open focus misses).
+    // 40 × 30 ms covers slow compositor round-trips and first-mapping latency.
     Timer {
         id: focusTimer
-        interval: 25
-        repeat: false
+        interval: 30
+        repeat: true
         onTriggered: {
-            if (searchInput.activeFocus) return;
-            searchInput.forceActiveFocus();
-            // Keep trying for a short window — a freshly mapped layer surface
-            // may not accept the keyboard grab on its first attempt.
-            if (!searchInput.activeFocus && root.focusAttempts++ < 8 && root.visible) {
-                focusTimer.restart();
+            if (!PanelState.finderVisible) {
+                stop();
+                return;
             }
+            searchInput.forceActiveFocus();
+            if (++root.focusAttempts >= 40) stop();
         }
     }
 
@@ -665,6 +683,10 @@ Item {
                     selectionColor: Theme.bgHover
                     selectedTextColor: Theme.textBright
                     activeFocusOnTab: false
+                    // Let Qt hand focus to the input as soon as the backing
+                    // window becomes active; the retry timer in beginFocus()
+                    // covers the compositor round-trip.
+                    focus: PanelState.finderVisible
                     verticalAlignment: Text.AlignVCenter
                     clip: true
 

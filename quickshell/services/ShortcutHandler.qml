@@ -58,6 +58,12 @@ Singleton {
             PanelState.openRight("menu");
         }
 
+        // Toggle the expanded right panel: close it if open, otherwise reopen
+        // the last context (menu on first use).
+        function toggleRight(): void {
+            PanelState.toggleRight();
+        }
+
         function toggleTheme(): void {
             PanelState.openRight("theme");
         }

@@ -28,7 +28,6 @@ PanelWindow {
 
     implicitHeight: finderHeight + 36  // 24 travel + 12 shadow clearance
     exclusionMode: ExclusionMode.Ignore
-    focusable: true
     visible: PanelState.finderVisible
     color: "transparent"
 
@@ -36,6 +35,10 @@ PanelWindow {
     WlrLayershell.namespace: "shell-finder"
     // Hold exclusive keyboard focus while visible so the search input keeps
     // the ability to type for as long as the finder is on screen.
+    //
+    // Do NOT also set `focusable`: that writes OnDemand to the same underlying
+    // keyboardFocus property and the two bindings fight over it, which is what
+    // made the keyboard grab intermittent.
     WlrLayershell.keyboardFocus: WlrKeyboardFocus.Exclusive
 
     readonly property int finderWidth: 560
@@ -50,10 +53,54 @@ PanelWindow {
     readonly property color shadowColor: "#bf000000"
 
     // ─── Focus grab: close on click outside ──────────────────────────
+    // Taking the grab before the layer surface is mapped (or while another
+    // panel is still releasing its own grab) gets it cleared immediately by
+    // Hyprland. Arm it a beat late, keep re-arming through the mapping window,
+    // and only treat a clear as a real outside-click once it has settled.
+    property bool grabArmed: false
+
+    onVisibleChanged: {
+        grabArmTimer.stop();
+        grabSettleTimer.stop();
+        grabArmed = false;
+        if (visible) {
+            grabArmTimer.restart();
+        } else if (grab.active) {
+            grab.active = false;
+        }
+    }
+
+    Timer {
+        id: grabArmTimer
+        interval: 120
+        repeat: false
+        onTriggered: {
+            if (!root.visible) return;
+            grab.active = true;
+            grabSettleTimer.restart();
+        }
+    }
+
+    Timer {
+        id: grabSettleTimer
+        interval: 180
+        repeat: false
+        onTriggered: if (root.visible) root.grabArmed = true;
+    }
+
     HyprlandFocusGrab {
-        active: root.visible
+        id: grab
+        active: false
         windows: [root]
-        onCleared: PanelState.closeFinder()
+        onCleared: {
+            if (!root.visible) return;
+            if (!root.grabArmed) {
+                // Transient clear during mapping — re-arm instead of closing.
+                grabArmTimer.restart();
+                return;
+            }
+            PanelState.closeFinder();
+        }
     }
 
     // ─── Centered finder stage (shadow + frame move/fade together) ────
