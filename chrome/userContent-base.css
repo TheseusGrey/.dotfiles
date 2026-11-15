@@ -18,3 +18,44 @@
     border-radius: 0px !important;
   }
 }
+
+/* Replace the new-tab splash logo with a generic search icon and label.
+ * U+F002 is the Font Awesome magnifier in Nerd Fonts, so it inherits the
+ * Quickshell font that userContent-base forces on the page. */
+@-moz-document url-prefix("about:newtab"), url-prefix("about:home") {
+  .logo-and-wordmark .logo {
+    background-image: none !important;
+    width: auto !important;
+    height: auto !important;
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    color: var(--matugen-accent, currentColor) !important;
+    font-family: var(--qsh-font) !important;
+    font-size: 64px !important;
+    line-height: 1 !important;
+  }
+
+  .logo-and-wordmark .logo::before {
+    content: "\f002";
+  }
+
+  .logo-and-wordmark .wordmark {
+    background-image: none !important;
+    display: inline-flex !important;
+    width: auto !important;
+    height: auto !important;
+    align-items: center;
+    margin-inline-start: var(--space-large, 24px) !important;
+    color: var(--matugen-fg, currentColor) !important;
+    fill: currentColor !important;
+    font-family: var(--qsh-font) !important;
+    font-size: 3rem !important;
+    line-height: 1 !important;
+    letter-spacing: 0.02em;
+  }
+
+  .logo-and-wordmark .wordmark::after {
+    content: "Search";
+  }
+}

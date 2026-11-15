@@ -75,7 +75,8 @@ create a working default palette.
 
 Librewolf also gets the hand-written `chrome/userChrome-base.css` and
 `chrome/userContent-base.css`, which force the Quickshell font in browser
-chrome and web pages. `chrome/userContent.css` additionally imports
+chrome and web pages. The content sheet also replaces the new-tab splash logo
+with a Nerd Font search icon and label. `chrome/userContent.css` additionally imports
 `chrome/sideberry-sidebar.css`; it is scoped to the Sidebery extension page
 (`moz-extension://…/sidebar/sidebar.html`) and maps Sidebery's CSS variables to
 the current matugen palette, so no manual paste into Sidebery's style editor is
