@@ -269,6 +269,11 @@ Item {
         presetProc.running = true;
     }
 
+    // The right panel hosts this widget in a Loader, so switching contexts
+    // destroys it rather than merely hiding it. Cancel any queued accent
+    // work here as well as in onVisibleChanged below.
+    Component.onDestruction: PreviewQueue.cancelAll()
+
     // ─── Filewatch ─────────────────────────────────────────────────
     // No native QFileSystemWatcher is exposed via Quickshell.Io, so we poll
     // while the panel is visible. The model only updates on an actual change,

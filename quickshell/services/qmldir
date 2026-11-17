@@ -8,3 +8,4 @@ singleton PreviewQueue 1.0 PreviewQueue.qml
 singleton NotificationManager 1.0 NotificationManager.qml
 singleton ShortcutHandler 1.0 ShortcutHandler.qml
 singleton FinderServer 1.0 FinderServer.qml
+singleton Keybinds 1.0 Keybinds.qml

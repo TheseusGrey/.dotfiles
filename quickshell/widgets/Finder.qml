@@ -64,23 +64,22 @@ Item {
     // Uses Quickshell's built-in DesktopEntries singleton which properly
     // scans all XDG directories, handles OnlyShowIn/NotShowIn, NoDisplay,
     // localization, and desktop actions per the freedesktop spec.
-    readonly property bool appsLoaded: DesktopEntries.applications.values.length > 0
-
-    // The desktop-entry scan is asynchronous, so a signal can land right as
-    // the finder opens (or before the widget was fully wired up). Re-filter
-    // whenever the application set changes AND after showing, in case the
-    // scan completed between the initial load and the first visible change.
+    //
+    // The scan is kicked off once at startup to warm the cache, but the
+    // incremental valuesChanged signals are ignored until the finder is
+    // actually open. Otherwise the login-time scan rebuilds the whole results
+    // list dozens of times while the shell is still coming up.
     Connections {
         target: DesktopEntries
         function onApplicationsChanged() {
-            if (root.currentMode === "apps") root.updateFilter();
+            if (root.panelOpen && root.currentMode === "apps") root.updateFilter();
         }
     }
 
     Connections {
         target: DesktopEntries.applications
         function onValuesChanged() {
-            if (root.currentMode === "apps") root.updateFilter();
+            if (root.panelOpen && root.currentMode === "apps") root.updateFilter();
         }
     }
 
@@ -97,44 +96,38 @@ Item {
     property var allKeybinds: []
     property bool keybindsLoaded: false
 
-    Process {
-        id: keybindLoader
-        command: ["hyprctl", "-j", "binds"]
-        running: false
-
-        property string buffer: ""
-
-        stdout: SplitParser {
-            onRead: data => { keybindLoader.buffer += data + "\n"; }
+    // Keybinds come from the shared, on-demand Keybinds service rather than a
+    // private hyprctl process. That service is primed at shell startup, so
+    // entering keybinds mode here is normally instant.
+    Connections {
+        target: Keybinds
+        function onBindsChanged() {
+            root.parseKeybinds(Keybinds.binds);
         }
+    }
 
-        onRunningChanged: {
-            if (!running) {
-                try {
-                    const parsed = JSON.parse(keybindLoader.buffer);
-                    let result = [];
-                    for (let i = 0; i < parsed.length; i++) {
-                        const b = parsed[i];
-                        const mods = root.modMaskToString(b.modmask || 0);
-                        const key = b.key || "";
-                        const combo = mods ? mods + " + " + key : key;
-                        const desc = b.description || root.dispatcherDescription(b.dispatcher, b.arg);
-                        result.push({
-                            name: combo,
-                            subtitle: desc,
-                            dispatcher: b.dispatcher,
-                            arg: b.arg
-                        });
-                    }
-                    root.allKeybinds = result;
-                    root.keybindsLoaded = true;
-                } catch (e) {
-                    root.allKeybinds = [];
-                }
-                keybindLoader.buffer = "";
-                if (root.currentMode === "keybinds") root.updateFilter();
+    function parseKeybinds(parsed) {
+        try {
+            let result = [];
+            for (let i = 0; i < parsed.length; i++) {
+                const b = parsed[i];
+                const mods = root.modMaskToString(b.modmask || 0);
+                const key = b.key || "";
+                const combo = mods ? mods + " + " + key : key;
+                const desc = b.description || root.dispatcherDescription(b.dispatcher, b.arg);
+                result.push({
+                    name: combo,
+                    subtitle: desc,
+                    dispatcher: b.dispatcher,
+                    arg: b.arg
+                });
             }
+            root.allKeybinds = result;
+            root.keybindsLoaded = true;
+        } catch (e) {
+            root.allKeybinds = [];
         }
+        if (root.panelOpen && root.currentMode === "keybinds") root.updateFilter();
     }
 
     function modMaskToString(mask) {
@@ -165,7 +158,10 @@ Item {
 
     // ─── Initialization ──────────────────────────────────────────────
     Component.onCompleted: {
-        keybindLoader.running = true;
+        // Warm the XDG desktop-entry scan once so the first open already has
+        // an app list. The change signals are gated on panelOpen, so this no
+        // longer triggers a storm of re-filters while the shell starts up.
+        void(DesktopEntries.applications.values);
         // QML reload while the popup is already open: no visibility edge will
         // fire, so start the session explicitly.
         if (root.panelOpen) root.beginSession();
@@ -202,6 +198,9 @@ Item {
         searchInput.text = "";
         root.query = "";
         root.selectedIndex = 0;
+        // Normally already primed by PanelKeys at startup; this covers a QML
+        // reload where that request never happened. request() is idempotent.
+        Keybinds.request();
         // If there's a pending custom request, stay in custom mode
         if (FinderServer.hasPendingRequest) {
             root.currentMode = "custom";
@@ -233,10 +232,8 @@ Item {
     function beginFocus() {
         // Deferred focus: a freshly-shown layer surface needs a compositor
         // round-trip before it can reliably accept keyboard focus (especially
-        // the very first open). Keep calling forceActiveFocus through the
-        // whole map/activation window rather than trusting activeFocus, which
-        // can be true inside Qt before the compositor has granted the seat.
-        // The call is idempotent, so extra attempts after focus lands are fine.
+        // the very first open). Retry briefly, but stop as soon as Qt grants
+        // focus — see focusTimer.
         focusAttempts = 0;
         focusTimer.start();
     }
@@ -259,9 +256,10 @@ Item {
         }
     }
 
-    // Deferred keyboard focus so the input is guaranteed typeable the moment
-    // the layer surface is fully committed (fixes first-open focus misses).
-    // 40 × 30 ms covers slow compositor round-trips and first-mapping latency.
+    // Deferred keyboard focus so the input is typeable the moment the layer
+    // surface is committed. Stop as soon as Qt reports activeFocus instead of
+    // calling forceActiveFocus for a fixed 1.2 s — on warm opens focus lands on
+    // the first attempt, and the extra calls only caused focus churn.
     Timer {
         id: focusTimer
         interval: 30
@@ -272,7 +270,7 @@ Item {
                 return;
             }
             searchInput.forceActiveFocus();
-            if (++root.focusAttempts >= 40) stop();
+            if (searchInput.activeFocus || ++root.focusAttempts >= 12) stop();
         }
     }
 
@@ -417,6 +415,10 @@ Item {
 
     // ─── Filtering (all modes) ───────────────────────────────────────
     function updateFilter() {
+        // Do no work while hidden. In particular, the desktop-entry scan emits
+        // many incremental changes at login; ignoring them here keeps startup
+        // cheap without changing what the finder shows once it is opened.
+        if (!root.panelOpen) return;
         const items = getSourceItems();
         if (root.query === "") {
             // No query — show all items without highlighting

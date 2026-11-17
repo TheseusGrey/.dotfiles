@@ -65,33 +65,28 @@ Item {
         "lockgroups": "windows"
     })
 
-    // ─── Fetch keybinds from Hyprland ────────────────────────────────
-    Process {
-        id: bindProc
-        command: ["hyprctl", "-j", "binds"]
-        running: true
-
-        property string buffer: ""
-
-        stdout: SplitParser {
-            onRead: data => {
-                bindProc.buffer += data + "\n";
-            }
-        }
-
-        onRunningChanged: {
-            if (!running) {
-                root.parseBinds(bindProc.buffer);
-                bindProc.buffer = "";
-                root.loading = false;
-            }
+    // ─── Keybinds from the shared on-demand service ─────────────────
+    // This widget is created only when the keybinds panel is first opened,
+    // so a request that finished earlier may already be cached.
+    Connections {
+        target: Keybinds
+        function onBindsChanged() {
+            root.parseBinds(Keybinds.binds);
+            root.loading = false;
         }
     }
 
-    // ─── Parse JSON output ───────────────────────────────────────────
-    function parseBinds(jsonStr) {
+    Component.onCompleted: {
+        Keybinds.request();
+        if (Keybinds.loaded) {
+            root.parseBinds(Keybinds.binds);
+            root.loading = false;
+        }
+    }
+
+    // ─── Parse the bind list ─────────────────────────────────────────
+    function parseBinds(binds) {
         try {
-            const binds = JSON.parse(jsonStr);
             let categories = {};
 
             for (let i = 0; i < binds.length; i++) {

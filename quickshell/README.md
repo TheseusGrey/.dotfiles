@@ -40,7 +40,7 @@ Install the config in its final location:
 ```
 quickshell/
 ├── shell.qml           # Entry point
-├── services/           # Singletons: Colors, Theme, PanelState, IPC, FinderServer, PreviewQueue
+├── services/           # Singletons: Colors, Theme, PanelState, IPC, FinderServer, PreviewQueue, Keybinds
 ├── components/         # TUI toolkit: TuiPanel, TuiButton, TuiList, ...
 ├── widgets/            # Blocks: Clock, StatusButtons, ContextMenu, FooterHints
 ├── panels/             # Top, Right, Left, Bottom surfaces plus overlays
@@ -202,7 +202,10 @@ qsh call tui.shell <method> [args...]
 
 ## Keyboard navigation
 
-The whole right panel is operable without a mouse.
+The whole right panel is operable without a mouse. Each context widget is
+created the first time you open it, so startup does not poll a dozen external
+tools for panels that are never used. Switching away destroys that widget, so
+its in-memory state (scroll position, queued work) resets on the next open.
 
 Press `SUPER + O` (or run `qsh panel toggle`) to open it. It reopens the
 context you used last, so the same shortcut gets you back to volume, power,

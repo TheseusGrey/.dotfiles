@@ -65,15 +65,15 @@ PanelWindow {
 
     function activeWidget() {
         switch (PanelState.rightPanelContext) {
-            case "volume":        return volumeControl;
-            case "brightness":    return brightnessControl;
-            case "wifi":          return wifiPanel;
-            case "bluetooth":     return bluetoothPanel;
-            case "power":         return powerMenu;
-            case "notifications": return notificationList;
-            case "keybinds":      return keybindSheet;
-            case "menu":          return contextMenu;
-            case "theme":         return themePanel;
+            case "volume":        return volumeLoader.item;
+            case "brightness":    return brightnessLoader.item;
+            case "wifi":          return wifiLoader.item;
+            case "bluetooth":     return bluetoothLoader.item;
+            case "power":         return powerLoader.item;
+            case "notifications": return notificationLoader.item;
+            case "keybinds":      return keybindsLoader.item;
+            case "menu":          return menuLoader.item;
+            case "theme":         return themeLoader.item;
             default:              return null;
         }
     }
@@ -109,9 +109,10 @@ PanelWindow {
         if (event.isAutoRepeat && PanelState.rightPanelContext === "power") return true;
 
         // In the power menu, esc cancels an armed action before closing.
-        if (PanelState.rightPanelContext === "power" && key === "esc" && powerMenu.confirmIndex >= 0) {
-            powerMenu.confirmIndex = -1;
-            powerMenu.confirmRemaining = 0;
+        if (PanelState.rightPanelContext === "power" && key === "esc"
+                && powerLoader.item && powerLoader.item.confirmIndex >= 0) {
+            powerLoader.item.confirmIndex = -1;
+            powerLoader.item.confirmRemaining = 0;
             return true;
         }
 
@@ -250,75 +251,39 @@ PanelWindow {
             }
 
             // ─── Context content ─────────────────────────────────────
+            // Each context widget is created only when it is first opened.
+            // Most of them poll external tools (wpctl, brightnessctl, nmcli,
+            // ...) on construction; doing that for nine hidden panels at login
+            // competed with shell startup and delayed the first launcher use.
             Item {
                 Layout.fillWidth: true
                 Layout.fillHeight: true
 
-                // Volume control
-                Widgets.VolumeControl {
-                    id: volumeControl
-                    anchors.fill: parent
-                    visible: PanelState.rightPanelContext === "volume"
-                }
-
-                // Brightness control
-                Widgets.BrightnessControl {
-                    id: brightnessControl
-                    anchors.fill: parent
-                    visible: PanelState.rightPanelContext === "brightness"
-                }
-
-                // WiFi panel
-                Widgets.WiFiPanel {
-                    id: wifiPanel
-                    anchors.fill: parent
-                    visible: PanelState.rightPanelContext === "wifi"
-                }
-
-                // Bluetooth panel
-                Widgets.BluetoothPanel {
-                    id: bluetoothPanel
-                    anchors.fill: parent
-                    visible: PanelState.rightPanelContext === "bluetooth"
-                }
-
-                // Power menu
-                Widgets.PowerMenu {
-                    id: powerMenu
-                    anchors.fill: parent
-                    visible: PanelState.rightPanelContext === "power"
-                }
-
-                // Notifications
-                Widgets.NotificationList {
-                    id: notificationList
-                    anchors.fill: parent
-                    visible: PanelState.rightPanelContext === "notifications"
-                }
-
-                // Keybind cheat-sheet
-                Widgets.KeybindSheet {
-                    id: keybindSheet
-                    anchors.fill: parent
-                    visible: PanelState.rightPanelContext === "keybinds"
-                }
-
-                // Context menu (titled list of every panel)
-                Widgets.ContextMenu {
-                    id: contextMenu
-                    anchors.fill: parent
-                    visible: PanelState.rightPanelContext === "menu"
-                }
-
-                // Theme switcher
-                Widgets.ThemePanel {
-                    id: themePanel
-                    anchors.fill: parent
-                    visible: PanelState.rightPanelContext === "theme"
-                }
+                Loader { id: volumeLoader;        active: PanelState.rightPanelContext === "volume";        anchors.fill: parent; sourceComponent: volumeComponent }
+                Loader { id: brightnessLoader;    active: PanelState.rightPanelContext === "brightness";    anchors.fill: parent; sourceComponent: brightnessComponent }
+                Loader { id: wifiLoader;          active: PanelState.rightPanelContext === "wifi";          anchors.fill: parent; sourceComponent: wifiComponent }
+                Loader { id: bluetoothLoader;     active: PanelState.rightPanelContext === "bluetooth";     anchors.fill: parent; sourceComponent: bluetoothComponent }
+                Loader { id: powerLoader;         active: PanelState.rightPanelContext === "power";         anchors.fill: parent; sourceComponent: powerComponent }
+                Loader { id: notificationLoader;  active: PanelState.rightPanelContext === "notifications"; anchors.fill: parent; sourceComponent: notificationComponent }
+                Loader { id: keybindsLoader;      active: PanelState.rightPanelContext === "keybinds";      anchors.fill: parent; sourceComponent: keybindsComponent }
+                Loader { id: menuLoader;          active: PanelState.rightPanelContext === "menu";          anchors.fill: parent; sourceComponent: menuComponent }
+                Loader { id: themeLoader;         active: PanelState.rightPanelContext === "theme";         anchors.fill: parent; sourceComponent: themeComponent }
             }
         }
     }
+
+    // ─── Lazily instantiated context widgets ─────────────────────────
+    // Referenced by the Loaders above; kept as Components so each widget is
+    // only constructed the first time its context is opened.
+    Component { id: volumeComponent;        Widgets.VolumeControl { anchors.fill: parent } }
+    Component { id: brightnessComponent;    Widgets.BrightnessControl { anchors.fill: parent } }
+    Component { id: wifiComponent;          Widgets.WiFiPanel { anchors.fill: parent } }
+    Component { id: bluetoothComponent;     Widgets.BluetoothPanel { anchors.fill: parent } }
+    Component { id: powerComponent;         Widgets.PowerMenu { anchors.fill: parent } }
+    Component { id: notificationComponent;  Widgets.NotificationList { anchors.fill: parent } }
+    Component { id: keybindsComponent;      Widgets.KeybindSheet { anchors.fill: parent } }
+    Component { id: menuComponent;          Widgets.ContextMenu { anchors.fill: parent } }
+    Component { id: themeComponent;         Widgets.ThemePanel { anchors.fill: parent } }
 
     // Model for the collapsed strip icons: click opens the matching context.
     // Section data (glyph/key/label) is shared with the menu and PanelKeys.

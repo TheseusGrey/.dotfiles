@@ -187,28 +187,18 @@ Singleton {
 
     // ─── Collision checks ────────────────────────────────────────────
     // Panel-local keys are only safe while no bare single-character bind
-    // exists in Hyprland. Warn loudly if one shows up later.
-    Process {
-        id: bindProc
-        command: ["hyprctl", "-j", "binds"]
-        running: false
-
-        property string buffer: ""
-
-        stdout: SplitParser {
-            onRead: data => { bindProc.buffer += data + "\n"; }
-        }
-
-        onRunningChanged: {
-            if (running) return;
-            root.checkGlobalCollisions(bindProc.buffer);
-            bindProc.buffer = "";
+    // exists in Hyprland. Warn loudly if one shows up later. The bind dump is
+    // shared with the finder and the keybind sheet via the Keybinds service.
+    Connections {
+        target: Keybinds
+        function onBindsChanged() {
+            root.checkGlobalCollisions(Keybinds.binds);
         }
     }
 
     Component.onCompleted: {
         root.validateLocalKeys();
-        bindProc.running = true;
+        Keybinds.request();
     }
 
     function validateLocalKeys() {
@@ -233,14 +223,7 @@ Singleton {
         }
     }
 
-    function checkGlobalCollisions(json) {
-        let binds = [];
-        try {
-            binds = JSON.parse(json);
-        } catch (e) {
-            return;
-        }
-
+    function checkGlobalCollisions(binds) {
         const panelKeys = {};
         for (const context in root.contextKeys) {
             const map = root.contextKeys[context];
