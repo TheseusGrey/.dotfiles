@@ -25,15 +25,27 @@ hl.bind(mainMod .. " + R", hl.dsp.exec_cmd("~/.dotfiles/setup.sh"), { descriptio
 -- surface on screen mid-chord, which is how modifier state / initial focus got
 -- lost. Release-time launching keeps the chord atomic.
 hl.bind(mainMod .. " + space", hl.dsp.exec_cmd(qsh .. " finder apps"), { release = true, description = "App Launcher" })
-hl.bind(mainMod .. " + O", hl.dsp.exec_cmd(qsh .. " panel toggle"), { release = true, description = "Toggle right panel" })
+hl.bind(
+	mainMod .. " + P",
+	hl.dsp.exec_cmd(qsh .. " panel toggle"),
+	{ release = true, description = "Toggle right panel" }
+)
 hl.bind(mainMod .. " + C", hl.dsp.exec_cmd(qsh .. " panel open theme"), { description = "Theme switcher" })
 hl.bind(
 	mainMod .. " + S",
 	hl.dsp.exec_cmd(qsh .. " finder screenshot"),
 	{ release = true, description = "Screen Capture menu" }
 )
-hl.bind(mainMod .. " + X", hl.dsp.exec_cmd(qsh .. " finder screenshot"), { release = true, description = "Screen Capture menu" })
-hl.bind(mainMod .. " + A", hl.dsp.exec_cmd("~/.dotfiles/bin/menu_actions.sh"), { release = true, description = "Actions Menu" })
+hl.bind(
+	mainMod .. " + X",
+	hl.dsp.exec_cmd(qsh .. " finder screenshot"),
+	{ release = true, description = "Screen Capture menu" }
+)
+hl.bind(
+	mainMod .. " + A",
+	hl.dsp.exec_cmd("~/.dotfiles/bin/menu_actions.sh"),
+	{ release = true, description = "Actions Menu" }
+)
 
 -- Audio control
 hl.bind("F10", hl.dsp.exec_cmd("~/.dotfiles/bin/volumecontrol.sh -o m"), { locked = true, description = "Mute volume" })
@@ -47,7 +59,11 @@ hl.bind(
 	hl.dsp.exec_cmd("~/.dotfiles/bin/volumecontrol.sh -o i"),
 	{ locked = true, repeating = true, description = "Increase volume" }
 )
-hl.bind("XF86AudioMute", hl.dsp.exec_cmd("~/.dotfiles/bin/volumecontrol.sh -o m"), { locked = true, description = "Mute volume" })
+hl.bind(
+	"XF86AudioMute",
+	hl.dsp.exec_cmd("~/.dotfiles/bin/volumecontrol.sh -o m"),
+	{ locked = true, description = "Mute volume" }
+)
 hl.bind(
 	"XF86AudioMicMute",
 	hl.dsp.exec_cmd("~/.dotfiles/bin/volumecontrol.sh -i m"),
@@ -87,12 +103,7 @@ hl.bind(
 -- hl.bind(mainMod .. " + Ctrl + L", hl.dsp.changegroupactive("f"))
 
 -- Screenshot/Screencapture
-hl.bind("Print", hl.dsp.exec_cmd("~/.dotfiles/bin/capture.sh PrintScreen"), { description = "Print Screen" })
-hl.bind(
-	mainMod .. " + P",
-	hl.dsp.exec_cmd("~/.dotfiles/bin/capture.sh ScreenShot"),
-	{ description = "Screenshot Region" }
-)
+hl.bind("Print", hl.dsp.exec_cmd("~/.dotfiles/bin/capture.sh ScreenShot"), { description = "Print Screen" })
 
 -- Custom scripts
 hl.bind(mainMod .. " + ALT + G", hl.dsp.exec_cmd("gamemode.sh"))
