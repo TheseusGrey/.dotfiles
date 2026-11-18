@@ -7,8 +7,9 @@ import QtQuick
 // Central keyboard map for the right panel.
 //
 // Design:
-//   - The panel owns the keyboard only while it is expanded (HyprlandFocusGrab
-//     in RightPanel). Panel keys are therefore *bare* keys: no SUPER, no ALT.
+//   - The panel owns the keyboard only while it is expanded (exclusive
+//     keyboard focus on the layer surface, see RightPanel.qml). Panel keys are
+//     therefore *bare* keys: no SUPER, no ALT.
 //   - Hyprland keybinds are compositor-level and always win. The only real
 //     conflict source is a global bind with no modifier and a single-character
 //     key. `checkGlobalCollisions` warns when one appears.

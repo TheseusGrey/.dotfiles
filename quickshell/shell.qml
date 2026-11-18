@@ -9,6 +9,7 @@ import qs.services
 ShellRoot {
     Panels.TopPanel {}
     Panels.LeftPanel {}
+    Panels.RightPanelZone {}
     Panels.RightPanel {}
     Panels.BottomBorder {}
     Panels.FinderPopup {}

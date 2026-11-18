@@ -2,7 +2,6 @@ import QtQuick
 import QtQuick.Layouts
 import Quickshell
 import Quickshell.Wayland
-import Quickshell.Hyprland
 import qs.services
 import qs.components as Tui
 import qs.widgets as Widgets
@@ -12,11 +11,19 @@ import qs.widgets as Widgets
 // when a status icon is clicked. Content switches based on rightPanelContext.
 // The panel shows an inside-the-border header text (context title) when expanded,
 // mirroring the finder popup header style — no border-breaking title chip.
-// Uses HyprlandFocusGrab to auto-close when clicking outside.
+//
+// While expanded the window spans the whole screen (transparent everywhere but
+// the panel column) instead of just the 380px strip. This is what keeps
+// keyboard focus on the panel: Hyprland re-runs its pointer hit test when a
+// layer surface commits a keyboard-interactivity change, and refocuses the
+// surface under the cursor. A pointer sitting over a window (or over the top
+// bar) would otherwise take the keyboard away from the panel a few ms after it
+// opened. With a full-screen surface the cursor is always over the panel, so
+// the refocus is a no-op. The blank area doubles as the click-outside catcher;
+// RightPanelZone keeps the frame's right edge reserved for layout.
 PanelWindow {
     id: root
 
-    anchors.top: true
     anchors.right: true
     anchors.bottom: true
 
@@ -24,42 +31,46 @@ PanelWindow {
 
     readonly property string contextTitle: PanelKeys.titleFor(PanelState.rightPanelContext)
 
-    implicitWidth: isExpanded ? Theme.rightPanelExpanded : Theme.rightPanelCollapsed
-    exclusiveZone: isExpanded ? Theme.rightPanelExpanded : Theme.rightPanelCollapsed
-    focusable: isExpanded
+    // Expanded: cover the monitor so pointer hit-testing always lands on this
+    // surface. Collapsed: just the rail, below the top bar.
+    implicitWidth: root.isExpanded
+        ? (root.screen ? root.screen.width : 1920)
+        : Theme.rightPanelCollapsed
+    implicitHeight: root.screen
+        ? (root.isExpanded ? root.screen.height : root.screen.height - Theme.topPanelHeight)
+        : 1080
+    // The exclusive zone (frame layout) lives in RightPanelZone.
+    exclusionMode: ExclusionMode.Ignore
     color: "transparent"
 
     WlrLayershell.layer: WlrLayer.Top
     WlrLayershell.namespace: "shell-right"
 
+    // Take the keyboard while expanded. Changing to Exclusive makes Hyprland
+    // focus this layer surface on commit; the collapsed rail stays out of the
+    // way. Do not also set `focusable` — it writes the same property.
+    WlrLayershell.keyboardFocus: isExpanded ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
+
     // No width animation: snap open/closed (same reason as the left panel —
     // prevents the footer strip from visually "playing catch-up" at the
     // shared bottom corner mid-slide). No Behavior on implicitWidth.
 
-    // ─── Focus grab: close on click outside ──────────────────────────
-    // Keep the grab active whenever the panel is expanded (don't toggle it off
-    // during theme work — releasing the grab to "protect" it fires onCleared
-    // and closes the panel). Instead, suppress the close while a theme
-    // operation is running (themeProcessRunning, set synchronously on click and
-    // held through a short grace period). A genuine outside-click while no
-    // theme op is running still closes normally.
-    HyprlandFocusGrab {
-        id: focusGrab
-        active: root.isExpanded
-        windows: [root]
-        onCleared: {
-            if (PanelState.themeProcessRunning) return;
-            PanelState.closeRight();
-        }
+    // ─── Click outside to close ──────────────────────────────────────
+    // Below the panel column, above everything on screen: the first click
+    // anywhere outside the panel dismisses it.
+    MouseArea {
+        anchors.fill: parent
+        enabled: root.isExpanded
+        onClicked: PanelState.closeRight()
     }
 
     // ─── Keyboard navigation ──────────────────────────────────────────
-    // The focus grab gives the layer surface the keyboard; this FocusScope
-    // turns that into panel navigation. All panel keys are bare keys (no
-    // modifier). See PanelKeys.qml for the map and the collision check.
+    // The layer surface has exclusive keyboard focus while expanded; this
+    // FocusScope turns that into panel navigation. All panel keys are bare
+    // keys (no modifier). See PanelKeys.qml for the map and the collision check.
     //
     // Focus is retried for a short window after expansion/context changes:
-    // a newly mapped layer surface needs a compositor round-trip before it
+    // a newly focused layer surface needs a compositor round-trip before it
     // reliably accepts keyboard focus (same pattern as Finder).
     property int keyFocusAttempts: 0
 
@@ -165,7 +176,7 @@ PanelWindow {
                 stop();
                 return;
             }
-            keyHandler.forceActiveFocus();
+            if (!keyHandler.activeFocus) keyHandler.forceActiveFocus();
             if (++root.keyFocusAttempts >= 20) stop();
         }
     }
@@ -188,86 +199,103 @@ PanelWindow {
         }
     }
 
-    // ─── Frame chrome (bg + blocky border) ─────────────────────────────
-    // Top edge suppressed: the top bar already draws the line at the corner.
-    // Right edge suppressed: display edge (open frame), bottom edge is covered
-    // by the opaque footer strip anyway.
-    Tui.TuiPanel {
-        anchors.fill: parent
-        borderTop: false
-        borderRight: false
-        borderBottom: false
-    }
+    // ─── Panel column ────────────────────────────────────────────────
+    // The visible 48/380px column at the right edge, inset below the top bar.
+    Item {
+        id: body
+        anchors.top: parent.top
+        anchors.topMargin: Theme.topPanelHeight
+        anchors.right: parent.right
+        anchors.bottom: parent.bottom
+        width: root.isExpanded ? Theme.rightPanelExpanded : Theme.rightPanelCollapsed
 
-    // ─── Collapsed state: icon hint strip ────────────────────────────
-    Tui.TuiRail {
-        visible: !root.isExpanded
-        anchors.fill: parent
-        anchors.margins: Theme.borderWidth
-        model: collapsedIconModel
-        onActivated: item => {
-            if (typeof item === "object" && item.target !== undefined) {
-                PanelState.openRight(item.target);
+        // Swallow clicks on blank panel space so they don't reach the
+        // outside-click dismisser behind the column.
+        MouseArea {
+            anchors.fill: parent
+        }
+
+        // ─── Frame chrome (bg + blocky border) ─────────────────────────
+        // Top edge suppressed: the top bar already draws the line at the corner.
+        // Right edge suppressed: display edge (open frame), bottom edge is covered
+        // by the opaque footer strip anyway.
+        Tui.TuiPanel {
+            anchors.fill: parent
+            borderTop: false
+            borderRight: false
+            borderBottom: false
+        }
+
+        // ─── Collapsed state: icon hint strip ──────────────────────────
+        Tui.TuiRail {
+            visible: !root.isExpanded
+            anchors.fill: parent
+            anchors.margins: Theme.borderWidth
+            model: collapsedIconModel
+            onActivated: item => {
+                if (typeof item === "object" && item.target !== undefined) {
+                    PanelState.openRight(item.target);
+                }
             }
         }
-    }
 
-    // ─── Expanded state: full content ────────────────────────────────
-    Item {
-        id: expandedContent
-        visible: root.isExpanded
-        anchors.fill: parent
-        anchors.leftMargin: Theme.borderWidth + Theme.panelPadding
-        anchors.rightMargin: Theme.borderWidth + Theme.panelPadding
-        anchors.bottomMargin: Theme.borderWidth + Theme.panelPadding
-        clip: true
-
-        ColumnLayout {
+        // ─── Expanded state: full content ──────────────────────────────
+        Item {
+            id: expandedContent
+            visible: root.isExpanded
             anchors.fill: parent
-            anchors.topMargin: Theme.borderWidth + Theme.panelPadding
-            spacing: Theme.itemSpacing
+            anchors.leftMargin: Theme.borderWidth + Theme.panelPadding
+            anchors.rightMargin: Theme.borderWidth + Theme.panelPadding
+            anchors.bottomMargin: Theme.borderWidth + Theme.panelPadding
+            clip: true
 
-            // ─── Header: title + (back to menu) button ────────────────
-            RowLayout {
-                Layout.fillWidth: true
+            ColumnLayout {
+                anchors.fill: parent
+                anchors.topMargin: Theme.borderWidth + Theme.panelPadding
                 spacing: Theme.itemSpacing
 
-                Tui.TuiText {
-                    text: root.contextTitle
-                    textColor: Theme.titleColor
-                    font.bold: true
+                // ─── Header: title + (back to menu) button ─────────────
+                RowLayout {
                     Layout.fillWidth: true
-                    horizontalAlignment: Text.AlignLeft
+                    spacing: Theme.itemSpacing
+
+                    Tui.TuiText {
+                        text: root.contextTitle
+                        textColor: Theme.titleColor
+                        font.bold: true
+                        Layout.fillWidth: true
+                        horizontalAlignment: Text.AlignLeft
+                    }
+
+                    Tui.TuiButton {
+                        text: "◀ back"
+                        variant: "body"
+                        width: Tui.TuiMetrics.cellWidth * 8
+                        height: Tui.TuiMetrics.lineHeight + Theme.panelPadding
+                        visible: PanelState.rightPanelCanGoBack
+                        onClicked: PanelState.goBackToMenu()
+                    }
                 }
 
-                Tui.TuiButton {
-                    text: "◀ back"
-                    variant: "body"
-                    width: Tui.TuiMetrics.cellWidth * 8
-                    height: Tui.TuiMetrics.lineHeight + Theme.panelPadding
-                    visible: PanelState.rightPanelCanGoBack
-                    onClicked: PanelState.goBackToMenu()
+                // ─── Context content ──────────────────────────────────
+                // Each context widget is created only when it is first opened.
+                // Most of them poll external tools (wpctl, brightnessctl, nmcli,
+                // ...) on construction; doing that for nine hidden panels at login
+                // competed with shell startup and delayed the first launcher use.
+                Item {
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
+
+                    Loader { id: volumeLoader;        active: PanelState.rightPanelContext === "volume";        anchors.fill: parent; sourceComponent: volumeComponent }
+                    Loader { id: brightnessLoader;    active: PanelState.rightPanelContext === "brightness";    anchors.fill: parent; sourceComponent: brightnessComponent }
+                    Loader { id: wifiLoader;          active: PanelState.rightPanelContext === "wifi";          anchors.fill: parent; sourceComponent: wifiComponent }
+                    Loader { id: bluetoothLoader;     active: PanelState.rightPanelContext === "bluetooth";     anchors.fill: parent; sourceComponent: bluetoothComponent }
+                    Loader { id: powerLoader;         active: PanelState.rightPanelContext === "power";         anchors.fill: parent; sourceComponent: powerComponent }
+                    Loader { id: notificationLoader;  active: PanelState.rightPanelContext === "notifications"; anchors.fill: parent; sourceComponent: notificationComponent }
+                    Loader { id: keybindsLoader;      active: PanelState.rightPanelContext === "keybinds";      anchors.fill: parent; sourceComponent: keybindsComponent }
+                    Loader { id: menuLoader;          active: PanelState.rightPanelContext === "menu";          anchors.fill: parent; sourceComponent: menuComponent }
+                    Loader { id: themeLoader;         active: PanelState.rightPanelContext === "theme";         anchors.fill: parent; sourceComponent: themeComponent }
                 }
-            }
-
-            // ─── Context content ─────────────────────────────────────
-            // Each context widget is created only when it is first opened.
-            // Most of them poll external tools (wpctl, brightnessctl, nmcli,
-            // ...) on construction; doing that for nine hidden panels at login
-            // competed with shell startup and delayed the first launcher use.
-            Item {
-                Layout.fillWidth: true
-                Layout.fillHeight: true
-
-                Loader { id: volumeLoader;        active: PanelState.rightPanelContext === "volume";        anchors.fill: parent; sourceComponent: volumeComponent }
-                Loader { id: brightnessLoader;    active: PanelState.rightPanelContext === "brightness";    anchors.fill: parent; sourceComponent: brightnessComponent }
-                Loader { id: wifiLoader;          active: PanelState.rightPanelContext === "wifi";          anchors.fill: parent; sourceComponent: wifiComponent }
-                Loader { id: bluetoothLoader;     active: PanelState.rightPanelContext === "bluetooth";     anchors.fill: parent; sourceComponent: bluetoothComponent }
-                Loader { id: powerLoader;         active: PanelState.rightPanelContext === "power";         anchors.fill: parent; sourceComponent: powerComponent }
-                Loader { id: notificationLoader;  active: PanelState.rightPanelContext === "notifications"; anchors.fill: parent; sourceComponent: notificationComponent }
-                Loader { id: keybindsLoader;      active: PanelState.rightPanelContext === "keybinds";      anchors.fill: parent; sourceComponent: keybindsComponent }
-                Loader { id: menuLoader;          active: PanelState.rightPanelContext === "menu";          anchors.fill: parent; sourceComponent: menuComponent }
-                Loader { id: themeLoader;         active: PanelState.rightPanelContext === "theme";         anchors.fill: parent; sourceComponent: themeComponent }
             }
         }
     }
