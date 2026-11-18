@@ -200,11 +200,14 @@ PanelWindow {
     }
 
     // ─── Panel column ────────────────────────────────────────────────
-    // The visible 48/380px column at the right edge, inset below the top bar.
+    // The visible 48/380px column at the right edge. The expanded window
+    // starts at the top of the monitor, so the column is inset below the top
+    // bar; the collapsed window already starts below the top bar (its height is
+    // shortened by the bar), so it must not be inset a second time.
     Item {
         id: body
         anchors.top: parent.top
-        anchors.topMargin: Theme.topPanelHeight
+        anchors.topMargin: root.isExpanded ? Theme.topPanelHeight : 0
         anchors.right: parent.right
         anchors.bottom: parent.bottom
         width: root.isExpanded ? Theme.rightPanelExpanded : Theme.rightPanelCollapsed
