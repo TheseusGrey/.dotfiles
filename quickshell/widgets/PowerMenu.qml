@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Layouts
+import Quickshell
 import Quickshell.Io
 import qs.services
 import qs.components as Tui
@@ -16,21 +17,18 @@ Item {
 
     // ─── Actions model ───────────────────────────────────────────────
     readonly property var actions: [
-        { icon: "", label: "lock", shortcut: "l", cmd: "loginctl lock-session", color: Theme.accent },
+        { icon: "󰌾", label: "lock", shortcut: "l", cmd: "loginctl lock-session", color: Theme.accent },
         { icon: "󰗽", label: "logout", shortcut: "o", cmd: "hyprctl dispatch exit", color: Theme.caution },
         { icon: "󰜉", label: "reboot", shortcut: "r", cmd: "systemctl reboot", color: Theme.warning },
-        { icon: "⏻", label: "shutdown", shortcut: "s", cmd: "systemctl poweroff", color: Theme.error }
+        { icon: "󰐥", label: "shutdown", shortcut: "s", cmd: "systemctl poweroff", color: Theme.error }
     ]
 
     // ─── Command executor ────────────────────────────────────────────
-    Process {
-        id: cmdProc
-        running: false
-    }
-
+    // The panel widget is destroyed by closeAll(), so this cannot use a
+    // Process owned by the widget: the command would be killed with it.
+    // execDetached double-forks, letting systemctl finish after teardown.
     function execute(cmd) {
-        cmdProc.command = ["sh", "-c", cmd];
-        cmdProc.running = true;
+        Quickshell.execDetached(["sh", "-c", cmd]);
         PanelState.closeAll();
     }
 

@@ -207,7 +207,7 @@ created the first time you open it, so startup does not poll a dozen external
 tools for panels that are never used. Switching away destroys that widget, so
 its in-memory state (scroll position, queued work) resets on the next open.
 
-Press `SUPER + O` (or run `qsh panel toggle`) to open it. It reopens the
+Press `SUPER + P` (or run `qsh panel toggle`) to open it. It reopens the
 context you used last, so the same shortcut gets you back to volume, power,
 notifications, and so on.
 
@@ -246,7 +246,15 @@ the current context.
 |---|---|
 | `-` / `+` | Dim / brighten. |
 | `0` / `9` | Minimum / maximum. |
-| `[` / `]` | Previous / next device. |
+| `e` | Toggle eye protection (warm colour temperature). |
+| `[` / `]` | Cooler / warmer eye-protection temperature. |
+
+The panel uses a hardware backlight when `brightnessctl` reports one. On
+desktops with no backlight it falls back to hyprsunset gamma dimming, and the
+device list shows `hyprsunset gamma` instead. Eye protection runs through the
+same daemon (3000K by default) and composes with the dimming level. Both
+settings persist in `settings.json`, and the brightness keys use the same
+backend through `bin/brightnesscontrol.sh`.
 
 **Network**
 
@@ -356,7 +364,7 @@ It only changes the palette, reloads Hyprland, and turns sync off.
 ### Theme switcher panel
 
 The right-panel context `theme` is a graphical theme switcher. Reach it from the
-context menu (`☰`), the right rail (`◐` glyph), or directly with the keybind
+context menu (`☰`), the right rail (palette glyph), or directly with the keybind
 `SUPER + C` (which is bound to `qsh panel open theme`).
 
 In the panel you can:

@@ -89,12 +89,12 @@ hl.bind("XF86AudioPrev", hl.dsp.exec_cmd("playerctl previous"), { locked = true,
 -- Brightness control
 hl.bind(
 	"XF86MonBrightnessUp",
-	hl.dsp.exec_cmd("brightnesscontrol.sh i"),
+	hl.dsp.exec_cmd("~/.dotfiles/bin/brightnesscontrol.sh i"),
 	{ repeating = true, description = "Brightness up" }
 )
 hl.bind(
 	"XF86MonBrightnessDown",
-	hl.dsp.exec_cmd("brightnesscontrol.sh d"),
+	hl.dsp.exec_cmd("~/.dotfiles/bin/brightnesscontrol.sh d"),
 	{ repeating = true, description = "Brightness down" }
 )
 

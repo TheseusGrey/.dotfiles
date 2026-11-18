@@ -32,9 +32,9 @@ Singleton {
         { key: "w", label: "network",       context: "wifi",          glyph: "󰖩" },
         { key: "b", label: "bluetooth",     context: "bluetooth",     glyph: "󰂯" },
         { key: "n", label: "notifications", context: "notifications", glyph: "󰂚" },
-        { key: "?", label: "keybinds",      context: "keybinds",      glyph: "⌨" },
-        { key: "t", label: "theme",         context: "theme",         glyph: "◐" },
-        { key: "p", label: "power",         context: "power",         glyph: "⏻" }
+        { key: "?", label: "keybinds",      context: "keybinds",      glyph: "󰌌" },
+        { key: "t", label: "theme",         context: "theme",         glyph: "󰏘" },
+        { key: "p", label: "power",         context: "power",         glyph: "󰐥" }
     ]
 
     function sectionFor(context) {
@@ -88,12 +88,13 @@ Singleton {
         ],
 
         "brightness": [
-            { key: "-", label: "dim",      action: "brightnessDown" },
-            { key: "+", label: "bright",   action: "brightnessUp" },
-            { key: "0", label: "min",      action: "brightnessMin" },
-            { key: "9", label: "max",      action: "brightnessMax" },
-            { key: "[", label: "prev dev", action: "devicePrev" },
-            { key: "]", label: "next dev", action: "deviceNext" }
+            { key: "-", label: "dim",    action: "brightnessDown" },
+            { key: "+", label: "bright", action: "brightnessUp" },
+            { key: "0", label: "min",    action: "brightnessMin" },
+            { key: "9", label: "max",    action: "brightnessMax" },
+            { key: "e", label: "eye",    action: "eyeToggle" },
+            { key: "[", label: "cooler", action: "eyeCooler" },
+            { key: "]", label: "warmer", action: "eyeWarmer" }
         ],
 
         "bluetooth": [

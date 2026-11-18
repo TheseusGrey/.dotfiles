@@ -6,8 +6,9 @@ import qs.services
 import qs.components as Tui
 
 // Brightness control panel — mirrors VolumeControl pattern.
-// Lists backlight devices, shows progress bar, scroll-to-adjust.
-// Uses brightnessctl for querying and setting brightness.
+// Uses a hardware backlight when one exists. On desktops (no backlight device)
+// it falls back to hyprsunset gamma dimming, and the same panel carries the
+// eye-protection (blue-light) controls.
 Item {
     id: root
 
@@ -16,6 +17,10 @@ Item {
     property real currentBrightness: 0.0  // 0.0 to 1.0
     property int currentPercent: Math.round(currentBrightness * 100)
     property string activeDevice: ""
+    property bool devicesLoaded: false
+
+    // No backlight device means software dimming through hyprsunset.
+    readonly property bool useGamma: root.devicesLoaded && root.devices.length === 0
 
     // ─── Device enumeration ──────────────────────────────────────────
     // `brightnessctl -m -l` outputs machine-readable lines:
@@ -64,17 +69,26 @@ Item {
                 }
 
                 root.devices = result;
+                root.devicesLoaded = true;
 
-                // Set active device to first if not set
-                if (root.activeDevice === "" && result.length > 0) {
-                    root.activeDevice = result[0].name;
-                }
-
-                // Update current brightness from active device
-                for (let i = 0; i < result.length; i++) {
-                    if (result[i].name === root.activeDevice) {
-                        root.currentBrightness = result[i].brightness;
-                        break;
+                if (result.length === 0) {
+                    // Software mode: hyprsunset owns the level.
+                    root.activeDevice = "";
+                    root.currentBrightness = Hyprsunset.brightness / 100.0;
+                } else {
+                    // Keep the current device if it still exists, otherwise
+                    // fall back to the first one.
+                    let known = false;
+                    for (let i = 0; i < result.length; i++) {
+                        if (result[i].name === root.activeDevice) {
+                            known = true;
+                            root.currentBrightness = result[i].brightness;
+                            break;
+                        }
+                    }
+                    if (!known) {
+                        root.activeDevice = result[0].name;
+                        root.currentBrightness = result[0].brightness;
                     }
                 }
 
@@ -84,7 +98,7 @@ Item {
         }
     }
 
-    // ─── Quick brightness poll (active device only) ──────────────────
+    // ─── Quick brightness poll (hardware backlight only) ─────────────
     Process {
         id: brightProc
         command: ["brightnessctl", "-m", "-d", root.activeDevice]
@@ -123,7 +137,7 @@ Item {
         onTriggered: deviceListProc.running = true
     }
 
-    // Start the brightness poll once the active device is known
+    // Start the hardware poll once the active device is known
     onActiveDeviceChanged: {
         if (activeDevice !== "") {
             brightPollTimer.stop();
@@ -132,7 +146,19 @@ Item {
     }
 
     Component.onCompleted: {
+        Hyprsunset.reload();
         deviceListProc.running = true;
+    }
+
+    // The keybind script can change gamma while the panel is open; keep the
+    // slider in step with the service.
+    Connections {
+        target: Hyprsunset
+
+        function onBrightnessChanged() {
+            if (root.useGamma)
+                root.currentBrightness = Hyprsunset.brightness / 100.0;
+        }
     }
 
     // ─── Brightness adjustment commands ──────────────────────────────
@@ -142,9 +168,13 @@ Item {
     }
 
     function setBrightness(percent) {
-        const clamped = Math.max(1, Math.min(100, percent));  // never go to 0 (screen off)
-        cmdProc.command = ["brightnessctl", "-d", root.activeDevice, "set", clamped + "%"];
-        cmdProc.running = true;
+        const clamped = Math.max(1, Math.min(100, Math.round(percent)));  // never go to 0 (screen off)
+        if (root.devices.length > 0) {
+            cmdProc.command = ["brightnessctl", "-d", root.activeDevice, "set", clamped + "%"];
+            cmdProc.running = true;
+        } else {
+            Hyprsunset.setBrightness(clamped);
+        }
         root.currentBrightness = clamped / 100.0;
     }
 
@@ -159,27 +189,15 @@ Item {
         root.setBrightness(Math.max(1, Math.min(100, root.currentPercent + delta)));
     }
 
-    function cycleDevice(delta) {
-        if (root.devices.length === 0) return;
-        let index = 0;
-        for (let i = 0; i < root.devices.length; i++) {
-            if (root.devices[i].name === root.activeDevice) {
-                index = i;
-                break;
-            }
-        }
-        index = (index + delta + root.devices.length) % root.devices.length;
-        root.setDevice(root.devices[index].name);
-    }
-
     function handlePanelAction(action, arg) {
         switch (action) {
             case "brightnessDown": root.adjust(-5); return true;
             case "brightnessUp":   root.adjust(5); return true;
             case "brightnessMin":  root.setBrightness(1); return true;
             case "brightnessMax":  root.setBrightness(100); return true;
-            case "deviceNext":     root.cycleDevice(1); return true;
-            case "devicePrev":     root.cycleDevice(-1); return true;
+            case "eyeToggle":      Hyprsunset.toggleEye(); return true;
+            case "eyeCooler":      Hyprsunset.nudgeTemperature(250); return true;
+            case "eyeWarmer":      Hyprsunset.nudgeTemperature(-250); return true;
         }
         return false;
     }
@@ -253,7 +271,7 @@ Item {
             textColor: Theme.border
         }
 
-        // ─── Device list ─────────────────────────────────────────────
+        // ─── Device list / fallback note ─────────────────────────────
         Tui.TuiText {
             text: "devices"
             textColor: Theme.textPrimary
@@ -293,13 +311,101 @@ Item {
             }
         }
 
+        RowLayout {
+            Layout.fillWidth: true
+            spacing: 6
+            visible: root.useGamma
+
+            Tui.TuiText {
+                text: Theme.treeEnd
+                textColor: Theme.accentSecondary
+            }
+
+            Tui.TuiText {
+                text: "hyprsunset gamma"
+                textColor: Theme.textMuted
+                Layout.fillWidth: true
+            }
+
+            Tui.TuiText {
+                text: "software"
+                textColor: Theme.textMuted
+                font.pixelSize: Theme.fontSizeSmall
+            }
+        }
+
+        // ─── Eye protection ──────────────────────────────────────────
+        Tui.TuiText {
+            Layout.fillWidth: true
+            text: Theme.boxHorizontal.repeat(40)
+            textColor: Theme.border
+        }
+
+        RowLayout {
+            Layout.fillWidth: true
+            spacing: 6
+
+            Tui.TuiText {
+                text: "󰈈"
+                textColor: Hyprsunset.eyeEnabled ? Theme.nord13 : Theme.textMuted
+                font.pixelSize: Theme.fontSizeLarge
+            }
+
+            Tui.TuiButton {
+                text: Hyprsunset.eyeEnabled ? "[x]" : "[ ]"
+                variant: "body"
+                active: Hyprsunset.eyeEnabled
+                activeColor: Theme.nord13
+                onClicked: Hyprsunset.toggleEye()
+            }
+
+            Tui.TuiText {
+                text: "eye protection"
+                textColor: Theme.textPrimary
+                font.bold: Hyprsunset.eyeEnabled
+                Layout.fillWidth: true
+                horizontalAlignment: Text.AlignLeft
+            }
+
+            Tui.TuiText {
+                text: Hyprsunset.eyeEnabled ? Hyprsunset.temperature + "K" : "off"
+                textColor: Hyprsunset.eyeEnabled ? Theme.nord13 : Theme.textMuted
+            }
+        }
+
+        RowLayout {
+            Layout.fillWidth: true
+            spacing: 6
+            opacity: Hyprsunset.eyeEnabled ? 1.0 : 0.55
+
+            Tui.TuiText {
+                text: "cool"
+                textColor: Theme.textMuted
+                font.pixelSize: Theme.fontSizeSmall
+            }
+
+            Tui.TuiSlider {
+                Layout.fillWidth: true
+                value: (6500 - Hyprsunset.temperature) / 4500.0
+                filledColor: Theme.nord13
+                onValueCommitted: v => Hyprsunset.setTemperatureAndEnable(
+                    Math.round((6500 - v * 4500) / 100) * 100)
+            }
+
+            Tui.TuiText {
+                text: "warm"
+                textColor: Theme.textMuted
+                font.pixelSize: Theme.fontSizeSmall
+            }
+        }
+
         // ─── Spacer ─────────────────────────────────────────────────
         Item { Layout.fillHeight: true }
 
         // ─── Help bar ────────────────────────────────────────────────
         Tui.TuiText {
             Layout.fillWidth: true
-            text: "-/+ adjust  0 min  9 max  [/] device"
+            text: "-/+ dim  0/9 min/max  e eye  [/] temp"
             textColor: Theme.textMuted
             font.pixelSize: Theme.fontSizeSmall
             elide: Text.ElideRight

@@ -18,7 +18,7 @@ Item {
         { key: "t",     label: "terminal" },
         { key: "b",     label: "browser" },
         { key: "e",     label: "files" },
-        { key: "o",     label: "panel" },
+        { key: "p",     label: "panel" },
         { key: "w",     label: "close" },
         { key: "s",     label: "screenshot" },
         { key: "c",     label: "controls" },

@@ -25,5 +25,6 @@ ShellRoot {
         void(NotificationManager);
         void(FinderServer);
         void(PreviewQueue);
+        Hyprsunset.reload();
     }
 }
